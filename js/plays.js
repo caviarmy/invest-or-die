@@ -1,30 +1,42 @@
 const FALLBACK_PARTICIPANTS = [
-  { user_id: null, display_name: 'Participant A', sort_order: 1, active: true, is_admin: false },
-  { user_id: null, display_name: 'Participant B', sort_order: 2, active: true, is_admin: false },
-  { user_id: null, display_name: 'Participant C', sort_order: 3, active: true, is_admin: false }
+  { user_id: null, display_name: 'Covey', sort_order: 1, active: true, is_admin: false },
+  { user_id: null, display_name: 'Cal', sort_order: 2, active: true, is_admin: false },
+  { user_id: null, display_name: 'Charbonneau', sort_order: 3, active: true, is_admin: false }
 ];
 
 export function fallbackDashboardData() {
-  return { participants: FALLBACK_PARTICIPANTS, plays: [], winner: null };
+  return {
+    participants: FALLBACK_PARTICIPANTS,
+    plays: [],
+    winner: null,
+    history: [],
+    settings: { current_week: 6, weekly_stock_buy_min: 5 }
+  };
 }
 
 export async function loadDashboardData(client) {
   if (!client) return fallbackDashboardData();
 
-  const [participantsResult, playsResult, winnerResult] = await Promise.all([
+  const [participantsResult, playsResult, winnerResult, historyResult, settingsResult] = await Promise.all([
     client.from('participants').select('user_id,display_name,sort_order,active,is_admin').eq('active', true).order('sort_order', { ascending: true }),
     client.from('called_it_plays').select('id,owner_id,slot_number,ticker,company_name,amount_committed,call_price,target_price,call_date,expires_at,research_note,thesis,status,created_at,updated_at').eq('status', 'active').order('slot_number', { ascending: true }),
-    client.from('weekly_winner').select('id,week_start,week_end,winner_name,return_percent,chart_url,updated_at').order('week_end', { ascending: false }).limit(1).maybeSingle()
+    client.from('weekly_winner').select('id,winner_user_id,week_start,week_end,winner_name,return_percent,chart_url,updated_at').order('week_end', { ascending: false }).limit(1).maybeSingle(),
+    client.from('results_history').select('id,event_type,participant_user_id,participant_name,event_date,week_number,week_start,week_end,ticker,return_percent,call_price,target_price,reward_amount,created_at').order('event_date', { ascending: false }).order('created_at', { ascending: false }),
+    client.from('game_settings').select('current_week,weekly_stock_buy_min').eq('id', 'main').maybeSingle()
   ]);
 
   if (participantsResult.error) throw participantsResult.error;
   if (playsResult.error) throw playsResult.error;
   if (winnerResult.error) throw winnerResult.error;
+  if (historyResult.error) throw historyResult.error;
+  if (settingsResult.error) throw settingsResult.error;
 
   return {
     participants: participantsResult.data || [],
     plays: playsResult.data || [],
-    winner: winnerResult.data || null
+    winner: winnerResult.data || null,
+    history: historyResult.data || [],
+    settings: settingsResult.data || { current_week: 6, weekly_stock_buy_min: 5 }
   };
 }
 
@@ -93,12 +105,32 @@ export async function cancelPlay(client, play) {
   if (error) throw error;
 }
 
+export async function cashOutCalledIt(client, play) {
+  if (!client || !play?.id) throw new Error('There is no active play to cash out.');
+  const { error } = await client.from('called_it_plays').update({ status: 'called_it' }).eq('id', play.id);
+  if (error) throw error;
+}
+
 export async function replacePlay(client, currentPlay, payload) {
   if (!client || !currentPlay?.id) throw new Error('There is no active play to replace.');
   const { error: cancelError } = await client.from('called_it_plays').update({ status: 'cancelled' }).eq('id', currentPlay.id);
   if (cancelError) throw cancelError;
   const { error: insertError } = await client.from('called_it_plays').insert(payload);
   if (insertError) throw insertError;
+}
+
+export async function saveGameSettings(client, currentWeek, weeklyStockBuyMin = 5) {
+  if (!client) throw new Error('Admin editing is not available yet.');
+  const week = Number(currentWeek);
+  const weeklyMin = Number(weeklyStockBuyMin);
+  if (!Number.isInteger(week) || week < 1) throw new Error('Enter a valid game week.');
+  if (!Number.isFinite(weeklyMin) || weeklyMin <= 0) throw new Error('Enter a valid weekly purchase amount.');
+  const { error } = await client.from('game_settings').update({
+    current_week: week,
+    weekly_stock_buy_min: weeklyMin,
+    updated_at: new Date().toISOString()
+  }).eq('id', 'main');
+  if (error) throw error;
 }
 
 export async function saveWeeklyWinner(client, values, chartFile) {
@@ -116,6 +148,7 @@ export async function saveWeeklyWinner(client, values, chartFile) {
   }
 
   const payload = {
+    winner_user_id: values.winner_user_id || null,
     week_start: values.week_start,
     week_end: values.week_end,
     winner_name: values.winner_name.trim(),
