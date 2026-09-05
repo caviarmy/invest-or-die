@@ -1,0 +1,1 @@
+Temporary connector write-permission test. Safe to delete.
