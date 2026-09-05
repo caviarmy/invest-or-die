@@ -31,8 +31,10 @@ export async function loadDashboardData(client) {
   if (historyResult.error) throw historyResult.error;
   if (settingsResult.error) throw settingsResult.error;
 
+  const participants = participantsResult.data?.length ? participantsResult.data : FALLBACK_PARTICIPANTS;
+
   return {
-    participants: participantsResult.data || [],
+    participants,
     plays: playsResult.data || [],
     winner: winnerResult.data || null,
     history: historyResult.data || [],
