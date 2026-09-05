@@ -66,13 +66,13 @@ function renderTracker() {
   const total = week * weeklyMin;
   els.currentWeekValue.textContent = `Week ${week}`;
   els.purchaseMinimumValue.textContent = money(total);
-  els.purchaseMinimumNote.textContent = `At least ${money(total)} of stock bought total (${money(weeklyMin)} × ${week} weeks). Current value does not matter.`;
+  els.purchaseMinimumNote.textContent = `At least ${money(total)} of stock bought total (${money(weeklyMin)} × ${week} weeks). Current portfolio value does not matter.`;
 }
 
 function renderWinner() {
   const winner = state.data.winner;
   if (!winner) {
-    els.winnerContent.innerHTML = '<h1>Winner not posted yet.</h1><p class="muted">This week\'s result will show here after it is entered.</p>';
+    els.winnerContent.innerHTML = '<div class="winner-name winner-empty">Winner not posted yet.</div><p class="muted">This week\'s result will show here after it is entered.</p>';
     els.winnerChartWrap.hidden = true;
     return;
   }
