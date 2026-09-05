@@ -1,5 +1,5 @@
 import { backendIsConfigured, getSessionState, signIn, signOut } from './auth.js';
-import { buildPlayPayload, cancelPlay, fallbackDashboardData, getOwnerSlots, loadDashboardData, replacePlay, savePlay, saveWeeklyWinner } from './plays.js';
+import { buildPlayPayload, cancelPlay, cashOutCalledIt, fallbackDashboardData, getOwnerSlots, loadDashboardData, replacePlay, savePlay, saveWeeklyWinner, saveGameSettings } from './plays.js';
 
 const state = {
   session: { configured: false, client: null, user: null, profile: null },
@@ -16,6 +16,14 @@ const els = {
   winnerContent: document.getElementById('winnerContent'),
   winnerChartWrap: document.getElementById('winnerChartWrap'),
   winnerChart: document.getElementById('winnerChart'),
+  currentWeekValue: document.getElementById('currentWeekValue'),
+  purchaseMinimumValue: document.getElementById('purchaseMinimumValue'),
+  purchaseMinimumNote: document.getElementById('purchaseMinimumNote'),
+  weeklyLeaderName: document.getElementById('weeklyLeaderName'),
+  weeklyLeaderCount: document.getElementById('weeklyLeaderCount'),
+  calledLeaderName: document.getElementById('calledLeaderName'),
+  calledLeaderCount: document.getElementById('calledLeaderCount'),
+  historyTableBody: document.getElementById('historyTableBody'),
   authModal: document.getElementById('authModal'),
   authForm: document.getElementById('authForm'),
   authEmail: document.getElementById('authEmail'),
@@ -29,6 +37,7 @@ const els = {
   weekMessage: document.getElementById('weekMessage'),
   winnerNameInput: document.getElementById('winnerNameInput'),
   winnerReturnInput: document.getElementById('winnerReturnInput'),
+  currentWeekInput: document.getElementById('currentWeekInput'),
   weekStartInput: document.getElementById('weekStartInput'),
   weekEndInput: document.getElementById('weekEndInput'),
   winnerChartInput: document.getElementById('winnerChartInput')
@@ -41,14 +50,23 @@ function escapeHtml(value) {
 function money(value) {
   const number = Number(value);
   if (!Number.isFinite(number)) return '—';
-  return number.toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: number < 100 ? 2 : 0, maximumFractionDigits: 2 });
+  return number.toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: Number.isInteger(number) ? 0 : 2, maximumFractionDigits: 2 });
 }
 
 function formatDate(value) {
   if (!value) return '—';
   const date = new Date(`${value}T12:00:00`);
   if (Number.isNaN(date.getTime())) return escapeHtml(value);
-  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function renderTracker() {
+  const week = Number(state.data.settings?.current_week) || 1;
+  const weeklyMin = Number(state.data.settings?.weekly_stock_buy_min) || 5;
+  const total = week * weeklyMin;
+  els.currentWeekValue.textContent = `Week ${week}`;
+  els.purchaseMinimumValue.textContent = money(total);
+  els.purchaseMinimumNote.textContent = `At least ${money(total)} of stock bought total (${money(weeklyMin)} × ${week} weeks). Current value does not matter.`;
 }
 
 function renderWinner() {
@@ -72,7 +90,7 @@ function renderWinner() {
   }
 }
 
-function playMarkup(play, slotNumber) {
+function playMarkup(play, slotNumber, canCashOut) {
   if (!play) {
     return `<div class="play-slot empty-slot"><div class="slot-label">PLAY ${slotNumber}</div><b>Open slot</b><span>No active call.</span></div>`;
   }
@@ -87,11 +105,13 @@ function playMarkup(play, slotNumber) {
     </div>
     ${play.research_note ? `<div class="play-copy"><strong>What I found:</strong> ${escapeHtml(play.research_note)}</div>` : ''}
     ${play.thesis ? `<div class="play-copy"><strong>My call:</strong> ${escapeHtml(play.thesis)}</div>` : ''}
+    ${canCashOut ? `<button class="cashout-button" type="button" data-cashout-id="${escapeHtml(play.id)}">Cash Out Called It! +$5</button>` : ''}
   </div>`;
 }
 
 function renderParticipants() {
   const userId = state.session.user?.id || null;
+  const isAdmin = Boolean(state.session.profile?.is_admin);
   els.participantsGrid.innerHTML = state.data.participants.map(participant => {
     const slots = getOwnerSlots(state.data.plays, participant.user_id);
     const isYou = Boolean(userId && participant.user_id === userId);
@@ -100,8 +120,67 @@ function renderParticipants() {
         <div class="participant-name">${escapeHtml(participant.display_name)}</div>
         ${isYou ? '<span class="you-badge">YOU</span>' : ''}
       </div>
-      <div class="slot-list">${playMarkup(slots[0], 1)}${playMarkup(slots[1], 2)}</div>
+      <div class="slot-list">${playMarkup(slots[0], 1, isAdmin)}${playMarkup(slots[1], 2, isAdmin)}</div>
     </article>`;
+  }).join('');
+
+  els.participantsGrid.querySelectorAll('[data-cashout-id]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const play = state.data.plays.find(item => item.id === button.dataset.cashoutId);
+      if (!play || !state.session.profile?.is_admin) return;
+      const participant = state.data.participants.find(item => item.user_id === play.owner_id);
+      if (!confirm(`Cash out ${participant?.display_name || 'this player'}'s ${play.ticker} Called It! for $5? This closes the play and adds it to History.`)) return;
+      try {
+        button.disabled = true;
+        button.textContent = 'Cashing out…';
+        await cashOutCalledIt(state.session.client, play);
+        await refreshData();
+      } catch (error) {
+        els.dashboardStatus.textContent = error.message || 'Could not cash out the Called It!';
+      }
+    });
+  });
+}
+
+function leaderFor(type) {
+  const counts = new Map();
+  state.data.history.filter(row => row.event_type === type).forEach(row => {
+    const key = row.participant_name || 'Unknown';
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+  if (!counts.size) return { name: 'No wins yet', count: 0 };
+  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  const max = sorted[0][1];
+  const leaders = sorted.filter(([, count]) => count === max).map(([name]) => name);
+  return { name: leaders.join(' + '), count: max };
+}
+
+function renderHistory() {
+  const weekly = leaderFor('weekly_win');
+  const called = leaderFor('called_it');
+  els.weeklyLeaderName.textContent = weekly.name;
+  els.weeklyLeaderCount.textContent = `${weekly.count} ${weekly.count === 1 ? 'win' : 'wins'}`;
+  els.calledLeaderName.textContent = called.name;
+  els.calledLeaderCount.textContent = `${called.count} ${called.count === 1 ? 'win' : 'wins'}`;
+
+  if (!state.data.history.length) {
+    els.historyTableBody.innerHTML = '<tr><td colspan="5" class="history-empty">No results recorded yet.</td></tr>';
+    return;
+  }
+
+  els.historyTableBody.innerHTML = state.data.history.map(row => {
+    const isWeekly = row.event_type === 'weekly_win';
+    const result = isWeekly ? 'Win the Week' : 'Called It!';
+    const details = isWeekly
+      ? `${Number(row.return_percent) > 0 ? '+' : ''}${Number(row.return_percent).toFixed(2)}%${row.week_number ? ` · Week ${row.week_number}` : ''}`
+      : `${escapeHtml(row.ticker || '')}${row.target_price ? ` · target ${money(row.target_price)}` : ''}`;
+    return `<tr>
+      <td>${formatDate(row.event_date)}</td>
+      <td><strong>${escapeHtml(row.participant_name)}</strong></td>
+      <td><span class="history-type ${isWeekly ? 'history-type-week' : 'history-type-call'}">${result}</span></td>
+      <td>${details}</td>
+      <td class="history-prize">${money(row.reward_amount)}</td>
+    </tr>`;
   }).join('');
 }
 
@@ -112,19 +191,26 @@ function renderAccount() {
   els.accountLabel.hidden = !signedIn;
   els.accountLabel.textContent = signedIn ? `Signed in as ${profile?.display_name || 'account'}` : '';
   els.adminWeekButton.hidden = !profile?.is_admin;
+  els.editMyPlaysButton.hidden = Boolean(profile?.is_admin && !profile?.active);
 }
 
 function renderStatus() {
   if (!backendIsConfigured()) {
-    els.dashboardStatus.textContent = 'Live editing is not enabled yet. The dashboard is ready for the backend connection.';
+    els.dashboardStatus.textContent = 'Live editing is not enabled yet.';
+    return;
+  }
+  if (state.session.user && !state.session.profile) {
+    els.dashboardStatus.textContent = 'This login is not linked to a Goblin Investing profile.';
     return;
   }
   els.dashboardStatus.textContent = state.session.user ? '' : 'Sign in to edit your own two plays.';
 }
 
 function renderAll() {
+  renderTracker();
   renderWinner();
   renderParticipants();
+  renderHistory();
   renderAccount();
   renderStatus();
 }
@@ -157,7 +243,7 @@ function slotFormMarkup(play, slotNumber) {
     <label>Call date<input name="call_date" type="date" value="${escapeHtml(play?.call_date || todayIso())}" required></label>
     <label>What I found<textarea name="research_note" maxlength="800">${escapeHtml(play?.research_note || '')}</textarea></label>
     <label>My call<textarea name="thesis" maxlength="800">${escapeHtml(play?.thesis || '')}</textarea></label>
-    <div class="calc-note">Target price is calculated at +10%. Expiration is calculated four weeks from the call date.</div>
+    <div class="calc-note">Target price is calculated at +10%. Expiration is four weeks from the call date.</div>
     <div class="slot-form-actions">
       <button class="button button-primary" type="submit">Save</button>
       ${play ? '<button class="button button-secondary" type="button" data-replace>Replace Play</button><button class="button button-danger" type="button" data-cancel>Cancel Play</button>' : ''}
@@ -168,15 +254,10 @@ function slotFormMarkup(play, slotNumber) {
 function openEditModal() {
   if (!state.session.user || !state.session.profile) {
     if (backendIsConfigured()) openModal(els.authModal);
-    else {
-      els.dashboardStatus.textContent = 'Editing is not available yet.';
-    }
+    else els.dashboardStatus.textContent = 'Editing is not available yet.';
     return;
   }
-  if (state.session.profile.is_admin && !state.session.profile.active) {
-    els.dashboardStatus.textContent = 'This admin account is not linked to participant play slots.';
-    return;
-  }
+  if (state.session.profile.is_admin && !state.session.profile.active) return;
   const slots = getOwnerSlots(state.data.plays, state.session.user.id);
   els.editSlots.innerHTML = slotFormMarkup(slots[0], 1) + slotFormMarkup(slots[1], 2);
   els.editMessage.textContent = '';
@@ -245,7 +326,6 @@ async function refreshSessionAndData() {
     console.error(error);
     state.session = { configured: backendIsConfigured(), client: null, user: null, profile: null };
     state.data = fallbackDashboardData();
-    els.dashboardStatus.textContent = 'The dashboard could not load live data.';
   }
   renderAll();
 }
@@ -287,8 +367,12 @@ els.authForm.addEventListener('submit', async event => {
 els.editMyPlaysButton.addEventListener('click', openEditModal);
 els.adminWeekButton.addEventListener('click', () => {
   const winner = state.data.winner;
-  els.winnerNameInput.value = winner?.winner_name || '';
+  els.winnerNameInput.innerHTML = '<option value="">Choose winner</option>' + state.data.participants.map(participant =>
+    `<option value="${escapeHtml(participant.user_id)}">${escapeHtml(participant.display_name)}</option>`
+  ).join('');
+  els.winnerNameInput.value = winner?.winner_user_id || '';
   els.winnerReturnInput.value = winner?.return_percent ?? '';
+  els.currentWeekInput.value = state.data.settings?.current_week || 6;
   els.weekStartInput.value = winner?.week_start || '';
   els.weekEndInput.value = winner?.week_end || '';
   els.winnerChartInput.value = '';
@@ -299,11 +383,19 @@ els.adminWeekButton.addEventListener('click', () => {
 els.weekForm.addEventListener('submit', async event => {
   event.preventDefault();
   if (!state.session.profile?.is_admin) return;
+  const participant = state.data.participants.find(item => item.user_id === els.winnerNameInput.value);
+  if (!participant) {
+    els.weekMessage.className = 'form-message error';
+    els.weekMessage.textContent = 'Choose a winner.';
+    return;
+  }
   try {
     els.weekMessage.className = 'form-message';
     els.weekMessage.textContent = 'Saving…';
+    await saveGameSettings(state.session.client, els.currentWeekInput.value, state.data.settings?.weekly_stock_buy_min || 5);
     await saveWeeklyWinner(state.session.client, {
-      winner_name: els.winnerNameInput.value,
+      winner_user_id: participant.user_id,
+      winner_name: participant.display_name,
       return_percent: els.winnerReturnInput.value,
       week_start: els.weekStartInput.value,
       week_end: els.weekEndInput.value,
