@@ -3,7 +3,8 @@ import { buildPlayPayload, cancelPlay, cashOutCalledIt, fallbackDashboardData, g
 
 const state = {
   session: { configured: false, client: null, user: null, profile: null },
-  data: fallbackDashboardData()
+  data: fallbackDashboardData(),
+  editContext: null
 };
 
 const els = {
@@ -30,6 +31,7 @@ const els = {
   authPassword: document.getElementById('authPassword'),
   authMessage: document.getElementById('authMessage'),
   editModal: document.getElementById('editModal'),
+  editTitle: document.getElementById('editTitle'),
   editSlots: document.getElementById('editSlots'),
   editMessage: document.getElementById('editMessage'),
   weekModal: document.getElementById('weekModal'),
@@ -92,7 +94,7 @@ function renderWinner() {
 
 function playMarkup(play, slotNumber, canCashOut) {
   if (!play) {
-    return `<div class="play-slot empty-slot"><div class="slot-label">PLAY ${slotNumber}</div><b>Open slot</b><span>No active call.</span></div>`;
+    return `<div class="play-slot empty-slot"><div class="slot-label">PLAY ${slotNumber}</div><b>Open slot</b><span>No active challenge.</span></div>`;
   }
   return `<div class="play-slot">
     <div class="slot-label">PLAY ${slotNumber}</div>
@@ -118,18 +120,28 @@ function renderParticipants() {
     return `<article class="participant-card">
       <div class="participant-head">
         <div class="participant-name">${escapeHtml(participant.display_name)}</div>
-        ${isYou ? '<span class="you-badge">YOU</span>' : ''}
+        <div class="participant-actions">
+          ${isYou ? '<span class="you-badge">YOU</span>' : ''}
+          ${isAdmin ? `<button class="admin-edit-button" type="button" data-edit-owner="${escapeHtml(participant.user_id)}">Edit</button>` : ''}
+        </div>
       </div>
       <div class="slot-list">${playMarkup(slots[0], 1, isAdmin)}${playMarkup(slots[1], 2, isAdmin)}</div>
     </article>`;
   }).join('');
+
+  els.participantsGrid.querySelectorAll('[data-edit-owner]').forEach(button => {
+    button.addEventListener('click', () => {
+      const participant = state.data.participants.find(item => item.user_id === button.dataset.editOwner);
+      if (participant) openEditModal(participant);
+    });
+  });
 
   els.participantsGrid.querySelectorAll('[data-cashout-id]').forEach(button => {
     button.addEventListener('click', async () => {
       const play = state.data.plays.find(item => item.id === button.dataset.cashoutId);
       if (!play || !state.session.profile?.is_admin) return;
       const participant = state.data.participants.find(item => item.user_id === play.owner_id);
-      if (!confirm(`Cash out ${participant?.display_name || 'this player'}'s ${play.ticker} Called It! for $5? This closes the play and adds it to History.`)) return;
+      if (!confirm(`Cash out ${participant?.display_name || 'this player'}'s ${play.ticker} Called It! for $5? This closes the challenge and adds it to The Receipts.`)) return;
       try {
         button.disabled = true;
         button.textContent = 'Cashing out…';
@@ -162,25 +174,17 @@ function renderHistory() {
   els.weeklyLeaderCount.textContent = `${weekly.count} ${weekly.count === 1 ? 'win' : 'wins'}`;
   els.calledLeaderName.textContent = called.name;
   els.calledLeaderCount.textContent = `${called.count} ${called.count === 1 ? 'win' : 'wins'}`;
-
   if (!state.data.history.length) {
     els.historyTableBody.innerHTML = '<tr><td colspan="5" class="history-empty">No results recorded yet.</td></tr>';
     return;
   }
-
   els.historyTableBody.innerHTML = state.data.history.map(row => {
     const isWeekly = row.event_type === 'weekly_win';
     const result = isWeekly ? 'Win the Week' : 'Called It!';
     const details = isWeekly
       ? `${Number(row.return_percent) > 0 ? '+' : ''}${Number(row.return_percent).toFixed(2)}%${row.week_number ? ` · Week ${row.week_number}` : ''}`
       : `${escapeHtml(row.ticker || '')}${row.target_price ? ` · target ${money(row.target_price)}` : ''}`;
-    return `<tr>
-      <td>${formatDate(row.event_date)}</td>
-      <td><strong>${escapeHtml(row.participant_name)}</strong></td>
-      <td><span class="history-type ${isWeekly ? 'history-type-week' : 'history-type-call'}">${result}</span></td>
-      <td>${details}</td>
-      <td class="history-prize">${money(row.reward_amount)}</td>
-    </tr>`;
+    return `<tr><td>${formatDate(row.event_date)}</td><td><strong>${escapeHtml(row.participant_name)}</strong></td><td><span class="history-type">${result}</span></td><td>${details}</td><td class="history-prize">${money(row.reward_amount)}</td></tr>`;
   }).join('');
 }
 
@@ -203,7 +207,11 @@ function renderStatus() {
     els.dashboardStatus.textContent = 'This login is not linked to a Goblin Investing profile.';
     return;
   }
-  els.dashboardStatus.textContent = state.session.user ? '' : 'Sign in to edit your own two plays.';
+  if (state.session.profile?.is_admin) {
+    els.dashboardStatus.textContent = 'Admin: edit any participant with the Edit button on their card.';
+    return;
+  }
+  els.dashboardStatus.textContent = state.session.user ? '' : 'Sign in to edit your own two challenges.';
 }
 
 function renderAll() {
@@ -244,28 +252,35 @@ function slotFormMarkup(play, slotNumber) {
     <label>What I found<textarea name="research_note" maxlength="800">${escapeHtml(play?.research_note || '')}</textarea></label>
     <label>My call<textarea name="thesis" maxlength="800">${escapeHtml(play?.thesis || '')}</textarea></label>
     <div class="calc-note">Target price is calculated at +10%. Expiration is four weeks from the call date.</div>
-    <div class="slot-form-actions">
-      <button class="button button-primary" type="submit">Save</button>
-      ${play ? '<button class="button button-secondary" type="button" data-replace>Replace Play</button><button class="button button-danger" type="button" data-cancel>Cancel Play</button>' : ''}
-    </div>
+    <div class="slot-form-actions"><button class="button button-primary" type="submit">Save</button>${play ? '<button class="button button-secondary" type="button" data-replace>Replace Play</button><button class="button button-danger" type="button" data-cancel>Cancel Play</button>' : ''}</div>
   </form>`;
 }
 
-function openEditModal() {
+function openEditModal(participant = null) {
   if (!state.session.user || !state.session.profile) {
     if (backendIsConfigured()) openModal(els.authModal);
     else els.dashboardStatus.textContent = 'Editing is not available yet.';
     return;
   }
-  if (state.session.profile.is_admin && !state.session.profile.active) return;
-  const slots = getOwnerSlots(state.data.plays, state.session.user.id);
+
+  const isAdmin = Boolean(state.session.profile.is_admin);
+  const target = participant || state.data.participants.find(item => item.user_id === state.session.user.id);
+  if (!target?.user_id) {
+    els.dashboardStatus.textContent = 'No participant profile was found for this account.';
+    return;
+  }
+  if (!isAdmin && target.user_id !== state.session.user.id) return;
+
+  const slots = getOwnerSlots(state.data.plays, target.user_id);
+  state.editContext = { ownerId: target.user_id, displayName: target.display_name };
+  els.editTitle.textContent = target.user_id === state.session.user.id ? 'Edit my plays' : `Edit ${target.display_name}'s plays`;
   els.editSlots.innerHTML = slotFormMarkup(slots[0], 1) + slotFormMarkup(slots[1], 2);
   els.editMessage.textContent = '';
-  bindEditForms(slots);
+  bindEditForms(slots, target.user_id);
   openModal(els.editModal);
 }
 
-function bindEditForms(slots) {
+function bindEditForms(slots, ownerId) {
   els.editSlots.querySelectorAll('.slot-form').forEach(form => {
     const slotNumber = Number(form.dataset.slot);
     const currentPlay = slots[slotNumber - 1];
@@ -275,14 +290,14 @@ function bindEditForms(slots) {
       try {
         els.editMessage.className = 'form-message';
         els.editMessage.textContent = 'Saving…';
-        const payload = buildPlayPayload(new FormData(form), state.session.user.id, slotNumber);
+        const payload = buildPlayPayload(new FormData(form), ownerId, slotNumber);
         await savePlay(state.session.client, currentPlay, payload);
         await refreshData();
-        els.editMessage.textContent = 'Saved.';
-        openEditModal();
+        const participant = state.data.participants.find(item => item.user_id === ownerId);
+        if (participant) openEditModal(participant);
       } catch (error) {
         els.editMessage.className = 'form-message error';
-        els.editMessage.textContent = error.message || 'Could not save the play.';
+        els.editMessage.textContent = error.message || 'Could not save the challenge.';
       }
     });
 
@@ -291,23 +306,25 @@ function bindEditForms(slots) {
       try {
         await cancelPlay(state.session.client, currentPlay);
         await refreshData();
-        openEditModal();
+        const participant = state.data.participants.find(item => item.user_id === ownerId);
+        if (participant) openEditModal(participant);
       } catch (error) {
         els.editMessage.className = 'form-message error';
-        els.editMessage.textContent = error.message || 'Could not cancel the play.';
+        els.editMessage.textContent = error.message || 'Could not cancel the challenge.';
       }
     });
 
     form.querySelector('[data-replace]')?.addEventListener('click', async () => {
-      if (!confirm(`Replace Play ${slotNumber}? The current play will be cancelled and the form values will become the new call.`)) return;
+      if (!confirm(`Replace Play ${slotNumber}? The current challenge will be cancelled and the form values will become the new challenge.`)) return;
       try {
-        const payload = buildPlayPayload(new FormData(form), state.session.user.id, slotNumber);
+        const payload = buildPlayPayload(new FormData(form), ownerId, slotNumber);
         await replacePlay(state.session.client, currentPlay, payload);
         await refreshData();
-        openEditModal();
+        const participant = state.data.participants.find(item => item.user_id === ownerId);
+        if (participant) openEditModal(participant);
       } catch (error) {
         els.editMessage.className = 'form-message error';
-        els.editMessage.textContent = error.message || 'Could not replace the play.';
+        els.editMessage.textContent = error.message || 'Could not replace the challenge.';
       }
     });
   });
@@ -364,12 +381,11 @@ els.authForm.addEventListener('submit', async event => {
   await refreshSessionAndData();
 });
 
-els.editMyPlaysButton.addEventListener('click', openEditModal);
+els.editMyPlaysButton.addEventListener('click', () => openEditModal());
+
 els.adminWeekButton.addEventListener('click', () => {
   const winner = state.data.winner;
-  els.winnerNameInput.innerHTML = '<option value="">Choose winner</option>' + state.data.participants.map(participant =>
-    `<option value="${escapeHtml(participant.user_id)}">${escapeHtml(participant.display_name)}</option>`
-  ).join('');
+  els.winnerNameInput.innerHTML = '<option value="">Choose winner</option>' + state.data.participants.map(participant => `<option value="${escapeHtml(participant.user_id)}">${escapeHtml(participant.display_name)}</option>`).join('');
   els.winnerNameInput.value = winner?.winner_user_id || '';
   els.winnerReturnInput.value = winner?.return_percent ?? '';
   els.currentWeekInput.value = state.data.settings?.current_week || 6;
