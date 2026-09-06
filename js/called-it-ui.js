@@ -77,8 +77,10 @@ export function linkifyPlainText(value) {
 }
 
 export function targetMetFromLastCheck(play) {
-  const price = Number(play?.last_checked_price);
-  if (!Number.isFinite(price) || play?.status !== 'active') return false;
+  const rawPrice = play?.last_checked_price;
+  if (rawPrice === null || rawPrice === undefined || rawPrice === '' || !play?.last_checked_at) return false;
+  const price = Number(rawPrice);
+  if (!Number.isFinite(price) || price <= 0 || play?.status !== 'active') return false;
   if (play.direction === 'up') return price >= Number(play.target_price);
   if (play.direction === 'down') return price <= Number(play.target_price);
   if (play.direction === 'flat') {
@@ -113,7 +115,8 @@ export function challengeCardMarkup(play, slotNumber, options = {}) {
 
   const qualified = targetMetFromLastCheck(play);
   const review = play.status === 'under_review';
-  const current = play.last_checked_price ? `<div><span>CURRENT</span><b>${money(play.last_checked_price)}</b></div>` : '';
+  const hasCheckedPrice = play.last_checked_price !== null && play.last_checked_price !== undefined && play.last_checked_price !== '' && Boolean(play.last_checked_at);
+  const current = hasCheckedPrice ? `<div><span>CURRENT</span><b>${money(play.last_checked_price)}</b></div>` : '';
   const checked = play.last_checked_at ? `<div><span>CHECKED</span><b>${formatDateTime(play.last_checked_at)}</b></div>` : '';
   const buttons = review ? '' : canManage ? `
     <button class="button button-secondary challenge-action" type="button" data-check-id="${escapeHtml(play.id)}">Check Price</button>
@@ -170,4 +173,34 @@ export function challengeFormMarkup(slotNumber, play = null, isAdminEdit = false
     ${isAdminEdit && play ? '<div class="calc-note">Changing the ticker or prediction starts the challenge over at a fresh market price.</div>' : ''}
     <div class="slot-form-actions"><button class="button button-primary" type="submit">${isAdminEdit ? 'Save Changes' : 'Save Challenge'}</button>${play?.id ? `<button class="button button-danger" type="button" data-cancel-id="${escapeHtml(play.id)}">Cancel Challenge</button>` : ''}</div>
   </form>`;
+}
+
+// app.js intentionally keeps the Called It modal open after a successful save so it can
+// redraw the slot manager. Close it after the dashboard refresh instead. A failed save
+// does not refresh the participant grid, so errors remain visible in the open modal.
+let pendingCalledItSave = false;
+let pendingCalledItSaveTimer = null;
+
+document.addEventListener('submit', event => {
+  if (!event.target?.matches?.('.called-it-form')) return;
+  pendingCalledItSave = true;
+  clearTimeout(pendingCalledItSaveTimer);
+  pendingCalledItSaveTimer = setTimeout(() => { pendingCalledItSave = false; }, 15000);
+}, true);
+
+const participantsGrid = document.getElementById('participantsGrid');
+if (participantsGrid) {
+  const saveObserver = new MutationObserver(() => {
+    if (!pendingCalledItSave) return;
+    pendingCalledItSave = false;
+    clearTimeout(pendingCalledItSaveTimer);
+    setTimeout(() => {
+      const editModal = document.getElementById('editModal');
+      if (!editModal?.classList.contains('open')) return;
+      editModal.classList.remove('open');
+      editModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }, 0);
+  });
+  saveObserver.observe(participantsGrid, { childList: true, subtree: true });
 }
