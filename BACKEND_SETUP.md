@@ -1,102 +1,181 @@
-# Goblin Investing Backend Setup
+# Goblin Investing Backend
 
-The public site is deployable without a backend, but sign-in, editing, weekly-winner updates, and chart uploads stay disabled until the backend is connected.
+Goblin Investing uses GitHub Pages for the public site and Supabase for authentication, Postgres, Row Level Security, Storage, scheduled reference-data sync, and server-authoritative Called It actions.
 
-Participants never need a Supabase, GitHub, or other vendor account. The backend is infrastructure only.
+Participants interact only with Goblin Investing. They do not need Supabase, GitHub, SEC, or market-data-provider accounts.
 
-## Owner setup required
+## Browser connection
 
-Create one Supabase project and provide ChatGPT only these two browser-safe values:
+The browser uses only the Supabase Project URL and publishable key in `index.html`. These values identify the public Supabase API and are intended for browser use. Authorization is enforced with Supabase Auth and Row Level Security.
 
-- Project URL
-- Publishable key
+Never commit a Supabase secret key, service-role key, market-data API key, or scheduler credential to GitHub.
 
-Do not provide or commit the `service_role` key.
+## Called It authority model
 
-Once those two values exist, add them to the homepage as these two meta tags inside `<head>`:
+The browser can read the public dashboard, active challenges, game settings, ticker reference data, and The Receipts.
 
-- `goblin-supabase-url`
-- `goblin-supabase-publishable-key`
+Challenge mutations go through the `called-it` Edge Function. Participants cannot directly write `called_it_plays` through the Data API.
 
-The current JavaScript automatically detects those tags and enables the live backend.
+The Edge Function is authoritative for:
+
+- authentication and participant ownership;
+- slot availability and review cooldowns;
+- ticker validation;
+- market-price retrieval;
+- starting price and timestamp;
+- prediction percentages and target calculations;
+- challenge expiration and flat claim windows;
+- current-price checks;
+- qualification;
+- fresh price validation when submitting for review;
+- immutable qualifying price/time;
+- review status and cooldown;
+- admin approval/rejection and cooldown reset.
 
 ## Tables
 
-### participants
+### `participants`
 
-This table is a small addition to the original architecture. The architecture defines authenticated user IDs but does not define how the public dashboard turns those IDs into participant display names or how the app identifies the admin account.
+Participant roster and authorization profile.
 
-Fields:
+Important fields:
 
-- `user_id` UUID, linked to the authenticated user
-- `display_name` text
-- `sort_order` integer
-- `active` boolean
-- `is_admin` boolean
+- `user_id`
+- `display_name`
+- `sort_order`
+- `active`
+- `is_admin`
 
-Create three active participant rows. The admin can be a fourth row with `active = false` and `is_admin = true`, or one participant can also be the admin.
+### `called_it_plays`
 
-### called_it_plays
+Stores the full challenge lifecycle. Legacy v1 columns remain nullable for historical compatibility, while v2 uses:
 
-Fields from the architecture:
+- `owner_id`
+- `slot_number`
+- `ticker`
+- `company_name`
+- `exchange`
+- `reference_price`
+- `reference_price_at`
+- `direction`: `up`, `down`, or `flat`
+- `target_percent`
+- `target_price`
+- `target_low`
+- `target_high`
+- `reason`
+- `portfolio_action`: `buy`, `hold`, `sell`, or `not_buying`
+- `action_amount`
+- `expires_at`
+- `claim_until`
+- `last_checked_price`
+- `last_checked_at`
+- `qualifying_price`
+- `qualifying_price_at`
+- `submitted_at`
+- `lock_until`
+- `reviewed_at`
+- `reviewed_by`
+- `review_note`
+- `status`: `active`, `under_review`, `approved`, `rejected`, `cancelled`, or `expired`
 
-- `id` UUID primary key
-- `owner_id` UUID
-- `slot_number` integer, only 1 or 2
-- `ticker` text
-- `company_name` text, nullable
-- `amount_committed` numeric
-- `call_price` numeric
-- `target_price` numeric
-- `call_date` date
-- `expires_at` date
-- `research_note` text, nullable
-- `thesis` text, nullable
-- `status` text: `active`, `called_it`, `cancelled`, or `expired`
-- `created_at` timestamp
-- `updated_at` timestamp
+At most one `active` or `under_review` challenge may occupy a participant slot.
 
-The database should prevent more than one active record for the same `owner_id` + `slot_number` while still allowing old cancelled/expired records to remain as history.
+### `game_settings`
 
-### weekly_winner
+Called It difficulty and timing live in data so they can be changed without a frontend deploy.
 
-Fields from the architecture:
+Current defaults:
 
-- `id` UUID primary key
-- `week_start` date
-- `week_end` date
-- `winner_name` text
-- `return_percent` numeric
-- `chart_url` text, nullable
-- `updated_at` timestamp
+- Goes Up: `15%`
+- Goes Down: `15%`
+- Finish About the Same: `±3%`
+- Challenge length: `28 days`
+- Review cooldown: `7 days`
+- Flat claim window: `7 days`
+- Approved payout: `$5`
+
+### `securities`
+
+Reference data for ticker autocomplete. It contains ticker, company name, exchange, CIK, active status, source timestamps, and sync metadata.
+
+This is not a price source.
+
+### `market_quote_cache`
+
+Short-lived internal quote cache. It is not readable or writable by browser roles.
+
+### `results_history`
+
+The Receipts. Called It rows are inserted when a challenge is submitted and updated when it is approved or rejected. The Called It leaderboard counts Approved rows only.
+
+### `weekly_winner`
+
+Current and historical Win the Week data remains separate from Called It.
+
+## Edge Functions
+
+### `called-it`
+
+Authenticated participant/admin challenge API.
+
+Actions:
+
+- `preview`
+- `create`
+- `check`
+- `submit`
+- `cancel`
+- `admin_edit`
+- `review`
+- `reset_cooldown`
+
+The function deliberately fails closed if a market quote cannot be obtained.
+
+### `sync-securities`
+
+Fetches the SEC `company_tickers_exchange.json` reference file and refreshes `securities`.
+
+The scheduled invocation uses a private random key stored in Supabase Vault. An authenticated admin can also invoke the function manually.
+
+The production database schedules this sync daily.
+
+## Market-data provider
+
+The `called-it` function currently uses Twelve Data through a provider adapter. The API key stays server-side.
+
+The function first looks for an Edge Function environment secret named:
+
+`TWELVE_DATA_API_KEY`
+
+If that is not set, it can read a Supabase Vault secret named:
+
+`twelve_data_api_key`
+
+Example owner-only SQL for adding the Vault secret:
+
+```sql
+select vault.create_secret('YOUR_TWELVE_DATA_API_KEY', 'twelve_data_api_key');
+```
+
+Do not put the actual key in this repository or in browser JavaScript.
+
+Provider licensing and quote entitlements should be reviewed before the site is used beyond the family/educational context.
 
 ## Storage
 
-Create a public bucket named `weekly-charts`.
+The public bucket `weekly-charts` stores the current Win the Week chart. The admin UI overwrites `current.<extension>` rather than retaining an image archive.
 
-The admin UI overwrites a single object named `current.<extension>` instead of building a weekly image archive.
+## Authorization
 
-## Required authorization behavior
+Row Level Security is enabled on exposed public tables.
 
-Enable Row Level Security on all exposed tables and configure database grants/policies so that:
+- signed-out visitors can read active participants, current challenges, game settings, securities, weekly winner data, and The Receipts;
+- signed-out visitors cannot mutate data;
+- authenticated participants can read their own challenge history in addition to the public challenge state;
+- participants cannot directly insert/update/delete challenge rows;
+- challenge writes are validated by the Edge Function against the authenticated user;
+- admins can manage all participant challenges through the same server-authoritative API;
+- only admins can change game settings and weekly winner data;
+- internal quote cache, scheduler settings, and secrets are not exposed to browser roles.
 
-- signed-out visitors can read active participant names, active Called It! plays, and the current weekly winner
-- signed-out visitors cannot insert, update, or delete anything
-- signed-in participants can create and modify only rows whose `owner_id` matches their authenticated user ID
-- a participant cannot change a play to another `owner_id`
-- participants cannot edit weekly-winner data
-- only the admin account can insert/update weekly-winner data
-- only the admin account can upload/replace the object in `weekly-charts`
-- only the admin can change participant/profile rows
-
-Frontend button visibility is convenience only. The database/storage policies must enforce all authorization even if someone manually changes browser requests.
-
-## Auth
-
-Create accounts for the three participants and the admin. Open public registration is not needed.
-
-The site uses email + password sign-in directly inside Goblin Investing. Participants do not visit a Supabase-hosted login page.
-
-## Final connection step
-
-After the project, tables, policies, storage bucket, and accounts exist, provide ChatGPT the Project URL and Publishable key. The repository can then be connected without adding any privileged secret to GitHub.
+Frontend controls are convenience only. Authorization is enforced by the backend.
