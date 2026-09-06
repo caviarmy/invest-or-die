@@ -1,0 +1,5 @@
+[functions.called-it]
+verify_jwt = false
+
+[functions.sync-securities]
+verify_jwt = false

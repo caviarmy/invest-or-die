@@ -4,13 +4,25 @@ const FALLBACK_PARTICIPANTS = [
   { user_id: null, display_name: 'Charbonneau', sort_order: 3, active: true, is_admin: false }
 ];
 
+const FALLBACK_SETTINGS = {
+  current_week: 6,
+  weekly_stock_buy_min: 5,
+  called_it_up_percent: 15,
+  called_it_down_percent: 15,
+  called_it_flat_percent: 3,
+  called_it_duration_days: 28,
+  called_it_review_lock_days: 7,
+  called_it_flat_claim_days: 7,
+  called_it_payout: 5
+};
+
 export function fallbackDashboardData() {
   return {
     participants: FALLBACK_PARTICIPANTS,
     plays: [],
     winner: null,
     history: [],
-    settings: { current_week: 6, weekly_stock_buy_min: 5 }
+    settings: { ...FALLBACK_SETTINGS }
   };
 }
 
@@ -19,10 +31,10 @@ export async function loadDashboardData(client) {
 
   const [participantsResult, playsResult, winnerResult, historyResult, settingsResult] = await Promise.all([
     client.from('participants').select('user_id,display_name,sort_order,active,is_admin').eq('active', true).order('sort_order', { ascending: true }),
-    client.from('called_it_plays').select('id,owner_id,slot_number,ticker,company_name,amount_committed,call_price,target_price,call_date,expires_at,research_note,thesis,status,created_at,updated_at').eq('status', 'active').order('slot_number', { ascending: true }),
+    client.from('called_it_plays').select('id,owner_id,slot_number,ticker,company_name,exchange,reference_price,reference_price_at,direction,target_percent,target_price,target_low,target_high,reason,portfolio_action,action_amount,expires_at,claim_until,last_checked_price,last_checked_at,qualifying_price,qualifying_price_at,submitted_at,lock_until,reviewed_at,reviewed_by,review_note,status,created_at,updated_at').order('created_at', { ascending: false }),
     client.from('weekly_winner').select('id,winner_user_id,week_start,week_end,winner_name,return_percent,chart_url,updated_at').order('week_end', { ascending: false }).limit(1).maybeSingle(),
-    client.from('results_history').select('id,event_type,participant_user_id,participant_name,event_date,week_number,week_start,week_end,ticker,return_percent,call_price,target_price,reward_amount,created_at').order('event_date', { ascending: false }).order('created_at', { ascending: false }),
-    client.from('game_settings').select('current_week,weekly_stock_buy_min').eq('id', 'main').maybeSingle()
+    client.from('results_history').select('id,event_type,participant_user_id,participant_name,event_date,week_number,week_start,week_end,ticker,return_percent,call_price,target_price,target_low,target_high,direction,starting_price,qualifying_price,submitted_at,reviewed_at,status,review_note,reward_amount,source_table,source_id,created_at').order('event_date', { ascending: false }).order('created_at', { ascending: false }),
+    client.from('game_settings').select('current_week,weekly_stock_buy_min,called_it_up_percent,called_it_down_percent,called_it_flat_percent,called_it_duration_days,called_it_review_lock_days,called_it_flat_claim_days,called_it_payout').eq('id', 'main').maybeSingle()
   ]);
 
   if (participantsResult.error) throw participantsResult.error;
@@ -38,100 +50,46 @@ export async function loadDashboardData(client) {
     plays: playsResult.data || [],
     winner: winnerResult.data || null,
     history: historyResult.data || [],
-    settings: settingsResult.data || { current_week: 6, weekly_stock_buy_min: 5 }
+    settings: { ...FALLBACK_SETTINGS, ...(settingsResult.data || {}) }
   };
 }
 
 export function getOwnerSlots(plays, ownerId) {
-  return [1, 2].map(slotNumber => plays.find(play => play.owner_id === ownerId && Number(play.slot_number) === slotNumber) || null);
+  const now = Date.now();
+  return [1, 2].map(slotNumber => {
+    const slotRows = (plays || []).filter(play => play.owner_id === ownerId && Number(play.slot_number) === slotNumber);
+    const current = slotRows.find(play => ['active', 'under_review'].includes(play.status));
+    if (current) return current;
+    return slotRows.find(play => ['approved', 'rejected'].includes(play.status) && play.lock_until && new Date(play.lock_until).getTime() > now) || null;
+  });
 }
 
-function normalizeTicker(value) {
-  return String(value || '').trim().toUpperCase();
-}
-
-function toIsoDate(value) {
-  const date = new Date(`${value}T12:00:00`);
-  if (Number.isNaN(date.getTime())) throw new Error('Choose a valid call date.');
-  return date;
-}
-
-export function buildPlayPayload(formData, ownerId, slotNumber) {
-  const ticker = normalizeTicker(formData.get('ticker'));
-  const amount = Number(formData.get('amount_committed'));
-  const callPrice = Number(formData.get('call_price'));
-  const callDateValue = String(formData.get('call_date') || '');
-  const researchNote = String(formData.get('research_note') || '').trim();
-  const thesis = String(formData.get('thesis') || '').trim();
-
-  if (!ownerId) throw new Error('Your account is not linked to a participant profile.');
-  if (!/^[A-Z0-9.\-]{1,12}$/.test(ticker)) throw new Error('Ticker must be 1 to 12 letters, numbers, dots, or dashes.');
-  if (!Number.isFinite(amount) || amount < 5 || amount > 1000000) throw new Error('Amount committed must be at least $5.');
-  if (!Number.isFinite(callPrice) || callPrice <= 0 || callPrice > 1000000) throw new Error('Enter a valid call price.');
-  if (researchNote.length > 800) throw new Error('What I found must be 800 characters or less.');
-  if (thesis.length > 800) throw new Error('My call must be 800 characters or less.');
-
-  const callDate = toIsoDate(callDateValue);
-  const expiresAt = new Date(callDate);
-  expiresAt.setDate(expiresAt.getDate() + 28);
-
-  return {
-    owner_id: ownerId,
-    slot_number: slotNumber,
-    ticker,
-    amount_committed: Number(amount.toFixed(2)),
-    call_price: Number(callPrice.toFixed(4)),
-    target_price: Number((callPrice * 1.10).toFixed(4)),
-    call_date: callDateValue,
-    expires_at: expiresAt.toISOString().slice(0, 10),
-    research_note: researchNote || null,
-    thesis: thesis || null,
-    status: 'active'
-  };
-}
-
-export async function savePlay(client, currentPlay, payload) {
-  if (!client) throw new Error('Editing is not available yet.');
-  if (currentPlay?.id) {
-    const { error } = await client.from('called_it_plays').update(payload).eq('id', currentPlay.id);
-    if (error) throw error;
-    return;
-  }
-  const { error } = await client.from('called_it_plays').insert(payload);
-  if (error) throw error;
-}
-
-export async function cancelPlay(client, play) {
-  if (!client || !play?.id) throw new Error('There is no active play to cancel.');
-  const { error } = await client.from('called_it_plays').update({ status: 'cancelled' }).eq('id', play.id);
-  if (error) throw error;
-}
-
-export async function cashOutCalledIt(client, play) {
-  if (!client || !play?.id) throw new Error('There is no active play to cash out.');
-  const { error } = await client.from('called_it_plays').update({ status: 'called_it' }).eq('id', play.id);
-  if (error) throw error;
-}
-
-export async function replacePlay(client, currentPlay, payload) {
-  if (!client || !currentPlay?.id) throw new Error('There is no active play to replace.');
-  const { error: cancelError } = await client.from('called_it_plays').update({ status: 'cancelled' }).eq('id', currentPlay.id);
-  if (cancelError) throw cancelError;
-  const { error: insertError } = await client.from('called_it_plays').insert(payload);
-  if (insertError) throw insertError;
-}
-
-export async function saveGameSettings(client, currentWeek, weeklyStockBuyMin = 5) {
+export async function saveGameSettings(client, values) {
   if (!client) throw new Error('Admin editing is not available yet.');
-  const week = Number(currentWeek);
-  const weeklyMin = Number(weeklyStockBuyMin);
-  if (!Number.isInteger(week) || week < 1) throw new Error('Enter a valid game week.');
-  if (!Number.isFinite(weeklyMin) || weeklyMin <= 0) throw new Error('Enter a valid weekly purchase amount.');
-  const { error } = await client.from('game_settings').update({
-    current_week: week,
-    weekly_stock_buy_min: weeklyMin,
+  const payload = {
+    current_week: Number(values.current_week),
+    weekly_stock_buy_min: Number(values.weekly_stock_buy_min),
+    called_it_up_percent: Number(values.called_it_up_percent),
+    called_it_down_percent: Number(values.called_it_down_percent),
+    called_it_flat_percent: Number(values.called_it_flat_percent),
+    called_it_duration_days: Number(values.called_it_duration_days),
+    called_it_review_lock_days: Number(values.called_it_review_lock_days),
+    called_it_flat_claim_days: Number(values.called_it_flat_claim_days),
+    called_it_payout: Number(values.called_it_payout),
     updated_at: new Date().toISOString()
-  }).eq('id', 'main');
+  };
+
+  if (!Number.isInteger(payload.current_week) || payload.current_week < 1) throw new Error('Enter a valid game week.');
+  if (!Number.isFinite(payload.weekly_stock_buy_min) || payload.weekly_stock_buy_min <= 0) throw new Error('Enter a valid weekly purchase amount.');
+  if (!Number.isFinite(payload.called_it_up_percent) || payload.called_it_up_percent <= 0 || payload.called_it_up_percent > 100) throw new Error('Enter a valid Goes Up percentage.');
+  if (!Number.isFinite(payload.called_it_down_percent) || payload.called_it_down_percent <= 0 || payload.called_it_down_percent >= 100) throw new Error('Enter a valid Goes Down percentage.');
+  if (!Number.isFinite(payload.called_it_flat_percent) || payload.called_it_flat_percent <= 0 || payload.called_it_flat_percent > 25) throw new Error('Enter a valid About the Same percentage.');
+  if (!Number.isInteger(payload.called_it_duration_days) || payload.called_it_duration_days < 1) throw new Error('Enter a valid challenge duration.');
+  if (!Number.isInteger(payload.called_it_review_lock_days) || payload.called_it_review_lock_days < 0) throw new Error('Enter a valid review cooldown.');
+  if (!Number.isInteger(payload.called_it_flat_claim_days) || payload.called_it_flat_claim_days < 1) throw new Error('Enter a valid flat claim window.');
+  if (!Number.isFinite(payload.called_it_payout) || payload.called_it_payout < 0) throw new Error('Enter a valid Called It payout.');
+
+  const { error } = await client.from('game_settings').update(payload).eq('id', 'main');
   if (error) throw error;
 }
 

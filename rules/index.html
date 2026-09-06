@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1115">
+<meta name="goblin-supabase-url" content="https://zdxuaphrtedzzsiheslg.supabase.co">
+<meta name="goblin-supabase-publishable-key" content="sb_publishable__hXEM3uZKNhZUjgxLWYEMw_ohF2QqjK">
 <title>The Rules · Goblin Investing</title>
 <link rel="stylesheet" href="../css/site.css">
-<link rel="stylesheet" href="../css/refinements.css">
 </head>
 <body>
 <header class="site-header"><div class="shell header-inner"><a class="brand" href="../" aria-label="Goblin Investing home"><span class="brand-mark">GI</span><span>Goblin Investing</span></a><nav class="top-nav" aria-label="Primary navigation"><a class="nav-link nav-link-active" href="./">The Rules</a></nav></div></header>
@@ -22,7 +23,7 @@
       <li><b>Get your login.</b><span>Your Goblin Investing account is tied to your email.</span></li>
       <li><b>Buy at least $5 of stock every week.</b><span>The homepage shows the current week and your buy-in to date. Week 6 means you must have bought at least $30 of stock total. Current portfolio value does not matter.</span></li>
       <li><b>Play Win the Week.</b><span>Each week, the best percentage return wins $1.</span></li>
-      <li><b>Add "Called It!" challenges when you have a real reason.</b><span>These are separate from the weekly competition and reward good research.</span></li>
+      <li><b>Add "Called It!" challenges when you have a real reason.</b><span>These are separate from the weekly competition and reward doing research before making a prediction.</span></li>
     </ol>
   </section>
 
@@ -31,9 +32,9 @@
     <h2>What Each Section Is</h2>
     <div class="explain-grid">
       <article><h3>Win the Week</h3><p>The current weekly winner, their portfolio return, and the chart used for that week's result.</p></article>
-      <article><h3>"Called It!"</h3><p>The active due diligence challenges. You can see everyone's challenges, but participants edit only their own.</p></article>
+      <article><h3>"Called It!"</h3><p>Everyone's current due diligence challenges. Sign in to create, check, or manage your own.</p></article>
       <article><h3>Current Lesson</h3><p>Investing articles are featured here. They are reference material, not part of the competition.</p></article>
-      <article><h3>The Receipts</h3><p>Past weekly winners and successful "Called It!" payouts, plus the all-time leaders.</p></article>
+      <article><h3>The Receipts</h3><p>Past weekly winners and "Called It!" submissions. A Called It can be Under Review, Approved, or Rejected. Only Approved challenges count toward Most Called Its.</p></article>
     </div>
   </section>
 
@@ -41,29 +42,51 @@
     <div class="section-kicker">3 · "CALLED IT!"</div>
     <h2>"Called It!"</h2>
     <div class="rules-subheading">Due Diligence Challenges</div>
-    <div class="definition-box"><strong>Due diligence</strong> means researching an investment before making a decision. For this challenge, you need to write down what you found, why it matters, and what specific move you expect before the price moves.</div>
+    <div class="definition-box"><strong>Due diligence</strong> means researching a stock before making a decision. A Called It challenge records what you think will happen, why you think it, and what you are doing with the investment before the result is known.</div>
+
     <div class="rules-columns">
       <div>
-        <h3>Making a challenge</h3>
-        <ul class="plain-rules">
-          <li>You can have up to <strong>two active challenges</strong> at once.</li>
-          <li>Commit at least <strong>$5</strong> of your portfolio to the stock.</li>
-          <li>Record the challenge <strong>before</strong> the move happens.</li>
-          <li>Write what you found and what you think will happen.</li>
-        </ul>
+        <h3>Make a challenge</h3>
+        <ol class="plain-rules numbered-rules">
+          <li>Choose a stock. The site records its current price for you.</li>
+          <li>Choose <strong>Go Up</strong>, <strong>Go Down</strong>, or <strong>Finish About the Same</strong>.</li>
+          <li>Explain why you think it will happen. Links are allowed.</li>
+          <li>Record what you are doing: Buying, Holding, Selling, or Not Buying. Buy, Hold, and Sell require at least <strong>$5</strong>.</li>
+        </ol>
       </div>
       <div>
-        <h3>Winning a challenge</h3>
+        <h3>The goals</h3>
         <ul class="plain-rules">
-          <li>The target is <strong>+10%</strong> from the recorded call price.</li>
-          <li>The challenge expires after <strong>four weeks</strong>.</li>
-          <li>You must keep owning the committed amount while the challenge is active.</li>
-          <li>The move should reasonably match the reason you wrote down. Crossing +10% by itself does not automatically count.</li>
-          <li>A confirmed "Called It!" pays <strong>$5</strong> and goes into The Receipts.</li>
+          <li><strong>Go Up:</strong> the stock reaches <span id="ruleUpPercent">15</span>% above the starting price within <span data-rule-duration>28</span> days.</li>
+          <li><strong>Go Down:</strong> the stock reaches <span id="ruleDownPercent">15</span>% below the starting price within <span data-rule-duration>28</span> days.</li>
+          <li><strong>Finish About the Same:</strong> after <span data-rule-duration>28</span> days, the stock is within <span id="ruleFlatPercent">3</span>% above or below the starting price.</li>
         </ul>
       </div>
     </div>
-    <div class="rule-note"><strong>Cancel or replace:</strong> You can abandon a challenge at any time. Cancelled or expired challenges do not pay.</div>
+
+    <div class="rules-columns rules-columns-spaced">
+      <div>
+        <h3>Check the result</h3>
+        <ul class="plain-rules">
+          <li>Use <strong>Check Price</strong> on an active challenge to see where it stands.</li>
+          <li>Go Up and Go Down can reach their goal at any price check during the <span data-rule-duration>28</span>-day challenge.</li>
+          <li>Finish About the Same cannot qualify early. It is checked after the challenge ends, with <span data-rule-claim>7</span> days to claim it.</li>
+          <li>If the goal is met, <strong>Submit for Review</strong> appears.</li>
+          <li>The price is checked again when you submit. If the stock moved back outside the goal, it is not submitted yet.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Review and payout</h3>
+        <ul class="plain-rules">
+          <li>Submitting changes the challenge to <strong>Under Review</strong>.</li>
+          <li>That challenge slot is locked for <strong><span data-rule-cooldown>7</span> days</strong> after submission.</li>
+          <li>An Approved Called It pays <strong><span data-rule-payout>$5</span></strong> and counts toward Most Called Its.</li>
+          <li>A Rejected, Cancelled, or Expired challenge pays <strong>$0</strong>.</li>
+          <li>You can have up to <strong>two challenge slots</strong>. You cannot make another active call on a ticker you already have active.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="rule-note"><strong>Cancel:</strong> You can abandon an active challenge. Cancelled challenges do not pay. Once a challenge is submitted for review, its prediction is locked.</div>
   </section>
 
   <section class="guide-section">
@@ -76,5 +99,6 @@
     </ul>
   </section>
 </main>
+<script type="module" src="../js/rules.js"></script>
 </body>
 </html>

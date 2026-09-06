@@ -1,5 +1,7 @@
 import { backendIsConfigured, getSessionState, signIn, signOut } from './auth.js';
-import { buildPlayPayload, cancelPlay, cashOutCalledIt, fallbackDashboardData, getOwnerSlots, loadDashboardData, replacePlay, savePlay, saveWeeklyWinner, saveGameSettings } from './plays.js';
+import { fallbackDashboardData, getOwnerSlots, loadDashboardData, saveWeeklyWinner, saveGameSettings } from './plays.js';
+import { adminEditCalledIt, cancelCalledIt, checkCalledIt, createCalledIt, previewCalledIt, resetCalledItCooldown, reviewCalledIt, searchSecurities, submitCalledIt } from './market.js';
+import { actionLabel, challengeCardMarkup, challengeFormMarkup, cooldownRemaining, directionLabel, escapeHtml, formatDate, formatDateTime, goalLabel, goalPreview, money, tickerResultMarkup } from './called-it-ui.js';
 
 const state = {
   session: { configured: false, client: null, user: null, profile: null },
@@ -42,25 +44,15 @@ const els = {
   currentWeekInput: document.getElementById('currentWeekInput'),
   weekStartInput: document.getElementById('weekStartInput'),
   weekEndInput: document.getElementById('weekEndInput'),
-  winnerChartInput: document.getElementById('winnerChartInput')
+  winnerChartInput: document.getElementById('winnerChartInput'),
+  calledUpInput: document.getElementById('calledUpInput'),
+  calledDownInput: document.getElementById('calledDownInput'),
+  calledFlatInput: document.getElementById('calledFlatInput'),
+  calledDurationInput: document.getElementById('calledDurationInput'),
+  calledCooldownInput: document.getElementById('calledCooldownInput'),
+  calledClaimInput: document.getElementById('calledClaimInput'),
+  calledPayoutInput: document.getElementById('calledPayoutInput')
 };
-
-function escapeHtml(value) {
-  return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
-}
-
-function money(value) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return '—';
-  return number.toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: Number.isInteger(number) ? 0 : 2, maximumFractionDigits: 2 });
-}
-
-function formatDate(value) {
-  if (!value) return '—';
-  const date = new Date(`${value}T12:00:00`);
-  if (Number.isNaN(date.getTime())) return escapeHtml(value);
-  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-}
 
 function renderTracker() {
   const week = Number(state.data.settings?.current_week) || 1;
@@ -92,23 +84,39 @@ function renderWinner() {
   }
 }
 
-function playMarkup(play, slotNumber, canCashOut) {
-  if (!play) {
-    return `<div class="play-slot empty-slot"><div class="slot-label">PLAY ${slotNumber}</div><b>Open slot</b><span>No active challenge.</span></div>`;
+function participantById(userId) {
+  return state.data.participants.find(item => item.user_id === userId) || null;
+}
+
+async function runCardAction(button, action, workingText) {
+  const original = button.textContent;
+  try {
+    button.disabled = true;
+    button.textContent = workingText;
+    await action();
+    await refreshData();
+  } catch (error) {
+    els.dashboardStatus.textContent = error.message || 'Could not update the challenge.';
+  } finally {
+    button.disabled = false;
+    button.textContent = original;
   }
-  return `<div class="play-slot">
-    <div class="slot-label">PLAY ${slotNumber}</div>
-    <div class="play-ticker">${escapeHtml(play.ticker)}</div>
-    <div class="play-meta">
-      <div><span>COMMITTED</span><b>${money(play.amount_committed)}</b></div>
-      <div><span>CALLED AT</span><b>${money(play.call_price)}</b></div>
-      <div><span>TARGET</span><b>${money(play.target_price)}</b></div>
-      <div><span>EXPIRES</span><b>${formatDate(play.expires_at)}</b></div>
-    </div>
-    ${play.research_note ? `<div class="play-copy"><strong>What I found:</strong> ${escapeHtml(play.research_note)}</div>` : ''}
-    ${play.thesis ? `<div class="play-copy"><strong>My call:</strong> ${escapeHtml(play.thesis)}</div>` : ''}
-    ${canCashOut ? `<button class="cashout-button" type="button" data-cashout-id="${escapeHtml(play.id)}">Cash Out Called It! +$5</button>` : ''}
-  </div>`;
+}
+
+function bindChallengeCardActions() {
+  els.participantsGrid.querySelectorAll('[data-check-id]').forEach(button => {
+    button.addEventListener('click', () => runCardAction(button, () => checkCalledIt(state.session.client, button.dataset.checkId), 'Checking…'));
+  });
+  els.participantsGrid.querySelectorAll('[data-submit-id]').forEach(button => {
+    button.addEventListener('click', () => runCardAction(button, () => submitCalledIt(state.session.client, button.dataset.submitId), 'Rechecking…'));
+  });
+  els.participantsGrid.querySelectorAll('[data-admin-edit-id]').forEach(button => {
+    button.addEventListener('click', () => {
+      const play = state.data.plays.find(item => item.id === button.dataset.adminEditId);
+      const participant = play ? participantById(play.owner_id) : null;
+      if (participant) openEditModal(participant, play.id);
+    });
+  });
 }
 
 function renderParticipants() {
@@ -117,6 +125,7 @@ function renderParticipants() {
   els.participantsGrid.innerHTML = state.data.participants.map(participant => {
     const slots = getOwnerSlots(state.data.plays, participant.user_id);
     const isYou = Boolean(userId && participant.user_id === userId);
+    const canManage = Boolean(state.session.user && (isYou || isAdmin));
     return `<article class="participant-card">
       <div class="participant-head">
         <div class="participant-name">${escapeHtml(participant.display_name)}</div>
@@ -125,46 +134,89 @@ function renderParticipants() {
           ${isAdmin ? `<button class="admin-edit-button" type="button" data-edit-owner="${escapeHtml(participant.user_id)}">Edit</button>` : ''}
         </div>
       </div>
-      <div class="slot-list">${playMarkup(slots[0], 1, isAdmin)}${playMarkup(slots[1], 2, isAdmin)}</div>
+      <div class="slot-list">${challengeCardMarkup(slots[0], 1, { canManage, isAdmin })}${challengeCardMarkup(slots[1], 2, { canManage, isAdmin })}</div>
     </article>`;
   }).join('');
 
   els.participantsGrid.querySelectorAll('[data-edit-owner]').forEach(button => {
     button.addEventListener('click', () => {
-      const participant = state.data.participants.find(item => item.user_id === button.dataset.editOwner);
+      const participant = participantById(button.dataset.editOwner);
       if (participant) openEditModal(participant);
     });
   });
-
-  els.participantsGrid.querySelectorAll('[data-cashout-id]').forEach(button => {
-    button.addEventListener('click', async () => {
-      const play = state.data.plays.find(item => item.id === button.dataset.cashoutId);
-      if (!play || !state.session.profile?.is_admin) return;
-      const participant = state.data.participants.find(item => item.user_id === play.owner_id);
-      if (!confirm(`Cash out ${participant?.display_name || 'this player'}'s ${play.ticker} Called It! for $5? This closes the challenge and adds it to The Receipts.`)) return;
-      try {
-        button.disabled = true;
-        button.textContent = 'Cashing out…';
-        await cashOutCalledIt(state.session.client, play);
-        await refreshData();
-      } catch (error) {
-        els.dashboardStatus.textContent = error.message || 'Could not cash out the Called It!';
-      }
-    });
-  });
+  bindChallengeCardActions();
 }
 
 function leaderFor(type) {
   const counts = new Map();
-  state.data.history.filter(row => row.event_type === type).forEach(row => {
-    const key = row.participant_name || 'Unknown';
-    counts.set(key, (counts.get(key) || 0) + 1);
-  });
+  state.data.history
+    .filter(row => row.event_type === type && (type !== 'called_it' || row.status === 'approved'))
+    .forEach(row => {
+      const key = row.participant_name || 'Unknown';
+      counts.set(key, (counts.get(key) || 0) + 1);
+    });
   if (!counts.size) return { name: 'No wins yet', count: 0 };
   const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
   const max = sorted[0][1];
   const leaders = sorted.filter(([, count]) => count === max).map(([name]) => name);
   return { name: leaders.join(' + '), count: max };
+}
+
+function calledHistoryDetails(row) {
+  const direction = row.direction ? directionLabel(row.direction).toLowerCase() : 'prediction';
+  const start = row.starting_price || row.call_price;
+  const goal = row.direction === 'flat'
+    ? `${money(row.target_low)}–${money(row.target_high)}`
+    : money(row.target_price);
+  const qualified = row.qualifying_price ? ` · submitted ${money(row.qualifying_price)}` : '';
+  return `${escapeHtml(row.ticker || '')} · ${escapeHtml(direction)} · from ${money(start)} · goal ${goal}${qualified}`;
+}
+
+function historyAdminActions(row) {
+  if (!state.session.profile?.is_admin || row.event_type !== 'called_it') return '';
+  if (row.status === 'under_review') {
+    return `<div class="history-actions"><button type="button" data-review-id="${escapeHtml(row.source_id)}" data-decision="approved">Approve +${money(state.data.settings.called_it_payout)}</button><button type="button" data-review-id="${escapeHtml(row.source_id)}" data-decision="rejected">Reject</button></div>`;
+  }
+  const play = state.data.plays.find(item => item.id === row.source_id);
+  if (play && ['approved', 'rejected'].includes(row.status) && cooldownRemaining(play.lock_until)) {
+    return `<div class="history-actions"><button type="button" data-reset-id="${escapeHtml(row.source_id)}">Reset Cooldown</button></div>`;
+  }
+  return '';
+}
+
+function bindHistoryActions() {
+  els.historyTableBody.querySelectorAll('[data-review-id]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const decision = button.dataset.decision;
+      const verb = decision === 'approved' ? 'approve' : 'reject';
+      if (!confirm(`${verb[0].toUpperCase()}${verb.slice(1)} this Called It challenge?`)) return;
+      const original = button.textContent;
+      try {
+        button.disabled = true;
+        button.textContent = 'Saving…';
+        await reviewCalledIt(state.session.client, button.dataset.reviewId, decision);
+        await refreshData();
+      } catch (error) {
+        els.dashboardStatus.textContent = error.message || 'Could not review the challenge.';
+      } finally {
+        button.disabled = false;
+        button.textContent = original;
+      }
+    });
+  });
+
+  els.historyTableBody.querySelectorAll('[data-reset-id]').forEach(button => {
+    button.addEventListener('click', async () => {
+      if (!confirm('Reset this slot cooldown now?')) return;
+      try {
+        button.disabled = true;
+        await resetCalledItCooldown(state.session.client, button.dataset.resetId);
+        await refreshData();
+      } catch (error) {
+        els.dashboardStatus.textContent = error.message || 'Could not reset the cooldown.';
+      }
+    });
+  });
 }
 
 function renderHistory() {
@@ -175,7 +227,7 @@ function renderHistory() {
   els.calledLeaderName.textContent = called.name;
   els.calledLeaderCount.textContent = `${called.count} ${called.count === 1 ? 'win' : 'wins'}`;
   if (!state.data.history.length) {
-    els.historyTableBody.innerHTML = '<tr><td colspan="5" class="history-empty">No results recorded yet.</td></tr>';
+    els.historyTableBody.innerHTML = '<tr><td colspan="6" class="history-empty">No results recorded yet.</td></tr>';
     return;
   }
   els.historyTableBody.innerHTML = state.data.history.map(row => {
@@ -183,9 +235,11 @@ function renderHistory() {
     const result = isWeekly ? 'Win the Week' : 'Called It!';
     const details = isWeekly
       ? `${Number(row.return_percent) > 0 ? '+' : ''}${Number(row.return_percent).toFixed(2)}%${row.week_number ? ` · Week ${row.week_number}` : ''}`
-      : `${escapeHtml(row.ticker || '')}${row.target_price ? ` · target ${money(row.target_price)}` : ''}`;
-    return `<tr><td>${formatDate(row.event_date)}</td><td><strong>${escapeHtml(row.participant_name)}</strong></td><td><span class="history-type">${result}</span></td><td>${details}</td><td class="history-prize">${money(row.reward_amount)}</td></tr>`;
+      : calledHistoryDetails(row);
+    const status = isWeekly ? 'Approved' : String(row.status || 'approved').replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase());
+    return `<tr><td>${formatDate(row.event_date)}</td><td><strong>${escapeHtml(row.participant_name)}</strong></td><td><span class="history-type">${result}</span></td><td>${details}</td><td><span class="receipt-status receipt-status-${escapeHtml(row.status || 'approved')}">${escapeHtml(status)}</span>${historyAdminActions(row)}</td><td class="history-prize">${money(row.reward_amount)}</td></tr>`;
   }).join('');
+  bindHistoryActions();
 }
 
 function renderAccount() {
@@ -207,11 +261,7 @@ function renderStatus() {
     els.dashboardStatus.textContent = 'This login is not linked to a Goblin Investing profile.';
     return;
   }
-  if (state.session.profile?.is_admin) {
-    els.dashboardStatus.textContent = 'Admin: edit any participant with the Edit button on their card.';
-    return;
-  }
-  els.dashboardStatus.textContent = state.session.user ? '' : 'Sign in to edit your own two challenges.';
+  els.dashboardStatus.textContent = state.session.user ? '' : 'Sign in to create or check your Called It challenges.';
 }
 
 function renderAll() {
@@ -237,26 +287,11 @@ function closeModals() {
   document.body.style.overflow = '';
 }
 
-function todayIso() {
-  const now = new Date();
-  return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+function activePlaySummary(play, slotNumber) {
+  return `<div class="manage-slot"><div class="manage-slot-card">${challengeCardMarkup(play, slotNumber, { canManage: false, isAdmin: false })}</div>${play.status === 'active' ? `<button class="button button-danger" type="button" data-cancel-id="${escapeHtml(play.id)}">Cancel Challenge</button>` : ''}</div>`;
 }
 
-function slotFormMarkup(play, slotNumber) {
-  return `<form class="slot-form" data-slot="${slotNumber}">
-    <div class="slot-form-head"><div class="slot-form-title">Play ${slotNumber}</div><span class="muted">${play ? 'Active' : 'Open'}</span></div>
-    <label>Ticker<input name="ticker" maxlength="12" value="${escapeHtml(play?.ticker || '')}" required></label>
-    <label>Amount committed<input name="amount_committed" type="number" min="5" step="0.01" value="${escapeHtml(play?.amount_committed ?? 5)}" required></label>
-    <label>Call price<input name="call_price" type="number" min="0.0001" step="0.0001" value="${escapeHtml(play?.call_price || '')}" required></label>
-    <label>Call date<input name="call_date" type="date" value="${escapeHtml(play?.call_date || todayIso())}" required></label>
-    <label>What I found<textarea name="research_note" maxlength="800">${escapeHtml(play?.research_note || '')}</textarea></label>
-    <label>My call<textarea name="thesis" maxlength="800">${escapeHtml(play?.thesis || '')}</textarea></label>
-    <div class="calc-note">Target price is calculated at +10%. Expiration is four weeks from the call date.</div>
-    <div class="slot-form-actions"><button class="button button-primary" type="submit">Save</button>${play ? '<button class="button button-secondary" type="button" data-replace>Replace Play</button><button class="button button-danger" type="button" data-cancel>Cancel Play</button>' : ''}</div>
-  </form>`;
-}
-
-function openEditModal(participant = null) {
+function openEditModal(participant = null, focusChallengeId = null) {
   if (!state.session.user || !state.session.profile) {
     if (backendIsConfigured()) openModal(els.authModal);
     else els.dashboardStatus.textContent = 'Editing is not available yet.';
@@ -264,7 +299,7 @@ function openEditModal(participant = null) {
   }
 
   const isAdmin = Boolean(state.session.profile.is_admin);
-  const target = participant || state.data.participants.find(item => item.user_id === state.session.user.id);
+  const target = participant || participantById(state.session.user.id);
   if (!target?.user_id) {
     els.dashboardStatus.textContent = 'No participant profile was found for this account.';
     return;
@@ -273,58 +308,176 @@ function openEditModal(participant = null) {
 
   const slots = getOwnerSlots(state.data.plays, target.user_id);
   state.editContext = { ownerId: target.user_id, displayName: target.display_name };
-  els.editTitle.textContent = target.user_id === state.session.user.id ? 'Edit my plays' : `Edit ${target.display_name}'s plays`;
-  els.editSlots.innerHTML = slotFormMarkup(slots[0], 1) + slotFormMarkup(slots[1], 2);
+  els.editTitle.textContent = target.user_id === state.session.user.id ? 'My Called It challenges' : `Manage ${target.display_name}'s challenges`;
+  els.editSlots.innerHTML = slots.map((play, index) => {
+    const slotNumber = index + 1;
+    if (!play) return challengeFormMarkup(slotNumber);
+    if (isAdmin && play.status === 'active') return challengeFormMarkup(slotNumber, play, true);
+    return activePlaySummary(play, slotNumber);
+  }).join('');
+  els.editMessage.className = 'form-message';
   els.editMessage.textContent = '';
-  bindEditForms(slots, target.user_id);
+  bindCalledItForms(target.user_id);
+  bindModalCancelButtons(target);
   openModal(els.editModal);
+  if (focusChallengeId) setTimeout(() => els.editSlots.querySelector(`[data-challenge-id="${CSS.escape(focusChallengeId)}"]`)?.scrollIntoView({ block: 'center' }), 0);
 }
 
-function bindEditForms(slots, ownerId) {
-  els.editSlots.querySelectorAll('.slot-form').forEach(form => {
-    const slotNumber = Number(form.dataset.slot);
-    const currentPlay = slots[slotNumber - 1];
+function currentPreviewSettings() {
+  return {
+    up: Number(state.data.settings.called_it_up_percent),
+    down: Number(state.data.settings.called_it_down_percent),
+    flat: Number(state.data.settings.called_it_flat_percent)
+  };
+}
+
+function updateFormGoal(form) {
+  const direction = form.elements.direction.value;
+  const preview = form.querySelector('[data-goal-preview]');
+  const referencePrice = Number(form.dataset.previewPrice || form.dataset.referencePrice);
+  preview.textContent = goalPreview(referencePrice, direction, currentPreviewSettings());
+}
+
+function selectDirection(form, direction) {
+  form.elements.direction.value = direction;
+  form.querySelectorAll('[data-direction]').forEach(button => button.classList.toggle('selected', button.dataset.direction === direction));
+  updateFormGoal(form);
+}
+
+function bindTickerSearch(form) {
+  const input = form.elements.ticker_search;
+  const hidden = form.elements.ticker;
+  const results = form.querySelector('.ticker-results');
+  const quotePreview = form.querySelector('[data-quote-preview]');
+  let timer = null;
+  let requestSequence = 0;
+
+  input.addEventListener('input', () => {
+    hidden.value = '';
+    form.dataset.previewPrice = '';
+    quotePreview.textContent = 'Choose a stock to load the current price.';
+    updateFormGoal(form);
+    clearTimeout(timer);
+    const query = input.value.trim();
+    if (!query) {
+      results.hidden = true;
+      results.innerHTML = '';
+      return;
+    }
+    const sequence = ++requestSequence;
+    timer = setTimeout(async () => {
+      try {
+        const rows = await searchSecurities(state.session.client, query, 10);
+        if (sequence !== requestSequence) return;
+        results.innerHTML = rows.length ? rows.map(tickerResultMarkup).join('') : '<div class="ticker-no-results">No matching listed stocks.</div>';
+        results.hidden = false;
+      } catch (error) {
+        if (sequence !== requestSequence) return;
+        results.innerHTML = `<div class="ticker-no-results">${escapeHtml(error.message || 'Could not search stocks.')}</div>`;
+        results.hidden = false;
+      }
+    }, 180);
+  });
+
+  results.addEventListener('click', async event => {
+    const button = event.target.closest('[data-ticker]');
+    if (!button) return;
+    hidden.value = button.dataset.ticker;
+    input.value = `${button.dataset.ticker} · ${button.dataset.company}`;
+    results.hidden = true;
+    quotePreview.textContent = 'Loading current price…';
+    try {
+      const response = await previewCalledIt(state.session.client, button.dataset.ticker);
+      form.dataset.previewPrice = String(response.quote.price);
+      quotePreview.textContent = `${money(response.quote.price)} · ${response.quote.market_status === 'open' ? 'market open' : 'latest price'}`;
+      updateFormGoal(form);
+    } catch (error) {
+      quotePreview.textContent = error.message || 'Current price is unavailable.';
+      els.editMessage.className = 'form-message error';
+      els.editMessage.textContent = error.message || 'Current price is unavailable.';
+    }
+  });
+
+  document.addEventListener('click', event => {
+    if (!form.contains(event.target)) results.hidden = true;
+  }, { once: false });
+}
+
+function bindCalledItForms(ownerId) {
+  els.editSlots.querySelectorAll('.called-it-form').forEach(form => {
+    const existing = form.dataset.challengeId ? state.data.plays.find(play => play.id === form.dataset.challengeId) : null;
+    if (existing?.reference_price) form.dataset.referencePrice = String(existing.reference_price);
+    bindTickerSearch(form);
+    form.querySelectorAll('[data-direction]').forEach(button => button.addEventListener('click', () => selectDirection(form, button.dataset.direction)));
+    const actionSelect = form.elements.portfolio_action;
+    const amountWrap = form.querySelector('.amount-wrap');
+    const syncAmount = () => {
+      const notBuying = actionSelect.value === 'not_buying';
+      amountWrap.hidden = notBuying;
+      form.elements.action_amount.required = !notBuying;
+    };
+    actionSelect.addEventListener('change', syncAmount);
+    syncAmount();
+    updateFormGoal(form);
 
     form.addEventListener('submit', async event => {
       event.preventDefault();
+      const ticker = form.elements.ticker.value;
+      const direction = form.elements.direction.value;
+      if (!ticker) {
+        els.editMessage.className = 'form-message error';
+        els.editMessage.textContent = 'Choose a stock from the search results.';
+        return;
+      }
+      if (!direction) {
+        els.editMessage.className = 'form-message error';
+        els.editMessage.textContent = 'Choose Go Up, Go Down, or Finish About the Same.';
+        return;
+      }
+
+      const submitButton = form.querySelector('button[type="submit"]');
       try {
+        submitButton.disabled = true;
         els.editMessage.className = 'form-message';
-        els.editMessage.textContent = 'Saving…';
-        const payload = buildPlayPayload(new FormData(form), ownerId, slotNumber);
-        await savePlay(state.session.client, currentPlay, payload);
+        els.editMessage.textContent = existing ? 'Saving changes…' : 'Saving challenge…';
+        const payload = {
+          owner_id: ownerId,
+          slot_number: Number(form.dataset.slot),
+          ticker,
+          direction,
+          reason: form.elements.reason.value,
+          portfolio_action: form.elements.portfolio_action.value,
+          action_amount: form.elements.portfolio_action.value === 'not_buying' ? null : Number(form.elements.action_amount.value)
+        };
+        if (existing && state.session.profile?.is_admin) await adminEditCalledIt(state.session.client, existing.id, payload);
+        else await createCalledIt(state.session.client, payload);
         await refreshData();
-        const participant = state.data.participants.find(item => item.user_id === ownerId);
-        if (participant) openEditModal(participant);
+        const target = participantById(ownerId);
+        if (target) openEditModal(target);
       } catch (error) {
         els.editMessage.className = 'form-message error';
         els.editMessage.textContent = error.message || 'Could not save the challenge.';
+      } finally {
+        submitButton.disabled = false;
       }
     });
+  });
+}
 
-    form.querySelector('[data-cancel]')?.addEventListener('click', async () => {
-      if (!confirm(`Cancel Play ${slotNumber}? It will no longer be active.`)) return;
+function bindModalCancelButtons(target) {
+  els.editSlots.querySelectorAll('[data-cancel-id]').forEach(button => {
+    button.addEventListener('click', async () => {
+      if (!confirm('Cancel this challenge? It will not pay and the active challenge will close.')) return;
       try {
-        await cancelPlay(state.session.client, currentPlay);
+        button.disabled = true;
+        await cancelCalledIt(state.session.client, button.dataset.cancelId);
         await refreshData();
-        const participant = state.data.participants.find(item => item.user_id === ownerId);
-        if (participant) openEditModal(participant);
+        openEditModal(target);
       } catch (error) {
         els.editMessage.className = 'form-message error';
         els.editMessage.textContent = error.message || 'Could not cancel the challenge.';
-      }
-    });
-
-    form.querySelector('[data-replace]')?.addEventListener('click', async () => {
-      if (!confirm(`Replace Play ${slotNumber}? The current challenge will be cancelled and the form values will become the new challenge.`)) return;
-      try {
-        const payload = buildPlayPayload(new FormData(form), ownerId, slotNumber);
-        await replacePlay(state.session.client, currentPlay, payload);
-        await refreshData();
-        const participant = state.data.participants.find(item => item.user_id === ownerId);
-        if (participant) openEditModal(participant);
-      } catch (error) {
-        els.editMessage.className = 'form-message error';
-        els.editMessage.textContent = error.message || 'Could not replace the challenge.';
+      } finally {
+        button.disabled = false;
       }
     });
   });
@@ -352,7 +505,7 @@ els.authButton.addEventListener('click', async () => {
     try {
       await signOut();
       await refreshSessionAndData();
-    } catch (error) {
+    } catch {
       els.dashboardStatus.textContent = 'Could not sign out.';
     }
     return;
@@ -385,13 +538,21 @@ els.editMyPlaysButton.addEventListener('click', () => openEditModal());
 
 els.adminWeekButton.addEventListener('click', () => {
   const winner = state.data.winner;
+  const settings = state.data.settings;
   els.winnerNameInput.innerHTML = '<option value="">Choose winner</option>' + state.data.participants.map(participant => `<option value="${escapeHtml(participant.user_id)}">${escapeHtml(participant.display_name)}</option>`).join('');
   els.winnerNameInput.value = winner?.winner_user_id || '';
   els.winnerReturnInput.value = winner?.return_percent ?? '';
-  els.currentWeekInput.value = state.data.settings?.current_week || 6;
+  els.currentWeekInput.value = settings.current_week || 1;
   els.weekStartInput.value = winner?.week_start || '';
   els.weekEndInput.value = winner?.week_end || '';
   els.winnerChartInput.value = '';
+  els.calledUpInput.value = settings.called_it_up_percent;
+  els.calledDownInput.value = settings.called_it_down_percent;
+  els.calledFlatInput.value = settings.called_it_flat_percent;
+  els.calledDurationInput.value = settings.called_it_duration_days;
+  els.calledCooldownInput.value = settings.called_it_review_lock_days;
+  els.calledClaimInput.value = settings.called_it_flat_claim_days;
+  els.calledPayoutInput.value = settings.called_it_payout;
   els.weekMessage.textContent = '';
   openModal(els.weekModal);
 });
@@ -399,7 +560,7 @@ els.adminWeekButton.addEventListener('click', () => {
 els.weekForm.addEventListener('submit', async event => {
   event.preventDefault();
   if (!state.session.profile?.is_admin) return;
-  const participant = state.data.participants.find(item => item.user_id === els.winnerNameInput.value);
+  const participant = participantById(els.winnerNameInput.value);
   if (!participant) {
     els.weekMessage.className = 'form-message error';
     els.weekMessage.textContent = 'Choose a winner.';
@@ -408,7 +569,17 @@ els.weekForm.addEventListener('submit', async event => {
   try {
     els.weekMessage.className = 'form-message';
     els.weekMessage.textContent = 'Saving…';
-    await saveGameSettings(state.session.client, els.currentWeekInput.value, state.data.settings?.weekly_stock_buy_min || 5);
+    await saveGameSettings(state.session.client, {
+      current_week: els.currentWeekInput.value,
+      weekly_stock_buy_min: state.data.settings.weekly_stock_buy_min || 5,
+      called_it_up_percent: els.calledUpInput.value,
+      called_it_down_percent: els.calledDownInput.value,
+      called_it_flat_percent: els.calledFlatInput.value,
+      called_it_duration_days: els.calledDurationInput.value,
+      called_it_review_lock_days: els.calledCooldownInput.value,
+      called_it_flat_claim_days: els.calledClaimInput.value,
+      called_it_payout: els.calledPayoutInput.value
+    });
     await saveWeeklyWinner(state.session.client, {
       winner_user_id: participant.user_id,
       winner_name: participant.display_name,
@@ -426,7 +597,16 @@ els.weekForm.addEventListener('submit', async event => {
 });
 
 document.querySelectorAll('[data-close-modal]').forEach(button => button.addEventListener('click', closeModals));
-document.querySelectorAll('.modal').forEach(modal => modal.addEventListener('click', event => { if (event.target === modal) closeModals(); }));
+
+let pointerDownOnBackdrop = null;
+document.addEventListener('pointerdown', event => {
+  pointerDownOnBackdrop = event.target.classList?.contains('modal') ? event.target : null;
+}, true);
+document.querySelectorAll('.modal').forEach(modal => modal.addEventListener('click', event => {
+  if (event.target === modal && pointerDownOnBackdrop === modal) closeModals();
+  pointerDownOnBackdrop = null;
+}));
+document.addEventListener('pointercancel', () => { pointerDownOnBackdrop = null; }, true);
 document.addEventListener('keydown', event => { if (event.key === 'Escape') closeModals(); });
 
 await refreshSessionAndData();
