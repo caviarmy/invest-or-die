@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1115">
+<meta name="goblin-supabase-url" content="https://zdxuaphrtedzzsiheslg.supabase.co">
+<meta name="goblin-supabase-publishable-key" content="sb_publishable__hXEM3uZKNhZUjgxLWYEMw_ohF2QqjK">
 <title>The Rules · Goblin Investing</title>
 <link rel="stylesheet" href="../css/site.css">
 </head>
@@ -55,9 +57,9 @@
       <div>
         <h3>The goals</h3>
         <ul class="plain-rules">
-          <li><strong>Go Up:</strong> the stock reaches 15% above the starting price within 28 days.</li>
-          <li><strong>Go Down:</strong> the stock reaches 15% below the starting price within 28 days.</li>
-          <li><strong>Finish About the Same:</strong> after 28 days, the stock is within 3% above or below the starting price.</li>
+          <li><strong>Go Up:</strong> the stock reaches <span id="ruleUpPercent">15</span>% above the starting price within <span data-rule-duration>28</span> days.</li>
+          <li><strong>Go Down:</strong> the stock reaches <span id="ruleDownPercent">15</span>% below the starting price within <span data-rule-duration>28</span> days.</li>
+          <li><strong>Finish About the Same:</strong> after <span data-rule-duration>28</span> days, the stock is within <span id="ruleFlatPercent">3</span>% above or below the starting price.</li>
         </ul>
       </div>
     </div>
@@ -67,8 +69,8 @@
         <h3>Check the result</h3>
         <ul class="plain-rules">
           <li>Use <strong>Check Price</strong> on an active challenge to see where it stands.</li>
-          <li>Go Up and Go Down can reach their goal at any price check during the 28-day challenge.</li>
-          <li>Finish About the Same cannot qualify early. It is checked after the 28-day challenge ends, with 7 days to claim it.</li>
+          <li>Go Up and Go Down can reach their goal at any price check during the <span data-rule-duration>28</span>-day challenge.</li>
+          <li>Finish About the Same cannot qualify early. It is checked after the challenge ends, with <span data-rule-claim>7</span> days to claim it.</li>
           <li>If the goal is met, <strong>Submit for Review</strong> appears.</li>
           <li>The price is checked again when you submit. If the stock moved back outside the goal, it is not submitted yet.</li>
         </ul>
@@ -77,8 +79,8 @@
         <h3>Review and payout</h3>
         <ul class="plain-rules">
           <li>Submitting changes the challenge to <strong>Under Review</strong>.</li>
-          <li>That challenge slot is locked for <strong>7 days</strong> after submission.</li>
-          <li>An Approved Called It pays <strong>$5</strong> and counts toward Most Called Its.</li>
+          <li>That challenge slot is locked for <strong><span data-rule-cooldown>7</span> days</strong> after submission.</li>
+          <li>An Approved Called It pays <strong><span data-rule-payout>$5</span></strong> and counts toward Most Called Its.</li>
           <li>A Rejected, Cancelled, or Expired challenge pays <strong>$0</strong>.</li>
           <li>You can have up to <strong>two challenge slots</strong>. You cannot make another active call on a ticker you already have active.</li>
         </ul>
@@ -97,5 +99,6 @@
     </ul>
   </section>
 </main>
+<script type="module" src="../js/rules.js"></script>
 </body>
 </html>
