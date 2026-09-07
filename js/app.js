@@ -8,6 +8,7 @@ import {
   directionLabel,
   escapeHtml,
   formatDate,
+  goalLabel,
   goalPreview,
   money,
   ownerEditFormMarkup,
@@ -64,6 +65,8 @@ const els = {
   calledClaimInput: document.getElementById('calledClaimInput'),
   calledPayoutInput: document.getElementById('calledPayoutInput')
 };
+
+let modalReturnFocus = null;
 
 function renderTracker() {
   const week = Number(state.data.settings?.current_week) || 1;
@@ -149,13 +152,17 @@ function renderParticipants() {
     const isYou = Boolean(userId && participant.user_id === userId);
     const canManage = Boolean(state.session.user && (isYou || isAdmin));
     const adminSlot = isAdmin ? nextAvailableSlot(participant.user_id) : null;
+    const participantName = escapeHtml(participant.display_name);
+    const adminLabel = adminSlot
+      ? `Add challenge for ${participant.display_name}`
+      : `Challenge slots unavailable for ${participant.display_name}`;
 
     return `<article class="participant-card">
       <div class="participant-head">
-        <div class="participant-name">${escapeHtml(participant.display_name)}</div>
+        <h3 class="participant-name">${participantName}</h3>
         <div class="participant-actions">
           ${isYou ? '<span class="you-badge">YOU</span>' : ''}
-          ${isAdmin ? `<button class="admin-edit-button" type="button" data-add-owner="${escapeHtml(participant.user_id)}" ${adminSlot ? '' : 'disabled'} title="${adminSlot ? 'Add a challenge for this participant' : 'Both challenge slots are unavailable'}">+ Add</button>` : ''}
+          ${isAdmin ? `<button class="admin-edit-button" type="button" data-add-owner="${escapeHtml(participant.user_id)}" aria-label="${escapeHtml(adminLabel)}" ${adminSlot ? '' : 'disabled'} title="${adminSlot ? 'Add a challenge for this participant' : 'Both challenge slots are unavailable'}">+ Add</button>` : ''}
         </div>
       </div>
       <div class="slot-list">${challengeCardMarkup(slots[0], 1, { canManage, canEdit: canManage })}${challengeCardMarkup(slots[1], 2, { canManage, canEdit: canManage })}</div>
@@ -326,18 +333,32 @@ function renderAll() {
   renderStatus();
 }
 
-function openModal(modal) {
+function openModal(modal, focusSelector = '') {
+  const active = document.activeElement;
+  if (!modal.classList.contains('open') && active && typeof active.focus === 'function') modalReturnFocus = active;
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
+
+  requestAnimationFrame(() => {
+    const requested = focusSelector ? modal.querySelector(focusSelector) : null;
+    const fallback = modal.querySelector('[data-close-modal]');
+    (requested || fallback)?.focus();
+  });
 }
 
 function closeModals() {
+  const returnFocus = modalReturnFocus;
   document.querySelectorAll('.modal.open').forEach(modal => {
     modal.classList.remove('open', 'single-play-mode');
     modal.setAttribute('aria-hidden', 'true');
   });
   document.body.style.overflow = '';
+  modalReturnFocus = null;
+
+  if (returnFocus?.isConnected && typeof returnFocus.focus === 'function') {
+    requestAnimationFrame(() => returnFocus.focus());
+  }
 }
 
 function openChallengeModal(title, markup) {
@@ -346,7 +367,7 @@ function openChallengeModal(title, markup) {
   els.editMessage.className = 'form-message';
   els.editMessage.textContent = '';
   els.editModal.classList.add('single-play-mode');
-  openModal(els.editModal);
+  openModal(els.editModal, '.single-called-it-form input:not([type="hidden"]):not([disabled]), .single-called-it-form select:not([disabled]), .single-called-it-form textarea:not([disabled])');
 }
 
 function showEditError(message) {
@@ -389,6 +410,13 @@ function syncGoal(form) {
   goal.textContent = goalPreview(Number(raw), direction, currentPreviewSettings());
 }
 
+function storedGoalPreview(play) {
+  if (!play) return '—';
+  const goal = goalLabel(play);
+  if (!goal || goal === '—') return '—';
+  return play.direction === 'flat' ? `End range ${goal}` : `Goal ${goal}`;
+}
+
 function setQuotePreview(form, quoteResponse) {
   const quote = form.querySelector('[data-single-quote]');
   if (!quote || !quoteResponse?.quote) return;
@@ -403,8 +431,9 @@ function restoreOriginalAdminPreview(form, play) {
   form.dataset.previewPrice = '';
   form.dataset.previewTicker = '';
   const quote = form.querySelector('[data-single-quote]');
+  const goal = form.querySelector('[data-single-goal]');
   if (quote) quote.textContent = `${money(play.reference_price)} · original call price`;
-  syncGoal(form);
+  if (goal) goal.textContent = storedGoalPreview(play);
 }
 
 async function ensureAdminTermsPreview(form, play, nextDirection) {
@@ -498,15 +527,17 @@ function bindSingleForm(form, play = null) {
   bindTickerSearch(form);
   if (form.elements.direction) {
     syncActionForDirection(form);
-    syncGoal(form);
+    if (form.dataset.mode === 'admin-edit' && play) restoreOriginalAdminPreview(form, play);
+    else syncGoal(form);
+
     form.querySelectorAll('[data-single-direction]').forEach(button => {
       button.addEventListener('click', async () => {
         const nextDirection = button.dataset.singleDirection;
         form.elements.direction.value = nextDirection;
         form.querySelectorAll('[data-single-direction]').forEach(item => item.classList.toggle('selected', item === button));
         syncActionForDirection(form);
-        await ensureAdminTermsPreview(form, play, nextDirection);
-        syncGoal(form);
+        if (form.dataset.mode === 'admin-edit' && play) await ensureAdminTermsPreview(form, play, nextDirection);
+        else syncGoal(form);
       });
     });
   } else {
@@ -583,7 +614,7 @@ function openPlayEditor(challengeId) {
     return;
   }
   if (!state.session.user || !state.session.profile) {
-    openModal(els.authModal);
+    openModal(els.authModal, '#authEmail');
     return;
   }
   if (play.status !== 'active') {
@@ -604,7 +635,7 @@ function openPlayEditor(challengeId) {
 
 function openAddForOwner(ownerId) {
   if (!state.session.user || !state.session.profile) {
-    if (backendIsConfigured()) openModal(els.authModal);
+    if (backendIsConfigured()) openModal(els.authModal, '#authEmail');
     return;
   }
   if (ownerId !== state.session.user.id && !state.session.profile.is_admin) return;
@@ -671,8 +702,7 @@ els.authButton.addEventListener('click', async () => {
   }
 
   els.authMessage.textContent = '';
-  openModal(els.authModal);
-  setTimeout(() => els.authEmail.focus(), 0);
+  openModal(els.authModal, '#authEmail');
 });
 
 els.authForm.addEventListener('submit', async event => {
@@ -715,7 +745,7 @@ els.adminWeekButton.addEventListener('click', () => {
   els.calledClaimInput.value = settings.called_it_flat_claim_days;
   els.calledPayoutInput.value = settings.called_it_payout;
   els.weekMessage.textContent = '';
-  openModal(els.weekModal);
+  openModal(els.weekModal, '#winnerNameInput');
 });
 
 els.weekForm.addEventListener('submit', async event => {
