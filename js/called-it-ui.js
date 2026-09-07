@@ -49,11 +49,42 @@ export function goalLabel(play) {
 
 export function goalPreview(referencePrice, direction, settings) {
   const price = Number(referencePrice);
-  if (!Number.isFinite(price) || !direction || !settings) return 'Choose a prediction to see the goal.';
+  if (!Number.isFinite(price) || price <= 0 || !direction || !settings) return 'Choose a prediction to see the goal.';
   if (direction === 'up') return `Needs to reach ${money(price * (1 + Number(settings.up) / 100))} or higher`;
   if (direction === 'down') return `Needs to reach ${money(price * (1 - Number(settings.down) / 100))} or lower`;
   const percent = Number(settings.flat) / 100;
   return `At the end of the challenge: ${money(price * (1 - percent))}–${money(price * (1 + percent))}`;
+}
+
+const ACTIONS = {
+  up: [
+    ['buy', 'Buying at least $5'],
+    ['hold', 'Holding at least $5 I already own']
+  ],
+  down: [
+    ['sell', 'Selling at least $5 I already own'],
+    ['not_buying', 'Not Buying']
+  ],
+  flat: [
+    ['hold', 'Holding at least $5 I already own'],
+    ['not_buying', 'Not Buying']
+  ]
+};
+
+export function actionOptions(direction, selected = '') {
+  const choices = ACTIONS[direction] || [];
+  if (!choices.length) return '<option value="">Choose a prediction first</option>';
+  const selectedAllowed = choices.some(([value]) => value === selected) ? selected : choices[0][0];
+  return choices.map(([value, label]) => `<option value="${value}" ${value === selectedAllowed ? 'selected' : ''}>${label}</option>`).join('');
+}
+
+export function predictionButtons(direction = '') {
+  const defs = [
+    ['up', 'Go Up'],
+    ['down', 'Go Down'],
+    ['flat', 'Finish About the Same']
+  ];
+  return defs.map(([value, label]) => `<button type="button" data-single-direction="${value}" class="prediction-choice ${direction === value ? 'selected' : ''}">${label}</button>`).join('');
 }
 
 function escapeUrl(value) {
@@ -104,7 +135,7 @@ export function cooldownRemaining(lockUntil) {
 }
 
 export function challengeCardMarkup(play, slotNumber, options = {}) {
-  const { canManage = false, isAdmin = false } = options;
+  const { canManage = false, canEdit = false } = options;
   if (!play) {
     return `<div class="play-slot empty-slot"><div class="slot-label">CHALLENGE ${slotNumber}</div><b>Open slot</b><span>No active challenge.</span></div>`;
   }
@@ -121,8 +152,12 @@ export function challengeCardMarkup(play, slotNumber, options = {}) {
   const buttons = review ? '' : canManage ? `
     <button class="button button-secondary challenge-action" type="button" data-check-id="${escapeHtml(play.id)}">Check Price</button>
     ${qualified ? `<button class="button button-primary challenge-action" type="button" data-submit-id="${escapeHtml(play.id)}">Submit for Review</button>` : ''}` : '';
+  const editButton = canEdit && play.status === 'active'
+    ? `<button class="play-edit-pencil" type="button" data-play-edit-id="${escapeHtml(play.id)}" aria-label="Edit this Called It challenge" title="Edit challenge">✎</button>`
+    : '';
 
   return `<div class="play-slot ${review ? 'play-slot-review' : ''}">
+    ${editButton}
     <div class="slot-label">CHALLENGE ${slotNumber}</div>
     <div class="play-ticker">${escapeHtml(play.ticker)}</div>
     <div class="play-company">${escapeHtml(play.company_name || '')}</div>
@@ -138,7 +173,6 @@ export function challengeCardMarkup(play, slotNumber, options = {}) {
     ${qualified && !review ? `<div class="target-reached"><strong>TARGET REACHED</strong><span>${money(play.last_checked_price)} · checked ${formatDateTime(play.last_checked_at)}</span></div>` : ''}
     ${review ? `<div class="under-review-box"><strong>UNDER REVIEW</strong><span>Submitted at ${money(play.qualifying_price)}</span><span>Slot locked for ${cooldownRemaining(play.lock_until) || 'review'}</span></div>` : ''}
     ${buttons}
-    ${isAdmin && play.status === 'active' ? `<button class="text-button admin-inline-edit" type="button" data-admin-edit-id="${escapeHtml(play.id)}">Edit challenge</button>` : ''}
   </div>`;
 }
 
@@ -146,61 +180,47 @@ export function tickerResultMarkup(row) {
   return `<button class="ticker-result" type="button" data-ticker="${escapeHtml(row.ticker)}" data-company="${escapeHtml(row.company_name)}" data-exchange="${escapeHtml(row.exchange || '')}"><strong>${escapeHtml(row.ticker)}</strong><span>${escapeHtml(row.company_name)}</span><small>${escapeHtml(row.exchange || '')}</small></button>`;
 }
 
-export function challengeFormMarkup(slotNumber, play = null, isAdminEdit = false) {
-  const selectedTicker = play?.ticker || '';
+export function singleChallengeFormMarkup({ play = null, slotNumber = 1, adminEdit = false }) {
+  const ticker = play?.ticker || '';
   const company = play?.company_name || '';
   const direction = play?.direction || '';
-  const action = play?.portfolio_action || 'buy';
+  const action = play?.portfolio_action || '';
   const amount = play?.action_amount ?? 5;
-  const priceText = play?.reference_price ? money(play.reference_price) : 'Choose a stock to load the current price.';
-  return `<form class="called-it-form" data-slot="${slotNumber}" ${play?.id ? `data-challenge-id="${escapeHtml(play.id)}"` : ''}>
-    <div class="slot-form-head"><div class="slot-form-title">Challenge ${slotNumber}</div><span class="muted">${isAdminEdit ? 'Admin edit' : 'Open slot'}</span></div>
-    <div class="statement-line"><span class="statement-label">I think</span><div class="ticker-search-wrap"><input class="ticker-search" name="ticker_search" value="${escapeHtml(selectedTicker ? `${selectedTicker} · ${company}` : '')}" autocomplete="off" placeholder="Search ticker or company" required><input type="hidden" name="ticker" value="${escapeHtml(selectedTicker)}"><div class="ticker-results" hidden></div></div></div>
-    <div class="statement-line"><span class="statement-label">Currently trading at</span><div class="quote-preview" data-quote-preview>${priceText}</div></div>
-    <div class="statement-line"><span class="statement-label">Will</span><div class="prediction-choices" role="group" aria-label="Prediction direction">
-      <button type="button" data-direction="up" class="prediction-choice ${direction === 'up' ? 'selected' : ''}">Go Up</button>
-      <button type="button" data-direction="down" class="prediction-choice ${direction === 'down' ? 'selected' : ''}">Go Down</button>
-      <button type="button" data-direction="flat" class="prediction-choice ${direction === 'flat' ? 'selected' : ''}">Finish About the Same</button>
+  const quote = play?.reference_price ? `${money(play.reference_price)} · original call price` : 'Choose a stock to load the current price.';
+  const goal = play
+    ? (play.direction === 'flat' ? `End range ${money(play.target_low)}–${money(play.target_high)}` : `Goal ${money(play.target_price)}${play.direction === 'up' ? '+' : ' or lower'}`)
+    : 'Choose a prediction to see the goal.';
+
+  return `<form class="single-called-it-form" data-mode="${adminEdit ? 'admin-edit' : 'add'}" data-slot="${slotNumber}" ${play?.id ? `data-challenge-id="${escapeHtml(play.id)}"` : ''}>
+    <div class="statement-line">
+      <span class="statement-label">I think</span>
+      <div class="ticker-search-wrap">
+        <input class="ticker-search" name="ticker_search" value="${escapeHtml(ticker ? `${ticker} · ${company}` : '')}" autocomplete="off" placeholder="Search ticker or company" required>
+        <input type="hidden" name="ticker" value="${escapeHtml(ticker)}">
+        <div class="ticker-results" hidden></div>
+      </div>
+    </div>
+    <div class="statement-line"><span class="statement-label">Currently trading at</span><div class="quote-preview" data-single-quote>${quote}</div></div>
+    <div class="statement-line">
+      <span class="statement-label">Will</span>
+      <div class="prediction-choices">${predictionButtons(direction)}</div>
       <input type="hidden" name="direction" value="${escapeHtml(direction)}">
-    </div><div class="goal-preview" data-goal-preview>${play ? escapeHtml(goalLabel(play)) : 'Choose a prediction to see the goal.'}</div></div>
+      <div class="goal-preview" data-single-goal>${escapeHtml(goal)}</div>
+    </div>
     <label class="because-field"><span class="statement-label">Because</span><textarea name="reason" maxlength="4000" required placeholder="What did you find? Why do you think the stock will do this? Add links if you used them.">${escapeHtml(play?.reason || '')}</textarea></label>
-    <div class="statement-line"><span class="statement-label">So I am</span><select name="portfolio_action" class="portfolio-action">
-      <option value="buy" ${action === 'buy' ? 'selected' : ''}>Buying at least $5</option>
-      <option value="hold" ${action === 'hold' ? 'selected' : ''}>Holding at least $5 I already own</option>
-      <option value="sell" ${action === 'sell' ? 'selected' : ''}>Selling at least $5 I already own</option>
-      <option value="not_buying" ${action === 'not_buying' ? 'selected' : ''}>Not Buying</option>
-    </select><div class="amount-wrap" ${action === 'not_buying' ? 'hidden' : ''}><span>$</span><input name="action_amount" type="number" min="5" step="0.01" value="${escapeHtml(amount)}"></div></div>
-    ${isAdminEdit && play ? '<div class="calc-note">Changing the ticker or prediction starts the challenge over at a fresh market price.</div>' : ''}
-    <div class="slot-form-actions"><button class="button button-primary" type="submit">${isAdminEdit ? 'Save Changes' : 'Save Challenge'}</button>${play?.id ? `<button class="button button-danger" type="button" data-cancel-id="${escapeHtml(play.id)}">Cancel Challenge</button>` : ''}</div>
+    <div class="statement-line"><span class="statement-label">So I am</span><select name="portfolio_action" ${direction ? '' : 'disabled'}>${actionOptions(direction, action)}</select><div class="amount-wrap"><span>$</span><input name="action_amount" type="number" min="5" step="0.01" value="${escapeHtml(amount)}"></div></div>
+    ${adminEdit ? '<div class="calc-note">Changing the ticker or prediction restarts the challenge at a fresh market price.</div>' : ''}
+    <div class="single-form-actions"><button class="button button-primary" type="submit">${adminEdit ? 'Save Changes' : 'Save Challenge'}</button>${play ? '<button class="button button-danger" type="button" data-single-cancel>Cancel Challenge</button>' : ''}</div>
   </form>`;
 }
 
-// app.js intentionally keeps the Called It modal open after a successful save so it can
-// redraw the slot manager. Close it after the dashboard refresh instead. A failed save
-// does not refresh the participant grid, so errors remain visible in the open modal.
-let pendingCalledItSave = false;
-let pendingCalledItSaveTimer = null;
-
-document.addEventListener('submit', event => {
-  if (!event.target?.matches?.('.called-it-form')) return;
-  pendingCalledItSave = true;
-  clearTimeout(pendingCalledItSaveTimer);
-  pendingCalledItSaveTimer = setTimeout(() => { pendingCalledItSave = false; }, 15000);
-}, true);
-
-const participantsGrid = document.getElementById('participantsGrid');
-if (participantsGrid) {
-  const saveObserver = new MutationObserver(() => {
-    if (!pendingCalledItSave) return;
-    pendingCalledItSave = false;
-    clearTimeout(pendingCalledItSaveTimer);
-    setTimeout(() => {
-      const editModal = document.getElementById('editModal');
-      if (!editModal?.classList.contains('open')) return;
-      editModal.classList.remove('open');
-      editModal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    }, 0);
-  });
-  saveObserver.observe(participantsGrid, { childList: true, subtree: true });
+export function ownerEditFormMarkup(play) {
+  return `<form class="single-called-it-form" data-mode="owner-edit" data-challenge-id="${escapeHtml(play.id)}">
+    <div class="called-it-static"><strong>${escapeHtml(play.ticker)}</strong><span>${escapeHtml(play.company_name || '')}</span></div>
+    <div class="called-it-static"><strong>${escapeHtml(directionLabel(play.direction))}</strong><span>From ${money(play.reference_price)} · ${play.direction === 'flat' ? `${money(play.target_low)}–${money(play.target_high)}` : money(play.target_price)}</span></div>
+    <div class="locked-call-note">The stock and prediction are locked after the call is made. You can still fix your explanation or what you plan to do.</div>
+    <label class="because-field"><span class="statement-label">Because</span><textarea name="reason" maxlength="4000" required>${escapeHtml(play.reason || '')}</textarea></label>
+    <div class="statement-line"><span class="statement-label">So I am</span><select name="portfolio_action">${actionOptions(play.direction, play.portfolio_action)}</select><div class="amount-wrap"><span>$</span><input name="action_amount" type="number" min="5" step="0.01" value="${escapeHtml(play.action_amount ?? 5)}"></div></div>
+    <div class="single-form-actions"><button class="button button-primary" type="submit">Save Changes</button><button class="button button-danger" type="button" data-single-cancel>Cancel Challenge</button></div>
+  </form>`;
 }
