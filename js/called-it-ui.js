@@ -208,7 +208,7 @@ export function challengeCardMarkup(play, slotNumber, options = {}) {
 }
 
 export function tickerResultMarkup(row) {
-  return `<button class="ticker-result" type="button" role="option" data-ticker="${escapeHtml(row.ticker)}" data-company="${escapeHtml(row.company_name)}" data-exchange="${escapeHtml(row.exchange || '')}"><strong>${escapeHtml(row.ticker)}</strong><span>${escapeHtml(row.company_name)}</span><small>${escapeHtml(row.exchange || '')}</small></button>`;
+  return `<button class="ticker-result" type="button" data-ticker="${escapeHtml(row.ticker)}" data-company="${escapeHtml(row.company_name)}" data-exchange="${escapeHtml(row.exchange || '')}"><strong>${escapeHtml(row.ticker)}</strong><span>${escapeHtml(row.company_name)}</span><small>${escapeHtml(row.exchange || '')}</small></button>`;
 }
 
 export function singleChallengeFormMarkup({ play = null, slotNumber = 1, adminEdit = false }) {
@@ -219,8 +219,9 @@ export function singleChallengeFormMarkup({ play = null, slotNumber = 1, adminEd
   const amount = play?.action_amount ?? 5;
   const quote = play?.reference_price ? `${money(play.reference_price)} · original call price` : 'Choose a stock to load the current price.';
   const goal = play
-    ? (play.direction === 'flat' ? `End range ${money(play.target_low)}–${money(play.target_high)}` : `Goal ${money(play.target_price)}${play.direction === 'up' ? '+' : ' or lower'}`)
+    ? (play.direction === 'flat' ? `End range ${goalLabel(play)}` : `Goal ${goalLabel(play)}`)
     : 'Choose a prediction to see the goal.';
+  const quoteLabel = adminEdit ? 'Price basis' : 'Currently trading at';
   const prefix = adminEdit ? 'called-admin' : 'called-add';
   const modeLabel = adminEdit ? 'ADMIN REFILE' : 'NEW CALL';
 
@@ -231,11 +232,11 @@ export function singleChallengeFormMarkup({ play = null, slotNumber = 1, adminEd
       <div class="ticker-search-wrap">
         <input id="${prefix}-ticker-search" class="ticker-search" name="ticker_search" value="${escapeHtml(ticker ? `${ticker} · ${company}` : '')}" autocomplete="off" placeholder="Search ticker or company" aria-controls="${prefix}-ticker-results" required>
         <input type="hidden" name="ticker" value="${escapeHtml(ticker)}">
-        <div id="${prefix}-ticker-results" class="ticker-results" role="listbox" aria-label="Matching stocks" hidden></div>
+        <div id="${prefix}-ticker-results" class="ticker-results" hidden></div>
       </div>
     </div>
     <div class="call-form-row price-row">
-      <span id="${prefix}-quote-label" class="statement-label">Currently trading at</span>
+      <span id="${prefix}-quote-label" class="statement-label">${quoteLabel}</span>
       <output class="quote-preview" data-single-quote aria-labelledby="${prefix}-quote-label" aria-live="polite">${quote}</output>
     </div>
     <fieldset class="call-form-row direction-row">
@@ -262,9 +263,7 @@ export function singleChallengeFormMarkup({ play = null, slotNumber = 1, adminEd
 
 export function ownerEditFormMarkup(play) {
   const prefix = 'called-owner';
-  const target = play.direction === 'flat'
-    ? `${money(play.target_low)}–${money(play.target_high)}`
-    : money(play.target_price);
+  const target = goalLabel(play);
 
   return `<form class="single-called-it-form owner-edit-form" data-mode="owner-edit" data-challenge-id="${escapeHtml(play.id)}">
     <div class="call-form-register"><span>CALL WORKSHEET / SLIP ${String(play.slot_number || 1).padStart(2, '0')}</span><span>OWNER CORRECTION</span></div>
