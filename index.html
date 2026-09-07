@@ -23,28 +23,40 @@
 </header>
 <main class="shell dashboard">
   <section class="game-tracker" aria-label="Current game requirements">
-    <div class="tracker-week"><span class="tracker-label">CURRENT WEEK</span><strong id="currentWeekValue" class="tracker-value">Week 6</strong></div>
-    <div class="tracker-buy"><strong id="purchaseMinimumValue" class="tracker-value">$30</strong><div><div class="tracker-label">BUY-IN TO DATE</div><div id="purchaseMinimumNote" class="tracker-copy">At least $30 of stock bought total. Current portfolio value does not matter.</div></div></div>
+    <div class="tracker-system-line"><span>HOUSE ACCOUNT / WEEKLY BUY-IN</span><span class="tracker-live">ACTIVE</span></div>
+    <div class="tracker-main">
+      <div class="tracker-week"><span class="tracker-label">CURRENT WEEK</span><strong id="currentWeekValue" class="tracker-value">Week 6</strong></div>
+      <div class="tracker-buy"><div class="tracker-label">BUY-IN TO DATE</div><strong id="purchaseMinimumValue" class="tracker-value">$30</strong></div>
+    </div>
+    <div class="tracker-foot"><span class="tracker-goblin-note">MANDATORY HUMAN WEALTH BUILDING</span><span id="purchaseMinimumNote" class="tracker-copy">At least $30 of stock bought total. Current portfolio value does not matter.</span></div>
   </section>
 
   <section class="lesson-section" aria-labelledby="lessonHeading">
-    <aside class="panel quick-panel lesson-panel">
-      <div class="section-kicker">CURRENT LESSON</div>
-      <h2 id="lessonHeading">Pay Yourself First</h2>
-      <p>The lesson on turning a small weekly habit into long-term money.</p>
-      <a class="button button-primary" href="./learn/invest-or-die/">Read the lesson</a>
+    <aside class="lesson-panel">
+      <div class="lesson-code">TRAINING BULLETIN / 001</div>
+      <div class="lesson-main">
+        <img class="lesson-training-stamp" src="./assets/stamps/human-finance-training.svg" alt="" aria-hidden="true">
+        <div class="lesson-copy">
+          <div class="section-kicker">CURRENT LESSON</div>
+          <h2 id="lessonHeading">Pay Yourself First</h2>
+          <p>The lesson on turning a small weekly habit into long-term money.</p>
+        </div>
+      </div>
+      <a class="lesson-link" href="./learn/invest-or-die/"><span>Read the file</span><span aria-hidden="true">→</span></a>
     </aside>
   </section>
 
   <section class="dashboard-section win-week-section" aria-labelledby="weekHeading">
-    <h1 id="weekHeading" class="major-section-title section-title-outside">Win the Week</h1>
-    <div class="hero-grid">
-      <article class="panel winner-panel">
-        <div id="winnerContent" class="winner-content"><div class="winner-name winner-empty">Winner not posted yet.</div><p class="muted">This week's result will show here after it is entered.</p></div>
-        <div id="winnerChartWrap" class="winner-chart-wrap" hidden><img id="winnerChart" class="winner-chart" alt="Current weekly portfolio chart"></div>
-        <button id="adminWeekButton" class="text-button" type="button" hidden>Update this week</button>
-      </article>
+    <div class="winner-section-head">
+      <div><div class="section-kicker">WEEKLY PERFORMANCE DESK</div><h1 id="weekHeading" class="major-section-title">Win the Week</h1></div>
+      <div class="winner-rule">BEST RETURN WINS $1</div>
     </div>
+    <article class="winner-panel">
+      <div class="winner-board-label"><span>TOP ACCOUNT</span><span>WEEKLY RETURN</span></div>
+      <div id="winnerContent" class="winner-content"><div class="winner-name winner-empty">Winner not posted yet.</div><p class="muted">This week's result will show here after it is entered.</p></div>
+      <div id="winnerChartWrap" class="winner-chart-wrap" hidden><div class="winner-chart-label">SUPPORTING EVIDENCE / PORTFOLIO CHART</div><img id="winnerChart" class="winner-chart" alt="Current weekly portfolio chart"></div>
+      <button id="adminWeekButton" class="text-button winner-admin-button" type="button" hidden>Update this week</button>
+    </article>
   </section>
 
   <section class="plays-section" aria-labelledby="playsHeading">
