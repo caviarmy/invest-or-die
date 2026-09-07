@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1115">
+<meta name="theme-color" content="#090b09">
 <meta name="goblin-supabase-url" content="https://zdxuaphrtedzzsiheslg.supabase.co">
 <meta name="goblin-supabase-publishable-key" content="sb_publishable__hXEM3uZKNhZUjgxLWYEMw_ohF2QqjK">
 <title>Goblin Investing</title>
@@ -12,8 +12,9 @@
 <body>
 <header class="site-header">
   <div class="shell header-inner">
-    <a class="brand" href="./" aria-label="Goblin Investing home"><span class="brand-mark">GI</span><span>Goblin Investing</span></a>
+    <a class="brand" href="./" aria-label="Goblin Investing home"><img class="brand-wordmark" src="./assets/goblin-investing-wordmark.svg" alt=""></a>
     <div class="account-area">
+      <span class="market-desk-label" aria-hidden="true">HOUSEHOLD<br>SECURITIES DESK</span>
       <a class="nav-link" href="./rules/">The Rules</a>
       <span id="accountLabel" class="account-label" hidden></span>
       <button id="authButton" class="button button-secondary" type="button">Sign In</button>
@@ -75,7 +76,7 @@
   <footer class="site-footer"><a href="./rules/">The Rules</a><a href="./learn/invest-or-die/">Current lesson</a></footer>
 </main>
 
-<div id="authModal" class="modal" aria-hidden="true"><div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="authTitle"><div class="modal-head"><div><div class="section-kicker">GOBLIN INVESTING</div><h2 id="authTitle">Sign in</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><form id="authForm" class="form-stack"><label>Email<input id="authEmail" name="email" type="email" autocomplete="email" required></label><label>Password<input id="authPassword" name="password" type="password" autocomplete="current-password" required></label><button class="button button-primary" type="submit">Sign In</button><p id="authMessage" class="form-message" role="status" aria-live="polite"></p></form></div></div>
+<div id="authModal" class="modal" aria-hidden="true"><div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="authTitle"><div class="modal-head"><div><div class="section-kicker">HOUSEHOLD SECURITIES DESK</div><h2 id="authTitle">Sign in</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><form id="authForm" class="form-stack"><label>Email<input id="authEmail" name="email" type="email" autocomplete="email" required></label><label>Password<input id="authPassword" name="password" type="password" autocomplete="current-password" required></label><button class="button button-primary" type="submit">Sign In</button><p id="authMessage" class="form-message" role="status" aria-live="polite"></p></form></div></div>
 <div id="editModal" class="modal" aria-hidden="true"><div class="modal-card modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="editTitle"><div class="modal-head"><div><div class="section-kicker">"CALLED IT!"</div><h2 id="editTitle">Called It challenge</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><div id="editSlots" class="edit-slots"></div><p id="editMessage" class="form-message" role="status" aria-live="polite"></p></div></div>
 <div id="weekModal" class="modal" aria-hidden="true"><div class="modal-card modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="weekModalTitle"><div class="modal-head"><div><div class="section-kicker">ADMIN</div><h2 id="weekModalTitle">Update Game</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><form id="weekForm" class="form-stack"><div class="form-section"><div class="form-section-title">Win the Week</div><div class="settings-grid"><label>Winner<select id="winnerNameInput" required></select></label><label>Weekly return (%)<input id="winnerReturnInput" type="number" step="0.01" min="-1000" max="10000" required></label><label>Current game week<input id="currentWeekInput" type="number" min="1" step="1" required></label><label>Week start<input id="weekStartInput" type="date" required></label><label>Week end<input id="weekEndInput" type="date" required></label><label>Current chart image<input id="winnerChartInput" type="file" accept="image/png,image/jpeg,image/webp"></label></div></div><div class="form-section"><div class="form-section-title">Called It settings</div><div class="settings-grid"><label>Goes Up target (%)<input id="calledUpInput" type="number" min="0.1" max="100" step="0.1" required></label><label>Goes Down target (%)<input id="calledDownInput" type="number" min="0.1" max="99.9" step="0.1" required></label><label>About the Same range (±%)<input id="calledFlatInput" type="number" min="0.1" max="25" step="0.1" required></label><label>Challenge length (days)<input id="calledDurationInput" type="number" min="1" max="365" step="1" required></label><label>Review cooldown (days)<input id="calledCooldownInput" type="number" min="0" max="90" step="1" required></label><label>Flat claim window (days)<input id="calledClaimInput" type="number" min="1" max="90" step="1" required></label><label>Approved payout ($)<input id="calledPayoutInput" type="number" min="0" max="1000" step="0.01" required></label></div></div><button class="button button-primary" type="submit">Save Game</button><p id="weekMessage" class="form-message" role="status" aria-live="polite"></p></form></div></div>
 <script type="module" src="./js/app.js"></script>
