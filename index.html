@@ -68,8 +68,17 @@
         <div class="called-it-heading-line">
           <h2 id="playsHeading" class="major-section-title">"Called It!"</h2>
           <details class="game-help">
-            <summary aria-label='What is "Called It!"?'>?</summary>
-            <div class="game-help-copy">Pick a stock, choose whether it will go up, down, or finish about the same, and explain why. The site records the price and goal for you. Check the price during the challenge and submit it for review when the goal is met. An approved challenge pays $5.</div>
+            <summary aria-label='"Called It!" help'>?</summary>
+            <div class="game-help-copy">
+              <div class="game-help-register">CALL DESK / QUICK GUIDE</div>
+              <strong class="game-help-title">How a call works</strong>
+              <ol class="game-help-steps">
+                <li>Pick a listed stock and the site records a price snapshot.</li>
+                <li>Choose Up, Down, or About the Same, then explain why.</li>
+                <li>Check the price during the challenge. If the goal is met, submit it for review.</li>
+              </ol>
+              <div class="game-help-payout">APPROVED CALLS EARN THE CURRENT CALLED IT PAYOUT.</div>
+            </div>
           </details>
         </div>
         <div class="major-section-subtitle">Due Diligence Challenges</div>
@@ -92,7 +101,7 @@
 </main>
 
 <div id="authModal" class="modal" aria-hidden="true"><div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="authTitle"><div class="modal-head"><div><div class="section-kicker">HOUSEHOLD SECURITIES DESK</div><h2 id="authTitle">Sign in</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><form id="authForm" class="form-stack"><label>Email<input id="authEmail" name="email" type="email" autocomplete="email" required></label><label>Password<input id="authPassword" name="password" type="password" autocomplete="current-password" required></label><button class="button button-primary" type="submit">Sign In</button><p id="authMessage" class="form-message" role="status" aria-live="polite"></p></form></div></div>
-<div id="editModal" class="modal" aria-hidden="true"><div class="modal-card modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="editTitle"><div class="modal-head"><div><div class="section-kicker">"CALLED IT!"</div><h2 id="editTitle">Called It challenge</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><div id="editSlots" class="edit-slots"></div><p id="editMessage" class="form-message" role="status" aria-live="polite"></p></div></div>
+<div id="editModal" class="modal" aria-hidden="true"><div class="modal-card modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="editTitle"><div class="modal-head"><div><div class="section-kicker">"CALLED IT!" / BROKERAGE FORM</div><h2 id="editTitle">Called It challenge</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><div id="editSlots" class="edit-slots"></div><p id="editMessage" class="form-message" role="status" aria-live="polite"></p></div></div>
 <div id="weekModal" class="modal" aria-hidden="true"><div class="modal-card modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="weekModalTitle"><div class="modal-head"><div><div class="section-kicker">ADMIN</div><h2 id="weekModalTitle">Update Game</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><form id="weekForm" class="form-stack"><div class="form-section"><div class="form-section-title">Win the Week</div><div class="settings-grid"><label>Winner<select id="winnerNameInput" required></select></label><label>Weekly return (%)<input id="winnerReturnInput" type="number" step="0.01" min="-1000" max="10000" required></label><label>Current game week<input id="currentWeekInput" type="number" min="1" step="1" required></label><label>Week start<input id="weekStartInput" type="date" required></label><label>Week end<input id="weekEndInput" type="date" required></label><label>Current chart image<input id="winnerChartInput" type="file" accept="image/png,image/jpeg,image/webp"></label></div></div><div class="form-section"><div class="form-section-title">Called It settings</div><div class="settings-grid"><label>Goes Up target (%)<input id="calledUpInput" type="number" min="0.1" max="100" step="0.1" required></label><label>Goes Down target (%)<input id="calledDownInput" type="number" min="0.1" max="99.9" step="0.1" required></label><label>About the Same range (±%)<input id="calledFlatInput" type="number" min="0.1" max="25" step="0.1" required></label><label>Challenge length (days)<input id="calledDurationInput" type="number" min="1" max="365" step="1" required></label><label>Review cooldown (days)<input id="calledCooldownInput" type="number" min="0" max="90" step="1" required></label><label>Flat claim window (days)<input id="calledClaimInput" type="number" min="1" max="90" step="1" required></label><label>Approved payout ($)<input id="calledPayoutInput" type="number" min="0" max="1000" step="0.01" required></label></div></div><button class="button button-primary" type="submit">Save Game</button><p id="weekMessage" class="form-message" role="status" aria-live="polite"></p></form></div></div>
 <script type="module" src="./js/app.js"></script>
 </body>
