@@ -24,9 +24,9 @@ export function formatDateTime(value) {
 }
 
 export function directionLabel(direction) {
-  if (direction === 'up') return 'GOES UP 📈';
-  if (direction === 'down') return 'GOES DOWN 📉';
-  if (direction === 'flat') return 'FINISHES ABOUT THE SAME';
+  if (direction === 'up') return '📈 GOES UP';
+  if (direction === 'down') return '📉 GOES DOWN';
+  if (direction === 'flat') return '→ FINISHES ABOUT THE SAME';
   return 'PREDICTION';
 }
 
@@ -41,9 +41,9 @@ export function actionLabel(play) {
 
 export function goalLabel(play) {
   if (!play) return '';
-  if (play.direction === 'up') return `Goal ${money(play.target_price)}+`;
-  if (play.direction === 'down') return `Goal ${money(play.target_price)} or lower`;
-  if (play.direction === 'flat') return `End range ${money(play.target_low)}–${money(play.target_high)}`;
+  if (play.direction === 'up') return `${money(play.target_price)}+`;
+  if (play.direction === 'down') return `${money(play.target_price)} or lower`;
+  if (play.direction === 'flat') return `${money(play.target_low)}–${money(play.target_high)}`;
   return '';
 }
 
@@ -136,19 +136,31 @@ export function cooldownRemaining(lockUntil) {
 
 export function challengeCardMarkup(play, slotNumber, options = {}) {
   const { canManage = false, canEdit = false } = options;
+  const slipNumber = String(slotNumber).padStart(2, '0');
+
   if (!play) {
-    return `<div class="play-slot empty-slot"><div class="slot-label">CHALLENGE ${slotNumber}</div><b>Open slot</b><span>No active challenge.</span></div>`;
+    return `<div class="play-slot empty-slot">
+      <div class="slot-label">CALL SLIP ${slipNumber}</div>
+      <b>EMPTY — NO CALL FILED</b>
+      <span>${canManage ? 'Use Add Challenge to file the next prediction.' : 'No active challenge in this slot.'}</span>
+    </div>`;
   }
 
-  if (['approved', 'rejected'].includes(play.status) && cooldownRemaining(play.lock_until)) {
-    return `<div class="play-slot cooldown-slot"><div class="slot-label">CHALLENGE ${slotNumber}</div><div class="review-badge">REVIEW COOLDOWN</div><b>${cooldownRemaining(play.lock_until)} remaining</b><span>Your next challenge can use this slot when the cooldown ends.</span></div>`;
+  const cooldown = cooldownRemaining(play.lock_until);
+  if (['approved', 'rejected'].includes(play.status) && cooldown) {
+    return `<div class="play-slot cooldown-slot">
+      <div class="slot-label">CALL SLIP ${slipNumber}</div>
+      <div class="review-badge">REVIEW COOLDOWN</div>
+      <b>${cooldown} remaining</b>
+      <span>Your next challenge can use this slot when the cooldown ends.</span>
+    </div>`;
   }
 
   const qualified = targetMetFromLastCheck(play);
   const review = play.status === 'under_review';
   const hasCheckedPrice = play.last_checked_price !== null && play.last_checked_price !== undefined && play.last_checked_price !== '' && Boolean(play.last_checked_at);
-  const current = hasCheckedPrice ? `<div><span>CURRENT</span><b>${money(play.last_checked_price)}</b></div>` : '';
-  const checked = play.last_checked_at ? `<div><span>CHECKED</span><b>${formatDateTime(play.last_checked_at)}</b></div>` : '';
+  const lastCheck = hasCheckedPrice ? `<div><span>LAST CHECK</span><b>${money(play.last_checked_price)}</b></div>` : '';
+  const checkedAt = play.last_checked_at ? `<div><span>CHECKED AT</span><b>${formatDateTime(play.last_checked_at)}</b></div>` : '';
   const buttons = review ? '' : canManage ? `
     <button class="button button-secondary challenge-action" type="button" data-check-id="${escapeHtml(play.id)}">Check Price</button>
     ${qualified ? `<button class="button button-primary challenge-action" type="button" data-submit-id="${escapeHtml(play.id)}">Submit for Review</button>` : ''}` : '';
@@ -158,21 +170,21 @@ export function challengeCardMarkup(play, slotNumber, options = {}) {
 
   return `<div class="play-slot ${review ? 'play-slot-review' : ''}">
     ${editButton}
-    <div class="slot-label">CHALLENGE ${slotNumber}</div>
+    <div class="slot-label">CALL SLIP ${slipNumber}</div>
     <div class="play-ticker">${escapeHtml(play.ticker)}</div>
     <div class="play-company">${escapeHtml(play.company_name || '')}</div>
     <div class="prediction-badge prediction-${escapeHtml(play.direction || 'unknown')}">${directionLabel(play.direction)}</div>
     <div class="play-meta">
-      <div><span>FROM</span><b>${money(play.reference_price)}</b></div>
-      <div><span>GOAL</span><b>${escapeHtml(goalLabel(play).replace(/^Goal /, ''))}</b></div>
-      ${current}${checked}
+      <div><span>OPENED</span><b>${money(play.reference_price)}</b></div>
+      <div><span>TARGET</span><b>${escapeHtml(goalLabel(play))}</b></div>
+      ${lastCheck}${checkedAt}
     </div>
     <div class="play-copy reason-copy"><strong>BECAUSE</strong><div>${linkifyPlainText(play.reason || '')}</div></div>
     <div class="play-copy"><strong>MY MOVE</strong><div>${escapeHtml(actionLabel(play))}</div></div>
-    <div class="play-expiry">${play.direction === 'flat' ? 'Ends' : 'Expires'} ${formatDate(play.expires_at)}</div>
-    ${qualified && !review ? `<div class="target-reached"><strong>TARGET REACHED</strong><span>${money(play.last_checked_price)} · checked ${formatDateTime(play.last_checked_at)}</span></div>` : ''}
+    <div class="play-expiry">${play.direction === 'flat' ? 'ENDS' : 'EXPIRES'} / ${formatDate(play.expires_at)}</div>
+    ${qualified && !review ? `<div class="target-reached"><strong>GOAL MET AT LAST CHECK</strong><span>${money(play.last_checked_price)} · checked ${formatDateTime(play.last_checked_at)} · submission will recheck the price</span></div>` : ''}
     ${review ? `<div class="under-review-box"><strong>UNDER REVIEW</strong><span>Submitted at ${money(play.qualifying_price)}</span><span>Slot locked for ${cooldownRemaining(play.lock_until) || 'review'}</span></div>` : ''}
-    ${buttons}
+    ${buttons ? `<div class="challenge-actions">${buttons}</div>` : ''}
   </div>`;
 }
 
