@@ -17,11 +17,12 @@ This repository record exists so a fresh implementation turn can recover the cri
 - Turns 2–3 source-level correction review: COMPLETE
 - Turn 4 Called It participant sections + challenge slips: CODE COMPLETE / VISUAL RUNTIME QA DEFERRED
 - Turn 4 source-level correction review: COMPLETE / VISUAL RUNTIME QA DEFERRED
+- Turn 5 Called It form + modal + help: CODE COMPLETE / ANDROID AND BROWSER RUNTIME QA DEFERRED
 - Turn 4 accessibility carry-forward: participant heading semantics and participant-specific admin `+ Add` accessible name must be resolved before production merge, preferably next time canonical participant rendering is edited
 - Manual Android/browser QA: DEFERRED UNTIL LATER INTEGRATED QA
-- Next canonical turn: Turn 5 — Called It form + modal + help
+- Next canonical turn: Turn 6 — The Receipts / leaderboard
 
-Read `turn-0-baseline.md` for the original architecture map, `turn-1-completion.md` for the consolidation/correction record, `turn-2-completion.md` for the visual-foundation record, `turn-3-completion.md` for the top-page composition record, `turn-2-3-correction-review.md` for the earlier review findings, `turn-4-completion.md` for the challenge-slip redesign record, and `turn-4-correction-review.md` for the latest review findings and prevention rules.
+Read `turn-0-baseline.md` for the original architecture map, `turn-1-completion.md` for the consolidation/correction record, `turn-2-completion.md` for the visual-foundation record, `turn-3-completion.md` for the top-page composition record, `turn-2-3-correction-review.md` for the earlier review findings, `turn-4-completion.md` for the challenge-slip redesign record, `turn-4-correction-review.md` for the latest review findings/prevention rules, and `turn-5-completion.md` for the Called It form/modal/help redesign record.
 
 ## Mandatory environment rule
 
@@ -75,6 +76,9 @@ After coding:
 - verify display formatters preserve missing values as missing rather than coercing them into legitimate-looking zeroes;
 - avoid nested vertical `overflow:auto` inside repeated slips/cards unless there is a documented interaction need and mobile testing covers it;
 - perform a small semantic accessibility gate now: heading hierarchy, accessible control names, touch target size, and status meaning. Turn 9 is verification, not the first accessibility pass;
+- for custom ARIA widget roles such as `listbox`, `option`, `menu`, or `tab`, require the matching keyboard/focus interaction model; otherwise prefer native controls/semantics rather than decorative ARIA;
+- for help/onboarding copy describing a multi-step server workflow, identify exactly which step creates or persists authoritative state and phrase the copy accordingly;
+- for mobile sheets/popovers, distinguish intentional viewport-containment scrolling from accidental nested scrolling, and explicitly prevent background-page scrolling while the sheet is open;
 - mark CODE COMPLETE separately from QA COMPLETE;
 - update the relevant turn record before moving on.
 
@@ -92,6 +96,8 @@ Every later visual turn must explicitly answer these questions before it is call
 8. **Sentinels:** Can null/blank/missing data be visually mistaken for a legitimate zero/value?
 9. **Scroll topology:** Did the redesign create an unnecessary nested vertical scroll region?
 10. **Semantics:** Does the new visual hierarchy have matching headings and accessible control names?
+11. **ARIA contract:** If a custom widget role was added, is its required keyboard/focus behavior actually implemented?
+12. **Authority timing:** Does workflow copy distinguish preview/selection from the step that persists official server-authoritative state?
 
 ## Deferred cutover gate
 
