@@ -18,7 +18,7 @@ This repository record exists so a fresh implementation turn can recover the cri
 - Turn 4 Called It participant sections + challenge slips: CODE COMPLETE / VISUAL RUNTIME QA DEFERRED
 - Turn 4 source-level correction review: COMPLETE / VISUAL RUNTIME QA DEFERRED
 - Turn 5 Called It form + modal + help: CODE COMPLETE / ANDROID AND BROWSER RUNTIME QA DEFERRED
-- Turn 4 accessibility carry-forward: participant heading semantics and participant-specific admin `+ Add` accessible name must be resolved before production merge, preferably next time canonical participant rendering is edited
+- Turn 4 participant accessibility carry-forward: RESOLVED during Turn 5 controller work
 - Manual Android/browser QA: DEFERRED UNTIL LATER INTEGRATED QA
 - Next canonical turn: Turn 6 — The Receipts / leaderboard
 
@@ -75,9 +75,12 @@ After coding:
 - verify compact empty states remain compact after Grid/Flex cross-axis sizing and desktop media rules are applied;
 - verify display formatters preserve missing values as missing rather than coercing them into legitimate-looking zeroes;
 - avoid nested vertical `overflow:auto` inside repeated slips/cards unless there is a documented interaction need and mobile testing covers it;
-- perform a small semantic accessibility gate now: heading hierarchy, accessible control names, touch target size, and status meaning. Turn 9 is verification, not the first accessibility pass;
+- perform a small semantic accessibility gate now: heading hierarchy, accessible control names, touch target size, focus entry/restoration, selected-state semantics, and status meaning. Turn 9 is verification, not the first accessibility pass;
 - for custom ARIA widget roles such as `listbox`, `option`, `menu`, or `tab`, require the matching keyboard/focus interaction model; otherwise prefer native controls/semantics rather than decorative ARIA;
+- for toggle-like button groups, expose selected state semantically (`aria-pressed`, radio semantics, etc.) and update it whenever the visual selection changes;
 - for help/onboarding copy describing a multi-step server workflow, identify exactly which step creates or persists authoritative state and phrase the copy accordingly;
+- for existing records edited under mutable global settings, distinguish stored historical terms from values that would be recalculated today; opening an editor must not silently rewrite the displayed historical target using current settings;
+- when a selected entity becomes unresolved during search/edit, clear dependent previews rather than leaving stale price/target output visible;
 - for mobile sheets/popovers, distinguish intentional viewport-containment scrolling from accidental nested scrolling, and explicitly prevent background-page scrolling while the sheet is open;
 - mark CODE COMPLETE separately from QA COMPLETE;
 - update the relevant turn record before moving on.
@@ -98,6 +101,8 @@ Every later visual turn must explicitly answer these questions before it is call
 10. **Semantics:** Does the new visual hierarchy have matching headings and accessible control names?
 11. **ARIA contract:** If a custom widget role was added, is its required keyboard/focus behavior actually implemented?
 12. **Authority timing:** Does workflow copy distinguish preview/selection from the step that persists official server-authoritative state?
+13. **Historical terms:** Does editing an existing record preserve its stored target/price until a real term-changing action intentionally restarts it?
+14. **Dependent preview freshness:** When a stock/entity selection becomes unresolved, are stale dependent values cleared immediately?
 
 ## Deferred cutover gate
 
