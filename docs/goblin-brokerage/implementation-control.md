@@ -12,10 +12,11 @@ This repository record exists so a fresh implementation turn can recover the cri
 - Turn 0: COMPLETE
 - Turn 1: CODE COMPLETE
 - Turn 1 correction review: COMPLETE except deferred owner-edit authority cutover
+- Turn 2 visual foundation: CODE COMPLETE / VISUAL RUNTIME QA PENDING
 - Manual Android/browser QA: PENDING
-- Next visual turn: Turn 2
+- Next canonical turn: Turn 3 — Tracker + Current Lesson + Win the Week
 
-Read `turn-0-baseline.md` for the original architecture map and `turn-1-completion.md` for the consolidation/correction record.
+Read `turn-0-baseline.md` for the original architecture map, `turn-1-completion.md` for the consolidation/correction record, and `turn-2-completion.md` for the visual-foundation record.
 
 ## Mandatory environment rule
 
