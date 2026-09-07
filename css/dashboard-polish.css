@@ -1,16 +1,18 @@
 /* Dashboard polish: article contrast, mobile help, single-play editing, admin history tools. */
 
+.lesson-section{margin:16px 0 8px}
 .lesson-panel{
-  background:linear-gradient(145deg,#dcefff,#b9daf4);
-  border-color:#86b8df;
-  color:#0c2435;
-  box-shadow:0 18px 48px rgba(18,82,128,.22);
+  background:linear-gradient(145deg,#123b63,#0d2946);
+  border-color:#2f628d;
+  color:#edf7ff;
+  box-shadow:0 18px 48px rgba(4,40,70,.34);
 }
-.lesson-panel .section-kicker{color:#315d7b}
-.lesson-panel h2{color:#071c2b}
-.lesson-panel p{color:#274a61}
-.lesson-panel .button-primary{background:#0d3d61;color:#f6fbff}
-.lesson-panel .button-primary:hover{background:#0a324f}
+.lesson-panel .section-kicker{color:#86c6f3}
+.lesson-panel h2{color:#f4f9fd}
+.lesson-panel p{color:#c2d9e9}
+.lesson-panel .button-primary{background:#4b9ed6;color:#071b2a}
+.lesson-panel .button-primary:hover{background:#63afe0}
+.win-week-section .hero-grid{grid-template-columns:1fr}
 
 .play-slot{position:relative}
 .play-slot .slot-label{padding-right:38px}
