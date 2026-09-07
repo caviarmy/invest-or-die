@@ -103,7 +103,7 @@ export function predictionButtons(direction = '') {
     ['down', 'Go Down'],
     ['flat', 'Finish About the Same']
   ];
-  return defs.map(([value, label]) => `<button type="button" data-single-direction="${value}" class="prediction-choice ${direction === value ? 'selected' : ''}">${label}</button>`).join('');
+  return defs.map(([value, label]) => `<button type="button" data-single-direction="${value}" class="prediction-choice ${direction === value ? 'selected' : ''}" aria-pressed="${direction === value ? 'true' : 'false'}">${label}</button>`).join('');
 }
 
 function escapeUrl(value) {
