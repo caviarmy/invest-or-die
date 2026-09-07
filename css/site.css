@@ -113,13 +113,13 @@ p{line-height:1.5}
 .status-line{min-height:20px;color:var(--muted);font:400 11px/1.4 var(--font-mono);margin-bottom:14px}
 .participants-grid{display:grid;grid-template-columns:1fr;gap:30px;counter-reset:participant}
 .participant-card{counter-increment:participant;background:transparent;border:0;padding:0;min-width:0}
-.participant-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px;padding-bottom:10px;border-bottom:3px double var(--line-strong)}
-.participant-name{min-width:0;font-family:var(--font-display);font-size:clamp(27px,8vw,36px);font-weight:700;letter-spacing:-.03em;line-height:.9;text-transform:uppercase;overflow-wrap:anywhere}
+.participant-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px;padding-bottom:10px;border-bottom:3px double var(--line-strong)}
+.participant-name{min-width:0;margin:0;font-family:var(--font-display);font-size:clamp(27px,8vw,36px);font-weight:700;letter-spacing:-.03em;line-height:.9;text-transform:uppercase;overflow-wrap:anywhere}
 .participant-name::before{content:counter(participant,decimal-leading-zero) " / ";color:#707a72;font:600 11px/1 var(--font-mono);letter-spacing:.08em}
-.participant-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.participant-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto;margin-left:auto}
 .you-badge{font:700 9px/1 var(--font-mono);letter-spacing:.08em;color:var(--ink);background:var(--money);border-radius:2px;padding:6px 8px}
 .admin-edit-button{min-height:44px;border:1px solid var(--line-strong);background:transparent;color:#e8eae3;border-radius:var(--control-radius);padding:7px 11px;font-family:var(--font-display);font-size:11px;font-weight:700;text-transform:uppercase}
-.slot-list{display:grid;grid-template-columns:1fr;gap:10px}
+.slot-list{display:grid;grid-template-columns:1fr;gap:10px;align-items:start}
 .play-slot{position:relative;min-width:0;border:1px solid var(--line-strong);border-radius:0;padding:14px;background:transparent;min-height:150px}
 .play-slot .slot-label{padding-right:50px}
 .slot-label{font:600 9px/1.2 var(--font-mono);letter-spacing:.1em;color:#7f8981;margin-bottom:14px}
@@ -139,9 +139,8 @@ p{line-height:1.5}
 .play-copy{margin:0;padding:11px 0;border-bottom:1px solid var(--line);font-size:12px;color:#b9c0b9;line-height:1.48;overflow-wrap:anywhere}
 .play-copy strong{display:block;color:#e4e6df;font:600 9px/1.2 var(--font-mono);letter-spacing:.08em;margin-bottom:6px}
 .play-copy a{color:var(--money);word-break:break-word}
-.reason-copy>div{max-height:150px;overflow:auto;padding-right:4px}
 .play-expiry{padding:10px 0;border-bottom:1px solid var(--line);color:#89938b;font-size:10px;letter-spacing:.035em}
-.empty-slot{display:flex;flex-direction:column;justify-content:center;min-height:132px;color:#7f8981;border-style:dashed}
+.empty-slot{display:flex;flex-direction:column;justify-content:center;min-height:96px;color:#7f8981;border-style:dashed}
 .empty-slot b{font-family:var(--font-display);font-weight:600;color:#c1c6c0;font-size:18px;margin-bottom:5px;text-transform:uppercase}
 .empty-slot span,.cooldown-slot span{font-size:11px;line-height:1.45}
 .cooldown-slot{display:flex;flex-direction:column;justify-content:center;min-height:150px;color:#879188}
@@ -315,6 +314,7 @@ textarea{min-height:88px;resize:vertical}
   .participants-grid{grid-template-columns:1fr;gap:36px}
   .slot-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .play-slot{padding:16px;min-height:180px}
+  .empty-slot{min-height:104px}
   .play-ticker{font-size:48px}
   .challenge-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
   .challenge-actions .challenge-action:only-child{grid-column:1/-1}
