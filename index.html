@@ -7,6 +7,9 @@
 <meta name="goblin-supabase-url" content="https://zdxuaphrtedzzsiheslg.supabase.co">
 <meta name="goblin-supabase-publishable-key" content="sb_publishable__hXEM3uZKNhZUjgxLWYEMw_ohF2QqjK">
 <title>Goblin Investing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./css/site.css">
 </head>
 <body>
@@ -23,7 +26,7 @@
 </header>
 <main class="shell dashboard">
   <section class="game-tracker" aria-label="Current game requirements">
-    <div class="tracker-system-line"><span>HOUSE ACCOUNT / WEEKLY BUY-IN</span><span class="tracker-live">ACTIVE</span></div>
+    <div class="tracker-system-line"><span>HOUSE ACCOUNT / WEEKLY BUY-IN</span><span class="tracker-requirement">REQUIREMENT IN EFFECT</span></div>
     <div class="tracker-main">
       <div class="tracker-week"><span class="tracker-label">CURRENT WEEK</span><strong id="currentWeekValue" class="tracker-value">Week 6</strong></div>
       <div class="tracker-buy"><div class="tracker-label">BUY-IN TO DATE</div><strong id="purchaseMinimumValue" class="tracker-value">$30</strong></div>
@@ -52,7 +55,7 @@
       <div class="winner-rule">BEST RETURN WINS $1</div>
     </div>
     <article class="winner-panel">
-      <div class="winner-board-label"><span>TOP ACCOUNT</span><span>WEEKLY RETURN</span></div>
+      <div class="winner-board-label">WEEKLY WINNER / RETURN</div>
       <div id="winnerContent" class="winner-content"><div class="winner-name winner-empty">Winner not posted yet.</div><p class="muted">This week's result will show here after it is entered.</p></div>
       <div id="winnerChartWrap" class="winner-chart-wrap" hidden><div class="winner-chart-label">SUPPORTING EVIDENCE / PORTFOLIO CHART</div><img id="winnerChart" class="winner-chart" alt="Current weekly portfolio chart"></div>
       <button id="adminWeekButton" class="text-button winner-admin-button" type="button" hidden>Update this week</button>
