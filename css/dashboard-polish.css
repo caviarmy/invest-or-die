@@ -14,6 +14,38 @@
 .lesson-panel .button-primary:hover{background:#63afe0}
 .win-week-section .hero-grid{grid-template-columns:1fr}
 
+.prediction-badge.prediction-up{
+  background:#16271e;
+  border-color:#31503d;
+  color:var(--green);
+}
+.prediction-badge.prediction-down{
+  background:#32181d;
+  border-color:#7a3641;
+  color:#ff9d9d;
+}
+.prediction-badge.prediction-flat{
+  background:#1a2026;
+  border-color:#3d4951;
+  color:#c7d0d5;
+}
+.prediction-choice[data-direction="up"]::before,
+.prediction-choice[data-single-direction="up"]::before{content:"📈 ";}
+.prediction-choice[data-direction="down"]::before,
+.prediction-choice[data-single-direction="down"]::before{content:"📉 ";}
+.prediction-choice[data-direction="down"],
+.prediction-choice[data-single-direction="down"]{
+  border-color:#5a3038;
+  color:#ffb1b1;
+}
+.prediction-choice[data-direction="down"].selected,
+.prediction-choice[data-single-direction="down"].selected{
+  background:#32181d;
+  border-color:#8a3b48;
+  color:#ff9d9d;
+  box-shadow:0 0 0 2px rgba(255,157,157,.06);
+}
+
 .play-slot{position:relative}
 .play-slot .slot-label{padding-right:38px}
 .play-edit-pencil{
