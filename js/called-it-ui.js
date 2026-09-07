@@ -3,6 +3,7 @@ export function escapeHtml(value) {
 }
 
 export function money(value) {
+  if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) return '—';
   const number = Number(value);
   if (!Number.isFinite(number)) return '—';
   return number.toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -24,6 +25,13 @@ export function formatDateTime(value) {
 }
 
 export function directionLabel(direction) {
+  if (direction === 'up') return 'GOES UP 📈';
+  if (direction === 'down') return 'GOES DOWN 📉';
+  if (direction === 'flat') return 'FINISHES ABOUT THE SAME';
+  return 'PREDICTION';
+}
+
+function slipDirectionLabel(direction) {
   if (direction === 'up') return '📈 GOES UP';
   if (direction === 'down') return '📉 GOES DOWN';
   if (direction === 'flat') return '→ FINISHES ABOUT THE SAME';
@@ -31,7 +39,8 @@ export function directionLabel(direction) {
 }
 
 export function actionLabel(play) {
-  const amount = play?.action_amount ? money(play.action_amount) : '';
+  const hasAmount = play?.action_amount !== null && play?.action_amount !== undefined && play?.action_amount !== '';
+  const amount = hasAmount ? money(play.action_amount) : '—';
   if (play?.portfolio_action === 'buy') return `Buying ${amount}`;
   if (play?.portfolio_action === 'hold') return `Holding ${amount}`;
   if (play?.portfolio_action === 'sell') return `Selling ${amount}`;
@@ -41,9 +50,19 @@ export function actionLabel(play) {
 
 export function goalLabel(play) {
   if (!play) return '';
-  if (play.direction === 'up') return `${money(play.target_price)}+`;
-  if (play.direction === 'down') return `${money(play.target_price)} or lower`;
-  if (play.direction === 'flat') return `${money(play.target_low)}–${money(play.target_high)}`;
+  if (play.direction === 'up') {
+    const target = money(play.target_price);
+    return target === '—' ? '—' : `${target}+`;
+  }
+  if (play.direction === 'down') {
+    const target = money(play.target_price);
+    return target === '—' ? '—' : `${target} or lower`;
+  }
+  if (play.direction === 'flat') {
+    const low = money(play.target_low);
+    const high = money(play.target_high);
+    return low === '—' || high === '—' ? '—' : `${low}–${high}`;
+  }
   return '';
 }
 
@@ -142,7 +161,7 @@ export function challengeCardMarkup(play, slotNumber, options = {}) {
     return `<div class="play-slot empty-slot">
       <div class="slot-label">CALL SLIP ${slipNumber}</div>
       <b>EMPTY — NO CALL FILED</b>
-      <span>${canManage ? 'Use Add Challenge to file the next prediction.' : 'No active challenge in this slot.'}</span>
+      <span>${canManage ? 'Use the add control above to file the next prediction.' : 'No active challenge in this slot.'}</span>
     </div>`;
   }
 
@@ -173,7 +192,7 @@ export function challengeCardMarkup(play, slotNumber, options = {}) {
     <div class="slot-label">CALL SLIP ${slipNumber}</div>
     <div class="play-ticker">${escapeHtml(play.ticker)}</div>
     <div class="play-company">${escapeHtml(play.company_name || '')}</div>
-    <div class="prediction-badge prediction-${escapeHtml(play.direction || 'unknown')}">${directionLabel(play.direction)}</div>
+    <div class="prediction-badge prediction-${escapeHtml(play.direction || 'unknown')}">${slipDirectionLabel(play.direction)}</div>
     <div class="play-meta">
       <div><span>OPENED</span><b>${money(play.reference_price)}</b></div>
       <div><span>TARGET</span><b>${escapeHtml(goalLabel(play))}</b></div>
