@@ -297,10 +297,11 @@ textarea{min-height:88px;resize:vertical}
 .guide-section-compact p{margin:0;color:#aeb6ae}
 
 @media(max-width:699px){
+  body:has(.game-help[open]){overflow:hidden}
   .single-play-mode{align-items:stretch;padding:0}
   .single-play-mode .modal-card{width:100%;min-height:100dvh;max-height:100dvh;border:0;border-radius:0;padding:max(14px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));box-shadow:none}
   .single-play-mode .modal-head{top:0;padding-top:0}
-  .game-help[open]::before{content:"";position:fixed;inset:0;z-index:110;background:rgba(3,5,4,.70)}
+  .game-help[open]::before{content:"";position:fixed;inset:0;z-index:110;background:rgba(3,5,4,.70);touch-action:none}
   .game-help[open] summary{position:fixed;z-index:122;right:16px;bottom:calc(min(68dvh,390px) - 46px);width:64px;height:34px;background:var(--paper);border-color:#77715f;color:var(--paper-ink);font-size:0}
   .game-help[open] summary::after{content:"CLOSE";font:700 9px/1 var(--font-mono);letter-spacing:.06em}
   .game-help-copy{position:fixed;left:0;right:0;bottom:0;top:auto;transform:none;width:auto;height:min(68dvh,390px);max-height:none;overflow:auto;overscroll-behavior:contain;z-index:120;padding:20px 18px max(22px,env(safe-area-inset-bottom));border:0;border-top:2px solid #827b67;background:var(--paper);box-shadow:0 -16px 40px rgba(0,0,0,.44);color:#4d4a40;font-size:13px}
