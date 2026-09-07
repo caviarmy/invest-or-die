@@ -24,8 +24,8 @@ export function formatDateTime(value) {
 }
 
 export function directionLabel(direction) {
-  if (direction === 'up') return 'GOES UP';
-  if (direction === 'down') return 'GOES DOWN';
+  if (direction === 'up') return 'GOES UP 📈';
+  if (direction === 'down') return 'GOES DOWN 📉';
   if (direction === 'flat') return 'FINISHES ABOUT THE SAME';
   return 'PREDICTION';
 }
@@ -126,7 +126,7 @@ export function challengeCardMarkup(play, slotNumber, options = {}) {
     <div class="slot-label">CHALLENGE ${slotNumber}</div>
     <div class="play-ticker">${escapeHtml(play.ticker)}</div>
     <div class="play-company">${escapeHtml(play.company_name || '')}</div>
-    <div class="prediction-badge">${directionLabel(play.direction)}</div>
+    <div class="prediction-badge prediction-${escapeHtml(play.direction || 'unknown')}">${directionLabel(play.direction)}</div>
     <div class="play-meta">
       <div><span>FROM</span><b>${money(play.reference_price)}</b></div>
       <div><span>GOAL</span><b>${escapeHtml(goalLabel(play).replace(/^Goal /, ''))}</b></div>
