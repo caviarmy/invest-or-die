@@ -208,7 +208,7 @@ export function challengeCardMarkup(play, slotNumber, options = {}) {
 }
 
 export function tickerResultMarkup(row) {
-  return `<button class="ticker-result" type="button" data-ticker="${escapeHtml(row.ticker)}" data-company="${escapeHtml(row.company_name)}" data-exchange="${escapeHtml(row.exchange || '')}"><strong>${escapeHtml(row.ticker)}</strong><span>${escapeHtml(row.company_name)}</span><small>${escapeHtml(row.exchange || '')}</small></button>`;
+  return `<button class="ticker-result" type="button" role="option" data-ticker="${escapeHtml(row.ticker)}" data-company="${escapeHtml(row.company_name)}" data-exchange="${escapeHtml(row.exchange || '')}"><strong>${escapeHtml(row.ticker)}</strong><span>${escapeHtml(row.company_name)}</span><small>${escapeHtml(row.exchange || '')}</small></button>`;
 }
 
 export function singleChallengeFormMarkup({ play = null, slotNumber = 1, adminEdit = false }) {
@@ -221,37 +221,67 @@ export function singleChallengeFormMarkup({ play = null, slotNumber = 1, adminEd
   const goal = play
     ? (play.direction === 'flat' ? `End range ${money(play.target_low)}–${money(play.target_high)}` : `Goal ${money(play.target_price)}${play.direction === 'up' ? '+' : ' or lower'}`)
     : 'Choose a prediction to see the goal.';
+  const prefix = adminEdit ? 'called-admin' : 'called-add';
+  const modeLabel = adminEdit ? 'ADMIN REFILE' : 'NEW CALL';
 
   return `<form class="single-called-it-form" data-mode="${adminEdit ? 'admin-edit' : 'add'}" data-slot="${slotNumber}" ${play?.id ? `data-challenge-id="${escapeHtml(play.id)}"` : ''}>
-    <div class="statement-line">
-      <span class="statement-label">I think</span>
+    <div class="call-form-register"><span>CALL WORKSHEET / SLIP ${String(slotNumber).padStart(2, '0')}</span><span>${modeLabel}</span></div>
+    <div class="call-form-row">
+      <label class="statement-label" for="${prefix}-ticker-search">I think</label>
       <div class="ticker-search-wrap">
-        <input class="ticker-search" name="ticker_search" value="${escapeHtml(ticker ? `${ticker} · ${company}` : '')}" autocomplete="off" placeholder="Search ticker or company" required>
+        <input id="${prefix}-ticker-search" class="ticker-search" name="ticker_search" value="${escapeHtml(ticker ? `${ticker} · ${company}` : '')}" autocomplete="off" placeholder="Search ticker or company" aria-controls="${prefix}-ticker-results" required>
         <input type="hidden" name="ticker" value="${escapeHtml(ticker)}">
-        <div class="ticker-results" hidden></div>
+        <div id="${prefix}-ticker-results" class="ticker-results" role="listbox" aria-label="Matching stocks" hidden></div>
       </div>
     </div>
-    <div class="statement-line"><span class="statement-label">Currently trading at</span><div class="quote-preview" data-single-quote>${quote}</div></div>
-    <div class="statement-line">
-      <span class="statement-label">Will</span>
+    <div class="call-form-row price-row">
+      <span id="${prefix}-quote-label" class="statement-label">Currently trading at</span>
+      <output class="quote-preview" data-single-quote aria-labelledby="${prefix}-quote-label" aria-live="polite">${quote}</output>
+    </div>
+    <fieldset class="call-form-row direction-row">
+      <legend class="statement-label">Will</legend>
       <div class="prediction-choices">${predictionButtons(direction)}</div>
       <input type="hidden" name="direction" value="${escapeHtml(direction)}">
-      <div class="goal-preview" data-single-goal>${escapeHtml(goal)}</div>
+      <output class="goal-preview" data-single-goal aria-live="polite">${escapeHtml(goal)}</output>
+    </fieldset>
+    <div class="call-form-row because-field">
+      <label class="statement-label" for="${prefix}-reason">Because</label>
+      <textarea id="${prefix}-reason" name="reason" maxlength="4000" required placeholder="What did you find? Why do you think the stock will do this? Add links if you used them.">${escapeHtml(play?.reason || '')}</textarea>
     </div>
-    <label class="because-field"><span class="statement-label">Because</span><textarea name="reason" maxlength="4000" required placeholder="What did you find? Why do you think the stock will do this? Add links if you used them.">${escapeHtml(play?.reason || '')}</textarea></label>
-    <div class="statement-line"><span class="statement-label">So I am</span><select name="portfolio_action" ${direction ? '' : 'disabled'}>${actionOptions(direction, action)}</select><div class="amount-wrap"><span>$</span><input name="action_amount" type="number" min="5" step="0.01" value="${escapeHtml(amount)}"></div></div>
+    <div class="call-form-row action-row">
+      <label class="statement-label" for="${prefix}-action">So I am</label>
+      <div class="action-controls">
+        <select id="${prefix}-action" name="portfolio_action" ${direction ? '' : 'disabled'}>${actionOptions(direction, action)}</select>
+        <label class="amount-wrap" for="${prefix}-amount"><span aria-hidden="true">$</span><span class="sr-only">Amount</span><input id="${prefix}-amount" name="action_amount" type="number" min="5" step="0.01" value="${escapeHtml(amount)}"></label>
+      </div>
+    </div>
     ${adminEdit ? '<div class="calc-note">Changing the ticker or prediction restarts the challenge at a fresh market price.</div>' : ''}
-    <div class="single-form-actions"><button class="button button-primary" type="submit">${adminEdit ? 'Save Changes' : 'Save Challenge'}</button>${play ? '<button class="button button-danger" type="button" data-single-cancel>Cancel Challenge</button>' : ''}</div>
+    <div class="single-form-actions"><button class="button button-primary" type="submit">${adminEdit ? 'Save Changes' : 'File This Call'}</button>${play ? '<button class="button button-danger" type="button" data-single-cancel>Cancel Challenge</button>' : ''}</div>
   </form>`;
 }
 
 export function ownerEditFormMarkup(play) {
-  return `<form class="single-called-it-form" data-mode="owner-edit" data-challenge-id="${escapeHtml(play.id)}">
-    <div class="called-it-static"><strong>${escapeHtml(play.ticker)}</strong><span>${escapeHtml(play.company_name || '')}</span></div>
-    <div class="called-it-static"><strong>${escapeHtml(directionLabel(play.direction))}</strong><span>From ${money(play.reference_price)} · ${play.direction === 'flat' ? `${money(play.target_low)}–${money(play.target_high)}` : money(play.target_price)}</span></div>
+  const prefix = 'called-owner';
+  const target = play.direction === 'flat'
+    ? `${money(play.target_low)}–${money(play.target_high)}`
+    : money(play.target_price);
+
+  return `<form class="single-called-it-form owner-edit-form" data-mode="owner-edit" data-challenge-id="${escapeHtml(play.id)}">
+    <div class="call-form-register"><span>CALL WORKSHEET / SLIP ${String(play.slot_number || 1).padStart(2, '0')}</span><span>OWNER CORRECTION</span></div>
+    <div class="called-it-static call-static-row"><span class="static-label">STOCK</span><strong>${escapeHtml(play.ticker)}</strong><span>${escapeHtml(play.company_name || '')}</span></div>
+    <div class="called-it-static call-static-row"><span class="static-label">LOCKED CALL</span><strong>${escapeHtml(directionLabel(play.direction))}</strong><span>From ${money(play.reference_price)} · target ${target}</span></div>
     <div class="locked-call-note">The stock and prediction are locked after the call is made. You can still fix your explanation or what you plan to do.</div>
-    <label class="because-field"><span class="statement-label">Because</span><textarea name="reason" maxlength="4000" required>${escapeHtml(play.reason || '')}</textarea></label>
-    <div class="statement-line"><span class="statement-label">So I am</span><select name="portfolio_action">${actionOptions(play.direction, play.portfolio_action)}</select><div class="amount-wrap"><span>$</span><input name="action_amount" type="number" min="5" step="0.01" value="${escapeHtml(play.action_amount ?? 5)}"></div></div>
+    <div class="call-form-row because-field">
+      <label class="statement-label" for="${prefix}-reason">Because</label>
+      <textarea id="${prefix}-reason" name="reason" maxlength="4000" required>${escapeHtml(play.reason || '')}</textarea>
+    </div>
+    <div class="call-form-row action-row">
+      <label class="statement-label" for="${prefix}-action">So I am</label>
+      <div class="action-controls">
+        <select id="${prefix}-action" name="portfolio_action">${actionOptions(play.direction, play.portfolio_action)}</select>
+        <label class="amount-wrap" for="${prefix}-amount"><span aria-hidden="true">$</span><span class="sr-only">Amount</span><input id="${prefix}-amount" name="action_amount" type="number" min="5" step="0.01" value="${escapeHtml(play.action_amount ?? 5)}"></label>
+      </div>
+    </div>
     <div class="single-form-actions"><button class="button button-primary" type="submit">Save Changes</button><button class="button button-danger" type="button" data-single-cancel>Cancel Challenge</button></div>
   </form>`;
 }
