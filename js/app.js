@@ -438,7 +438,13 @@ function restoreOriginalAdminPreview(form, play) {
 
 async function ensureAdminTermsPreview(form, play, nextDirection) {
   if (form.dataset.mode !== 'admin-edit' || !play) return;
-  const ticker = String(form.elements.ticker?.value || play.ticker || '').toUpperCase();
+  const ticker = String(form.elements.ticker?.value || '').toUpperCase();
+  if (!ticker) {
+    const goal = form.querySelector('[data-single-goal]');
+    if (goal) goal.textContent = 'Choose a stock to load the current price.';
+    return;
+  }
+
   const termsChanged = ticker !== String(play.ticker || '').toUpperCase() || nextDirection !== play.direction;
 
   if (!termsChanged) {
@@ -477,7 +483,8 @@ function bindTickerSearch(form) {
     form.dataset.previewPrice = '';
     form.dataset.previewTicker = '';
     quote.textContent = 'Choose a stock to load the current price.';
-    syncGoal(form);
+    const goal = form.querySelector('[data-single-goal]');
+    if (goal) goal.textContent = 'Choose a stock to load the current price.';
     clearTimeout(timer);
     const query = input.value.trim();
 
@@ -534,7 +541,11 @@ function bindSingleForm(form, play = null) {
       button.addEventListener('click', async () => {
         const nextDirection = button.dataset.singleDirection;
         form.elements.direction.value = nextDirection;
-        form.querySelectorAll('[data-single-direction]').forEach(item => item.classList.toggle('selected', item === button));
+        form.querySelectorAll('[data-single-direction]').forEach(item => {
+          const selected = item === button;
+          item.classList.toggle('selected', selected);
+          item.setAttribute('aria-pressed', String(selected));
+        });
         syncActionForDirection(form);
         if (form.dataset.mode === 'admin-edit' && play) await ensureAdminTermsPreview(form, play, nextDirection);
         else syncGoal(form);
@@ -809,6 +820,10 @@ document.querySelectorAll('.modal').forEach(modal => modal.addEventListener('cli
 document.addEventListener('pointercancel', () => { pointerDownOnBackdrop = null; }, true);
 
 const gameHelp = document.querySelector('.game-help');
+const gameHelpSummary = gameHelp?.querySelector('summary');
+gameHelp?.addEventListener('toggle', () => {
+  gameHelpSummary?.setAttribute('aria-label', gameHelp.open ? 'Close Called It help' : 'Called It help');
+});
 document.addEventListener('click', event => {
   if (!gameHelp?.open) return;
   if (event.target === gameHelp || !gameHelp.contains(event.target)) gameHelp.removeAttribute('open');
