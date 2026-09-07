@@ -27,6 +27,15 @@
     <div class="tracker-buy"><strong id="purchaseMinimumValue" class="tracker-value">$30</strong><div><div class="tracker-label">BUY-IN TO DATE</div><div id="purchaseMinimumNote" class="tracker-copy">At least $30 of stock bought total. Current portfolio value does not matter.</div></div></div>
   </section>
 
+  <section class="lesson-section" aria-labelledby="lessonHeading">
+    <aside class="panel quick-panel lesson-panel">
+      <div class="section-kicker">CURRENT LESSON</div>
+      <h2 id="lessonHeading">Pay Yourself First</h2>
+      <p>The lesson on turning a small weekly habit into long-term money.</p>
+      <a class="button button-primary" href="./learn/invest-or-die/">Read the lesson</a>
+    </aside>
+  </section>
+
   <section class="dashboard-section win-week-section" aria-labelledby="weekHeading">
     <h1 id="weekHeading" class="major-section-title section-title-outside">Win the Week</h1>
     <div class="hero-grid">
@@ -35,12 +44,6 @@
         <div id="winnerChartWrap" class="winner-chart-wrap" hidden><img id="winnerChart" class="winner-chart" alt="Current weekly portfolio chart"></div>
         <button id="adminWeekButton" class="text-button" type="button" hidden>Update this week</button>
       </article>
-      <aside class="panel quick-panel lesson-panel">
-        <div class="section-kicker">CURRENT LESSON</div>
-        <h2>Pay Yourself First</h2>
-        <p>The lesson on turning a small weekly habit into long-term money.</p>
-        <a class="button button-primary" href="./learn/invest-or-die/">Read the lesson</a>
-      </aside>
     </div>
   </section>
 
@@ -56,7 +59,7 @@
         </div>
         <div class="major-section-subtitle">Due Diligence Challenges</div>
       </div>
-      <button id="editMyPlaysButton" class="button button-primary" type="button">Add Challenge</button>
+      <button id="editMyPlaysButton" class="button button-primary" type="button" hidden>Add Challenge</button>
     </div>
     <p id="dashboardStatus" class="status-line" role="status" aria-live="polite"></p>
     <div id="participantsGrid" class="participants-grid" aria-live="polite"></div>
@@ -78,5 +81,46 @@
 <div id="weekModal" class="modal" aria-hidden="true"><div class="modal-card modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="weekModalTitle"><div class="modal-head"><div><div class="section-kicker">ADMIN</div><h2 id="weekModalTitle">Update Game</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><form id="weekForm" class="form-stack"><div class="form-section"><div class="form-section-title">Win the Week</div><div class="settings-grid"><label>Winner<select id="winnerNameInput" required></select></label><label>Weekly return (%)<input id="winnerReturnInput" type="number" step="0.01" min="-1000" max="10000" required></label><label>Current game week<input id="currentWeekInput" type="number" min="1" step="1" required></label><label>Week start<input id="weekStartInput" type="date" required></label><label>Week end<input id="weekEndInput" type="date" required></label><label>Current chart image<input id="winnerChartInput" type="file" accept="image/png,image/jpeg,image/webp"></label></div></div><div class="form-section"><div class="form-section-title">Called It settings</div><div class="settings-grid"><label>Goes Up target (%)<input id="calledUpInput" type="number" min="0.1" max="100" step="0.1" required></label><label>Goes Down target (%)<input id="calledDownInput" type="number" min="0.1" max="99.9" step="0.1" required></label><label>About the Same range (±%)<input id="calledFlatInput" type="number" min="0.1" max="25" step="0.1" required></label><label>Challenge length (days)<input id="calledDurationInput" type="number" min="1" max="365" step="1" required></label><label>Review cooldown (days)<input id="calledCooldownInput" type="number" min="0" max="90" step="1" required></label><label>Flat claim window (days)<input id="calledClaimInput" type="number" min="1" max="90" step="1" required></label><label>Approved payout ($)<input id="calledPayoutInput" type="number" min="0" max="1000" step="0.01" required></label></div></div><button class="button button-primary" type="submit">Save Game</button><p id="weekMessage" class="form-message" role="status" aria-live="polite"></p></form></div></div>
 <script type="module" src="./js/app.js"></script>
 <script type="module" src="./js/dashboard-polish.js"></script>
+<script type="module">
+import { getBackendClient } from './js/backend.js';
+
+const addChallengeButton = document.getElementById('editMyPlaysButton');
+const editModal = document.getElementById('editModal');
+
+function closeStaleChallengeModal() {
+  if (!editModal?.classList.contains('open')) return;
+  editModal.classList.remove('open', 'single-play-mode');
+  editModal.setAttribute('aria-hidden', 'true');
+  if (!document.querySelector('.modal.open')) document.body.style.overflow = '';
+}
+
+async function syncChallengeAccess(client) {
+  if (!addChallengeButton) return;
+  if (!client) {
+    addChallengeButton.hidden = true;
+    closeStaleChallengeModal();
+    return;
+  }
+  const { data: sessionData } = await client.auth.getSession();
+  const user = sessionData.session?.user || null;
+  if (!user) {
+    addChallengeButton.hidden = true;
+    closeStaleChallengeModal();
+    return;
+  }
+  const { data: profile } = await client
+    .from('participants')
+    .select('active')
+    .eq('user_id', user.id)
+    .maybeSingle();
+  addChallengeButton.hidden = !profile?.active;
+}
+
+const client = await getBackendClient();
+await syncChallengeAccess(client);
+client?.auth.onAuthStateChange(() => {
+  setTimeout(() => syncChallengeAccess(client), 0);
+});
+</script>
 </body>
 </html>
