@@ -2,7 +2,6 @@ import { backendIsConfigured, getSessionState, signIn, signOut } from './auth.js
 import { fallbackDashboardData, getOwnerSlots, loadDashboardData, saveWeeklyWinner, saveGameSettings } from './plays.js';
 import { adminEditCalledIt, cancelCalledIt, checkCalledIt, createCalledIt, previewCalledIt, resetCalledItCooldown, reviewCalledIt, searchSecurities, submitCalledIt } from './market.js';
 import {
-  actionLabel,
   actionOptions,
   challengeCardMarkup,
   cooldownRemaining,
@@ -390,6 +389,50 @@ function syncGoal(form) {
   goal.textContent = goalPreview(Number(raw), direction, currentPreviewSettings());
 }
 
+function setQuotePreview(form, quoteResponse) {
+  const quote = form.querySelector('[data-single-quote]');
+  if (!quote || !quoteResponse?.quote) return;
+  form.dataset.previewPrice = String(quoteResponse.quote.price);
+  form.dataset.previewTicker = String(form.elements.ticker?.value || '').toUpperCase();
+  quote.textContent = `${money(quoteResponse.quote.price)} · ${quoteResponse.quote.market_status === 'open' ? 'market open' : 'latest price'}`;
+  syncGoal(form);
+}
+
+function restoreOriginalAdminPreview(form, play) {
+  if (!play) return;
+  form.dataset.previewPrice = '';
+  form.dataset.previewTicker = '';
+  const quote = form.querySelector('[data-single-quote]');
+  if (quote) quote.textContent = `${money(play.reference_price)} · original call price`;
+  syncGoal(form);
+}
+
+async function ensureAdminTermsPreview(form, play, nextDirection) {
+  if (form.dataset.mode !== 'admin-edit' || !play) return;
+  const ticker = String(form.elements.ticker?.value || play.ticker || '').toUpperCase();
+  const termsChanged = ticker !== String(play.ticker || '').toUpperCase() || nextDirection !== play.direction;
+
+  if (!termsChanged) {
+    restoreOriginalAdminPreview(form, play);
+    return;
+  }
+
+  if (form.dataset.previewTicker === ticker && form.dataset.previewPrice) {
+    syncGoal(form);
+    return;
+  }
+
+  const quote = form.querySelector('[data-single-quote]');
+  if (quote) quote.textContent = 'Loading fresh price for the restarted challenge…';
+  try {
+    const response = await previewCalledIt(state.session.client, ticker);
+    setQuotePreview(form, response);
+  } catch (error) {
+    if (quote) quote.textContent = error.message || 'Current price is unavailable.';
+    showEditError(error.message || 'Current price is unavailable.');
+  }
+}
+
 function bindTickerSearch(form) {
   const input = form.elements.ticker_search;
   const hidden = form.elements.ticker;
@@ -403,6 +446,7 @@ function bindTickerSearch(form) {
   input.addEventListener('input', () => {
     hidden.value = '';
     form.dataset.previewPrice = '';
+    form.dataset.previewTicker = '';
     quote.textContent = 'Choose a stock to load the current price.';
     syncGoal(form);
     clearTimeout(timer);
@@ -439,18 +483,11 @@ function bindTickerSearch(form) {
 
     try {
       const response = await previewCalledIt(state.session.client, button.dataset.ticker);
-      form.dataset.previewPrice = String(response.quote.price);
-      quote.textContent = `${money(response.quote.price)} · ${response.quote.market_status === 'open' ? 'market open' : 'latest price'}`;
-      syncGoal(form);
+      setQuotePreview(form, response);
     } catch (error) {
       quote.textContent = error.message || 'Current price is unavailable.';
       showEditError(error.message || 'Current price is unavailable.');
     }
-  });
-
-  form.addEventListener('focusout', event => {
-    if (event.relatedTarget && form.contains(event.relatedTarget)) return;
-    results.hidden = true;
   });
 }
 
@@ -463,10 +500,12 @@ function bindSingleForm(form, play = null) {
     syncActionForDirection(form);
     syncGoal(form);
     form.querySelectorAll('[data-single-direction]').forEach(button => {
-      button.addEventListener('click', () => {
-        form.elements.direction.value = button.dataset.singleDirection;
+      button.addEventListener('click', async () => {
+        const nextDirection = button.dataset.singleDirection;
+        form.elements.direction.value = nextDirection;
         form.querySelectorAll('[data-single-direction]').forEach(item => item.classList.toggle('selected', item === button));
         syncActionForDirection(form);
+        await ensureAdminTermsPreview(form, play, nextDirection);
         syncGoal(form);
       });
     });
@@ -606,6 +645,14 @@ async function refreshSessionAndData() {
   renderAll();
 }
 
+function scheduleAuthRefresh() {
+  window.clearTimeout(scheduleAuthRefresh.timer);
+  scheduleAuthRefresh.timer = window.setTimeout(() => {
+    refreshSessionAndData().catch(error => console.error('Auth state refresh failed', error));
+  }, 0);
+}
+scheduleAuthRefresh.timer = 0;
+
 els.authButton.addEventListener('click', async () => {
   if (state.session.user) {
     try {
@@ -717,6 +764,11 @@ document.querySelectorAll('[data-close-modal]').forEach(button => button.addEven
 let pointerDownOnBackdrop = null;
 document.addEventListener('pointerdown', event => {
   pointerDownOnBackdrop = event.target.classList?.contains('modal') ? event.target : null;
+
+  document.querySelectorAll('.ticker-results:not([hidden])').forEach(results => {
+    const wrap = results.closest('.ticker-search-wrap');
+    if (!wrap?.contains(event.target)) results.hidden = true;
+  });
 }, true);
 
 document.querySelectorAll('.modal').forEach(modal => modal.addEventListener('click', event => {
@@ -728,7 +780,8 @@ document.addEventListener('pointercancel', () => { pointerDownOnBackdrop = null;
 
 const gameHelp = document.querySelector('.game-help');
 document.addEventListener('click', event => {
-  if (gameHelp?.open && !gameHelp.contains(event.target)) gameHelp.removeAttribute('open');
+  if (!gameHelp?.open) return;
+  if (event.target === gameHelp || !gameHelp.contains(event.target)) gameHelp.removeAttribute('open');
 });
 document.addEventListener('keydown', event => {
   if (event.key !== 'Escape') return;
@@ -737,3 +790,9 @@ document.addEventListener('keydown', event => {
 });
 
 await refreshSessionAndData();
+
+const authClient = state.session.client;
+authClient?.auth.onAuthStateChange((event) => {
+  if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') return;
+  scheduleAuthRefresh();
+});
