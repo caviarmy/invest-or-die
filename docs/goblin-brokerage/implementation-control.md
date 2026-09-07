@@ -1,6 +1,6 @@
 # Goblin Brokerage Redesign — Implementation Control
 
-**Authoritative design brief:** `goblin_investing_redesign_master_v3.md`  
+**Authoritative design brief:** `goblin_investing_redesign_master_v4.md`  
 **Working branch:** `goblin-brokerage-redesign`  
 **Production frontend:** `main` / GitHub Pages  
 **Shared backend:** production Supabase project is shared by `main` and the redesign branch.
@@ -16,10 +16,12 @@ This repository record exists so a fresh implementation turn can recover the cri
 - Turn 3 Tracker + Current Lesson + Win the Week: CODE COMPLETE / VISUAL RUNTIME QA DEFERRED
 - Turns 2–3 source-level correction review: COMPLETE
 - Turn 4 Called It participant sections + challenge slips: CODE COMPLETE / VISUAL RUNTIME QA DEFERRED
+- Turn 4 source-level correction review: COMPLETE / VISUAL RUNTIME QA DEFERRED
+- Turn 4 accessibility carry-forward: participant heading semantics and participant-specific admin `+ Add` accessible name must be resolved before production merge, preferably next time canonical participant rendering is edited
 - Manual Android/browser QA: DEFERRED UNTIL LATER INTEGRATED QA
 - Next canonical turn: Turn 5 — Called It form + modal + help
 
-Read `turn-0-baseline.md` for the original architecture map, `turn-1-completion.md` for the consolidation/correction record, `turn-2-completion.md` for the visual-foundation record, `turn-3-completion.md` for the top-page composition record, `turn-2-3-correction-review.md` for the latest review findings and prevention rules, and `turn-4-completion.md` for the challenge-slip redesign record.
+Read `turn-0-baseline.md` for the original architecture map, `turn-1-completion.md` for the consolidation/correction record, `turn-2-completion.md` for the visual-foundation record, `turn-3-completion.md` for the top-page composition record, `turn-2-3-correction-review.md` for the earlier review findings, `turn-4-completion.md` for the challenge-slip redesign record, and `turn-4-correction-review.md` for the latest review findings and prevention rules.
 
 ## Mandatory environment rule
 
@@ -43,7 +45,13 @@ Before coding:
 - when markup structure will be replaced, list the classes/containers expected to disappear;
 - identify any new copy/icon that could be mistaken for live runtime status and name the authoritative state source;
 - identify realistic worst-case legal values/strings that could affect layout;
-- if creating external branded SVGs, require outlined text/path geometry rather than live device-font text.
+- if creating external branded SVGs, require outlined text/path geometry rather than live device-font text;
+- if changing an exported helper, formatter, shared CSS utility, or shared render primitive, enumerate its consumers and identify any out-of-turn surfaces it can affect;
+- if instructional copy changes inside a role-shared component, check signed-out, owner, admin-self, admin-other, and disabled/unavailable contexts where applicable;
+- if a compact empty state sits in Grid/Flex, inspect parent stretch behavior and shared/inherited min-heights, including a mixed row with one populated and one empty item;
+- if numeric/currency formatting is touched or relied upon for authoritative values, test sentinel inputs: null, undefined, blank string, numeric zero, negative, NaN, and normal positive values;
+- identify whether the changed component creates a nested vertical scroll surface on mobile;
+- for structural UI changes, identify the intended semantic heading structure and accessible names for repeated controls.
 
 After coding:
 - re-fetch modified files from the working branch;
@@ -61,18 +69,29 @@ After coding:
 - perform a source-level worst-case content check using actual field/numeric bounds and 320–360px assumptions even when runtime QA is deferred;
 - verify external branded SVGs contain no live `<text>` unless explicitly documented;
 - load primary remote web fonts from the document head rather than CSS `@import`;
+- verify any shared-helper change did not alter an out-of-scope surface; if it did, split semantic/shared output from turn-specific presentation;
+- verify role-sensitive instructions point to a control/action that actually exists for each role that can see the copy;
+- verify compact empty states remain compact after Grid/Flex cross-axis sizing and desktop media rules are applied;
+- verify display formatters preserve missing values as missing rather than coercing them into legitimate-looking zeroes;
+- avoid nested vertical `overflow:auto` inside repeated slips/cards unless there is a documented interaction need and mobile testing covers it;
+- perform a small semantic accessibility gate now: heading hierarchy, accessible control names, touch target size, and status meaning. Turn 9 is verification, not the first accessibility pass;
 - mark CODE COMPLETE separately from QA COMPLETE;
 - update the relevant turn record before moving on.
 
 ## Visual-review truth test
 
-Every later visual turn must explicitly answer five questions before it is called code-complete:
+Every later visual turn must explicitly answer these questions before it is called code-complete:
 
 1. **Truth:** Does any visual element claim a live state the application does not actually know?
 2. **Geometry:** Do labels/headings correspond to the actual values/layout beneath them?
 3. **Bounds:** Do legal worst-case strings and numeric values fit narrow mobile assumptions?
 4. **Independence:** Will external assets render consistently without device-specific fonts or hidden dependencies?
 5. **Cleanup:** Did replacing markup also remove the obsolete implementation residue it replaced?
+6. **Scope:** Did a shared helper/utility change alter surfaces outside the current turn?
+7. **Role:** Does instructional copy still make sense for every role that can see it?
+8. **Sentinels:** Can null/blank/missing data be visually mistaken for a legitimate zero/value?
+9. **Scroll topology:** Did the redesign create an unnecessary nested vertical scroll region?
+10. **Semantics:** Does the new visual hierarchy have matching headings and accessible control names?
 
 ## Deferred cutover gate
 
