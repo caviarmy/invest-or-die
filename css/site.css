@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
-
 :root{
   --ink:#090b09;
   --surface:#111512;
@@ -50,7 +48,6 @@ p{line-height:1.5}
 .nav-link:hover,.nav-link-active{border-color:var(--money);color:var(--text)}
 
 .dashboard{padding:18px 0 44px}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:none}
 .section-kicker{font:600 10px/1.2 var(--font-mono);letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
 .muted{color:var(--muted)}
 .major-section-title{font-size:clamp(36px,10vw,52px);line-height:.9;letter-spacing:-.035em;margin-bottom:8px;text-transform:uppercase}
@@ -63,13 +60,11 @@ p{line-height:1.5}
 .button-danger{background:transparent;color:#ffb6b1;border-color:#783933}
 .button:hover:not(:disabled){filter:brightness(1.08)}
 .button:disabled{opacity:.42;cursor:not-allowed}
-.text-button,.text-link{border:0;background:none;padding:0;color:var(--money);font-family:var(--font-display);font-weight:600;letter-spacing:.02em;text-decoration:none}
-.text-button{align-self:flex-start;margin-top:16px}
+.text-button{border:0;background:none;padding:0;color:var(--money);font-family:var(--font-display);font-weight:600;letter-spacing:.02em;text-decoration:none;align-self:flex-start;margin-top:16px}
 
 .game-tracker{margin-bottom:0;background:transparent;border-top:2px solid var(--money);border-bottom:1px solid var(--line-strong)}
 .tracker-system-line{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font:600 9px/1.2 var(--font-mono);letter-spacing:.08em;color:#727d74}
-.tracker-live{display:inline-flex;align-items:center;gap:6px;color:var(--money)}
-.tracker-live::before{content:"";width:6px;height:6px;background:var(--money);display:block}
+.tracker-requirement{color:var(--money);text-align:right}
 .tracker-main{display:grid;grid-template-columns:1fr 1fr}
 .tracker-week,.tracker-buy{padding:16px 0;min-width:0}
 .tracker-week{border-right:1px solid var(--line);padding-right:14px}
@@ -82,25 +77,21 @@ p{line-height:1.5}
 .tracker-goblin-note{font:600 9px/1.2 var(--font-mono);letter-spacing:.07em;color:var(--highlight)}
 .tracker-copy{font-size:11px;color:#9fa9a1;line-height:1.4}
 
-.hero-grid{display:grid;grid-template-columns:1fr;gap:14px}
 .winner-panel{display:flex;flex-direction:column;border-top:1px solid var(--line-strong);border-bottom:1px solid var(--line-strong)}
 .winner-section-head{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
 .winner-section-head .major-section-title{margin-bottom:0}
 .winner-rule{font:600 10px/1.2 var(--font-mono);letter-spacing:.08em;color:var(--highlight)}
-.winner-board-label{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font:600 9px/1.2 var(--font-mono);letter-spacing:.08em;color:#778179}
-.winner-content{padding:26px 0 24px;margin:0;min-height:210px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
-.winner-name{font-family:var(--font-display);font-size:clamp(46px,14vw,76px);font-weight:700;line-height:.82;letter-spacing:-.05em;text-transform:uppercase;max-width:900px}
+.winner-board-label{padding:8px 0;border-bottom:1px solid var(--line);font:600 9px/1.2 var(--font-mono);letter-spacing:.08em;color:#778179}
+.winner-content{padding:26px 0 24px;margin:0;min-height:210px;min-width:0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.winner-name{font-family:var(--font-display);font-size:clamp(42px,13vw,72px);font-weight:700;line-height:.82;letter-spacing:-.05em;text-transform:uppercase;max-width:100%;overflow-wrap:anywhere}
 .winner-empty{color:#cfd2cb;font-size:clamp(34px,11vw,56px);max-width:520px}
-.winner-return{font-size:clamp(58px,18vw,94px);color:var(--money);font-weight:700;line-height:.9;letter-spacing:-.065em;margin-top:16px}
+.winner-return{font-size:clamp(46px,14vw,84px);color:var(--money);font-weight:700;line-height:.9;letter-spacing:-.055em;margin-top:16px;max-width:100%;white-space:nowrap}
 .winner-week{font-size:11px;color:var(--muted);margin-top:12px;text-transform:uppercase;letter-spacing:.04em}
 .winner-content:has(.winner-return)::after{content:"";display:block;width:min(210px,62vw);height:54px;margin-top:20px;background:url("../assets/stamps/current-champion.svg") left center/contain no-repeat}
 .winner-chart-wrap{margin-top:0;border-top:1px solid var(--line);padding:12px 0 18px;background:transparent}
 .winner-chart-label{font:600 9px/1.2 var(--font-mono);letter-spacing:.07em;color:#6f7971;margin-bottom:10px}
 .winner-chart{display:block;width:100%;max-height:420px;object-fit:contain}
 .winner-admin-button{margin:0 0 14px}
-.quick-panel{display:flex;flex-direction:column;align-items:flex-start}
-.quick-panel p{color:#c8d0c8;margin-bottom:20px}
-.quick-panel .text-link{margin-top:14px}
 
 .lesson-section{margin:22px 0 10px}
 .lesson-panel{position:relative;overflow:hidden;background:var(--lesson-blue);color:#f5f6f0;border-left:6px solid #f2f0e6;padding:16px 16px 14px}
@@ -115,7 +106,6 @@ p{line-height:1.5}
 .lesson-link span:last-child{font:500 25px/1 var(--font-mono)}
 .lesson-link:hover span:first-child,.lesson-link:focus-visible span:first-child{text-decoration:underline;text-underline-offset:4px}
 .win-week-section{margin-top:34px;padding-top:22px;border-top:2px solid var(--line-strong)}
-.win-week-section .hero-grid{grid-template-columns:1fr}
 
 .plays-section{padding:38px 0 22px}
 .section-heading-row,.history-heading-row{display:flex;align-items:flex-start;flex-direction:column;gap:14px;margin-bottom:10px}
@@ -241,7 +231,6 @@ textarea{min-height:88px;resize:vertical}
 .settings-grid{display:grid;grid-template-columns:1fr;gap:11px}
 
 .dashboard-section{margin-top:28px}
-.section-title-outside{margin:0 0 12px}
 .called-it-heading-line{display:flex;align-items:center;gap:10px}
 .called-it-heading-line .major-section-title{margin:0}
 .game-help{position:relative;flex:0 0 auto}
@@ -294,7 +283,6 @@ textarea{min-height:88px;resize:vertical}
   .nav-link{font-size:14px}
   .account-label{display:inline}
   .dashboard{padding:28px 0 56px}
-  .panel{padding:24px}
   .tracker-main{grid-template-columns:260px 1fr}
   .tracker-week{padding:22px 24px 22px 0}
   .tracker-buy{padding:22px 0 22px 24px}
@@ -311,9 +299,9 @@ textarea{min-height:88px;resize:vertical}
   .winner-section-head{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:24px}
   .winner-rule{padding-bottom:5px;text-align:right}
   .winner-content{min-height:300px;padding:34px 0 30px}
-  .winner-name{font-size:clamp(62px,8vw,96px)}
+  .winner-name{font-size:clamp(60px,7.5vw,92px)}
   .winner-empty{font-size:clamp(46px,6vw,70px)}
-  .winner-return{font-size:clamp(82px,10vw,126px)}
+  .winner-return{font-size:clamp(72px,8vw,110px)}
   .winner-content:has(.winner-return)::after{width:230px;height:58px;margin-top:24px}
   .major-section-title{font-size:clamp(44px,5vw,64px)}
   .major-section-subtitle{font-size:20px}
@@ -328,7 +316,6 @@ textarea{min-height:88px;resize:vertical}
   .prediction-choice:last-of-type{grid-column:1/-1}
   .settings-grid{grid-template-columns:1fr 1fr}
   .dashboard-section{margin-top:34px}
-  .section-title-outside{margin-bottom:14px}
   .game-help-copy{width:300px;font-size:13px}
   .page-main{width:min(860px,calc(100% - 36px));padding:44px 0 64px}
   .rules-page h1{font-size:clamp(54px,8vw,82px)}
