@@ -59,7 +59,7 @@
         </div>
         <div class="major-section-subtitle">Due Diligence Challenges</div>
       </div>
-      <button id="editMyPlaysButton" class="button button-primary" type="button" hidden>Add Challenge</button>
+      <button id="editMyPlaysButton" class="button button-primary" type="button" hidden disabled>Add Challenge</button>
     </div>
     <p id="dashboardStatus" class="status-line" role="status" aria-live="polite"></p>
     <div id="participantsGrid" class="participants-grid" aria-live="polite"></div>
@@ -94,17 +94,23 @@ function closeStaleChallengeModal() {
   if (!document.querySelector('.modal.open')) document.body.style.overflow = '';
 }
 
+function lockChallengeButton() {
+  if (!addChallengeButton) return;
+  addChallengeButton.hidden = true;
+  addChallengeButton.disabled = true;
+}
+
 async function syncChallengeAccess(client) {
   if (!addChallengeButton) return;
   if (!client) {
-    addChallengeButton.hidden = true;
+    lockChallengeButton();
     closeStaleChallengeModal();
     return;
   }
   const { data: sessionData } = await client.auth.getSession();
   const user = sessionData.session?.user || null;
   if (!user) {
-    addChallengeButton.hidden = true;
+    lockChallengeButton();
     closeStaleChallengeModal();
     return;
   }
@@ -113,7 +119,9 @@ async function syncChallengeAccess(client) {
     .select('active')
     .eq('user_id', user.id)
     .maybeSingle();
-  addChallengeButton.hidden = !profile?.active;
+  const allowed = Boolean(profile?.active);
+  addChallengeButton.hidden = !allowed;
+  addChallengeButton.disabled = !allowed;
 }
 
 const client = await getBackendClient();
