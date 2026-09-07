@@ -14,7 +14,13 @@ Never commit a Supabase secret key, service-role key, market-data API key, or sc
 
 The browser can read the public dashboard, active challenges, game settings, ticker reference data, and The Receipts.
 
-Challenge mutations go through the `called-it` Edge Function. Participants cannot directly write `called_it_plays` through the Data API.
+All challenge lifecycle and market-authoritative mutations go through the `called-it` Edge Function: create, price check, submit, cancel, admin edit, review, and cooldown reset. The Edge Function remains authoritative for any field that can change the outcome of a challenge.
+
+### Transitional owner-metadata edit exception
+
+The current production-compatible owner edit path is a deliberate temporary exception. Owners can update only `reason`, `portfolio_action`, `action_amount`, `amount_committed`, and `updated_at` on their own active challenge through the authenticated `edit_own_called_it_metadata` RPC. The RPC is `SECURITY INVOKER`; RLS restricts the row to the signed-in owner and column-level grants prevent changes to ticker, direction, prices, targets, status, qualification, review state, or other authoritative challenge fields.
+
+This compatibility path exists because production `main` still depends on the RPC while the redesign branch is being developed against the same Supabase project. Before the redesign merges to `main`, add an authenticated `owner_edit` action to the `called-it` Edge Function, migrate the frontend to that action, verify it, then revoke the direct authenticated UPDATE grants and retire or restrict the RPC. Do not perform that revocation early because it would break the live frontend.
 
 The Edge Function is authoritative for:
 
@@ -129,6 +135,8 @@ Actions:
 - `review`
 - `reset_cooldown`
 
+A future `owner_edit` action is required before the redesign frontend can remove the transitional RPC path described above.
+
 The function deliberately fails closed if a market quote cannot be obtained.
 
 ### `sync-securities`
@@ -172,8 +180,9 @@ Row Level Security is enabled on exposed public tables.
 - signed-out visitors can read active participants, current challenges, game settings, securities, weekly winner data, and The Receipts;
 - signed-out visitors cannot mutate data;
 - authenticated participants can read their own challenge history in addition to the public challenge state;
-- participants cannot directly insert/update/delete challenge rows;
-- challenge writes are validated by the Edge Function against the authenticated user;
+- participants cannot directly change authoritative challenge terms or lifecycle fields;
+- the transitional owner metadata path permits only the narrow active-owner columns described above and is scheduled for removal at redesign cutover;
+- authoritative challenge writes are validated by the Edge Function against the authenticated user;
 - admins can manage all participant challenges through the same server-authoritative API;
 - only admins can change game settings and weekly winner data;
 - internal quote cache, scheduler settings, and secrets are not exposed to browser roles.
