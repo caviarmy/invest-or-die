@@ -1,12 +1,24 @@
 import { backendIsConfigured, getSessionState, signIn, signOut } from './auth.js';
 import { fallbackDashboardData, getOwnerSlots, loadDashboardData, saveWeeklyWinner, saveGameSettings } from './plays.js';
 import { adminEditCalledIt, cancelCalledIt, checkCalledIt, createCalledIt, previewCalledIt, resetCalledItCooldown, reviewCalledIt, searchSecurities, submitCalledIt } from './market.js';
-import { actionLabel, challengeCardMarkup, challengeFormMarkup, cooldownRemaining, directionLabel, escapeHtml, formatDate, formatDateTime, goalLabel, goalPreview, money, tickerResultMarkup } from './called-it-ui.js';
+import {
+  actionLabel,
+  actionOptions,
+  challengeCardMarkup,
+  cooldownRemaining,
+  directionLabel,
+  escapeHtml,
+  formatDate,
+  goalPreview,
+  money,
+  ownerEditFormMarkup,
+  singleChallengeFormMarkup,
+  tickerResultMarkup
+} from './called-it-ui.js';
 
 const state = {
   session: { configured: false, client: null, user: null, profile: null },
-  data: fallbackDashboardData(),
-  editContext: null
+  data: fallbackDashboardData()
 };
 
 const els = {
@@ -70,11 +82,13 @@ function renderWinner() {
     els.winnerChartWrap.hidden = true;
     return;
   }
+
   const sign = Number(winner.return_percent) > 0 ? '+' : '';
   els.winnerContent.innerHTML = `
     <div class="winner-name">${escapeHtml(winner.winner_name)}</div>
     <div class="winner-return">${sign}${Number(winner.return_percent).toFixed(2)}%</div>
     <div class="winner-week">${formatDate(winner.week_start)} – ${formatDate(winner.week_end)}</div>`;
+
   if (winner.chart_url) {
     els.winnerChart.src = winner.chart_url;
     els.winnerChart.alt = `${winner.winner_name} weekly portfolio chart`;
@@ -86,6 +100,12 @@ function renderWinner() {
 
 function participantById(userId) {
   return state.data.participants.find(item => item.user_id === userId) || null;
+}
+
+function nextAvailableSlot(ownerId) {
+  const slots = getOwnerSlots(state.data.plays, ownerId);
+  const index = slots.findIndex(play => !play);
+  return index >= 0 ? index + 1 : null;
 }
 
 async function runCardAction(button, action, workingText) {
@@ -107,43 +127,42 @@ function bindChallengeCardActions() {
   els.participantsGrid.querySelectorAll('[data-check-id]').forEach(button => {
     button.addEventListener('click', () => runCardAction(button, () => checkCalledIt(state.session.client, button.dataset.checkId), 'Checking…'));
   });
+
   els.participantsGrid.querySelectorAll('[data-submit-id]').forEach(button => {
     button.addEventListener('click', () => runCardAction(button, () => submitCalledIt(state.session.client, button.dataset.submitId), 'Rechecking…'));
   });
-  els.participantsGrid.querySelectorAll('[data-admin-edit-id]').forEach(button => {
-    button.addEventListener('click', () => {
-      const play = state.data.plays.find(item => item.id === button.dataset.adminEditId);
-      const participant = play ? participantById(play.owner_id) : null;
-      if (participant) openEditModal(participant, play.id);
-    });
+
+  els.participantsGrid.querySelectorAll('[data-play-edit-id]').forEach(button => {
+    button.addEventListener('click', () => openPlayEditor(button.dataset.playEditId));
+  });
+
+  els.participantsGrid.querySelectorAll('[data-add-owner]').forEach(button => {
+    button.addEventListener('click', () => openAddForOwner(button.dataset.addOwner));
   });
 }
 
 function renderParticipants() {
   const userId = state.session.user?.id || null;
   const isAdmin = Boolean(state.session.profile?.is_admin);
+
   els.participantsGrid.innerHTML = state.data.participants.map(participant => {
     const slots = getOwnerSlots(state.data.plays, participant.user_id);
     const isYou = Boolean(userId && participant.user_id === userId);
     const canManage = Boolean(state.session.user && (isYou || isAdmin));
+    const adminSlot = isAdmin ? nextAvailableSlot(participant.user_id) : null;
+
     return `<article class="participant-card">
       <div class="participant-head">
         <div class="participant-name">${escapeHtml(participant.display_name)}</div>
         <div class="participant-actions">
           ${isYou ? '<span class="you-badge">YOU</span>' : ''}
-          ${isAdmin ? `<button class="admin-edit-button" type="button" data-edit-owner="${escapeHtml(participant.user_id)}">Edit</button>` : ''}
+          ${isAdmin ? `<button class="admin-edit-button" type="button" data-add-owner="${escapeHtml(participant.user_id)}" ${adminSlot ? '' : 'disabled'} title="${adminSlot ? 'Add a challenge for this participant' : 'Both challenge slots are unavailable'}">+ Add</button>` : ''}
         </div>
       </div>
-      <div class="slot-list">${challengeCardMarkup(slots[0], 1, { canManage, isAdmin })}${challengeCardMarkup(slots[1], 2, { canManage, isAdmin })}</div>
+      <div class="slot-list">${challengeCardMarkup(slots[0], 1, { canManage, canEdit: canManage })}${challengeCardMarkup(slots[1], 2, { canManage, canEdit: canManage })}</div>
     </article>`;
   }).join('');
 
-  els.participantsGrid.querySelectorAll('[data-edit-owner]').forEach(button => {
-    button.addEventListener('click', () => {
-      const participant = participantById(button.dataset.editOwner);
-      if (participant) openEditModal(participant);
-    });
-  });
   bindChallengeCardActions();
 }
 
@@ -155,6 +174,7 @@ function leaderFor(type) {
       const key = row.participant_name || 'Unknown';
       counts.set(key, (counts.get(key) || 0) + 1);
     });
+
   if (!counts.size) return { name: 'No wins yet', count: 0 };
   const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
   const max = sorted[0][1];
@@ -173,15 +193,21 @@ function calledHistoryDetails(row) {
 }
 
 function historyAdminActions(row) {
-  if (!state.session.profile?.is_admin || row.event_type !== 'called_it') return '';
-  if (row.status === 'under_review') {
-    return `<div class="history-actions"><button type="button" data-review-id="${escapeHtml(row.source_id)}" data-decision="approved">Approve +${money(state.data.settings.called_it_payout)}</button><button type="button" data-review-id="${escapeHtml(row.source_id)}" data-decision="rejected">Reject</button></div>`;
+  if (!state.session.profile?.is_admin) return '';
+
+  const actions = [];
+  if (row.event_type === 'called_it' && row.status === 'under_review') {
+    actions.push(`<button type="button" data-review-id="${escapeHtml(row.source_id)}" data-decision="approved">Approve +${money(state.data.settings.called_it_payout)}</button>`);
+    actions.push(`<button type="button" data-review-id="${escapeHtml(row.source_id)}" data-decision="rejected">Reject</button>`);
+  } else if (row.event_type === 'called_it') {
+    const play = state.data.plays.find(item => item.id === row.source_id);
+    if (play && ['approved', 'rejected'].includes(row.status) && cooldownRemaining(play.lock_until)) {
+      actions.push(`<button type="button" data-reset-id="${escapeHtml(row.source_id)}">Reset Cooldown</button>`);
+    }
   }
-  const play = state.data.plays.find(item => item.id === row.source_id);
-  if (play && ['approved', 'rejected'].includes(row.status) && cooldownRemaining(play.lock_until)) {
-    return `<div class="history-actions"><button type="button" data-reset-id="${escapeHtml(row.source_id)}">Reset Cooldown</button></div>`;
-  }
-  return '';
+
+  actions.push(`<button class="history-delete-button" type="button" data-history-delete-id="${escapeHtml(row.id)}">Delete row</button>`);
+  return `<div class="history-actions">${actions.join('')}</div>`;
 }
 
 function bindHistoryActions() {
@@ -217,6 +243,24 @@ function bindHistoryActions() {
       }
     });
   });
+
+  els.historyTableBody.querySelectorAll('[data-history-delete-id]').forEach(button => {
+    button.addEventListener('click', async () => {
+      if (!confirm('Delete this history row? This is intended for testing/debug cleanup.')) return;
+      try {
+        button.disabled = true;
+        const { error } = await state.session.client
+          .from('results_history')
+          .delete()
+          .eq('id', button.dataset.historyDeleteId);
+        if (error) throw error;
+        await refreshData();
+      } catch (error) {
+        button.disabled = false;
+        els.dashboardStatus.textContent = error.message || 'Could not delete the history row.';
+      }
+    });
+  });
 }
 
 function renderHistory() {
@@ -226,10 +270,12 @@ function renderHistory() {
   els.weeklyLeaderCount.textContent = `${weekly.count} ${weekly.count === 1 ? 'win' : 'wins'}`;
   els.calledLeaderName.textContent = called.name;
   els.calledLeaderCount.textContent = `${called.count} ${called.count === 1 ? 'win' : 'wins'}`;
+
   if (!state.data.history.length) {
     els.historyTableBody.innerHTML = '<tr><td colspan="6" class="history-empty">No results recorded yet.</td></tr>';
     return;
   }
+
   els.historyTableBody.innerHTML = state.data.history.map(row => {
     const isWeekly = row.event_type === 'weekly_win';
     const result = isWeekly ? 'Win the Week' : 'Called It!';
@@ -237,19 +283,27 @@ function renderHistory() {
       ? `${Number(row.return_percent) > 0 ? '+' : ''}${Number(row.return_percent).toFixed(2)}%${row.week_number ? ` · Week ${row.week_number}` : ''}`
       : calledHistoryDetails(row);
     const status = isWeekly ? 'Approved' : String(row.status || 'approved').replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase());
-    return `<tr><td>${formatDate(row.event_date)}</td><td><strong>${escapeHtml(row.participant_name)}</strong></td><td><span class="history-type">${result}</span></td><td>${details}</td><td><span class="receipt-status receipt-status-${escapeHtml(row.status || 'approved')}">${escapeHtml(status)}</span>${historyAdminActions(row)}</td><td class="history-prize">${money(row.reward_amount)}</td></tr>`;
+
+    return `<tr data-history-id="${escapeHtml(row.id)}"><td>${formatDate(row.event_date)}</td><td><strong>${escapeHtml(row.participant_name)}</strong></td><td><span class="history-type">${result}</span></td><td>${details}</td><td><span class="receipt-status receipt-status-${escapeHtml(row.status || 'approved')}">${escapeHtml(status)}</span>${historyAdminActions(row)}</td><td class="history-prize">${money(row.reward_amount)}</td></tr>`;
   }).join('');
+
   bindHistoryActions();
 }
 
 function renderAccount() {
   const profile = state.session.profile;
   const signedIn = Boolean(state.session.user);
+  const canAddOwnChallenge = Boolean(signedIn && profile?.active);
+  const ownSlot = canAddOwnChallenge ? nextAvailableSlot(state.session.user.id) : null;
+
   els.authButton.textContent = signedIn ? 'Sign Out' : 'Sign In';
   els.accountLabel.hidden = !signedIn;
   els.accountLabel.textContent = signedIn ? `Signed in as ${profile?.display_name || 'account'}` : '';
   els.adminWeekButton.hidden = !profile?.is_admin;
-  els.editMyPlaysButton.hidden = Boolean(profile?.is_admin && !profile?.active);
+
+  els.editMyPlaysButton.hidden = !canAddOwnChallenge;
+  els.editMyPlaysButton.disabled = !canAddOwnChallenge || !ownSlot;
+  els.editMyPlaysButton.textContent = ownSlot ? 'Add Challenge' : 'Challenge Slots Full';
 }
 
 function renderStatus() {
@@ -281,46 +335,24 @@ function openModal(modal) {
 
 function closeModals() {
   document.querySelectorAll('.modal.open').forEach(modal => {
-    modal.classList.remove('open');
+    modal.classList.remove('open', 'single-play-mode');
     modal.setAttribute('aria-hidden', 'true');
   });
   document.body.style.overflow = '';
 }
 
-function activePlaySummary(play, slotNumber) {
-  return `<div class="manage-slot"><div class="manage-slot-card">${challengeCardMarkup(play, slotNumber, { canManage: false, isAdmin: false })}</div>${play.status === 'active' ? `<button class="button button-danger" type="button" data-cancel-id="${escapeHtml(play.id)}">Cancel Challenge</button>` : ''}</div>`;
-}
-
-function openEditModal(participant = null, focusChallengeId = null) {
-  if (!state.session.user || !state.session.profile) {
-    if (backendIsConfigured()) openModal(els.authModal);
-    else els.dashboardStatus.textContent = 'Editing is not available yet.';
-    return;
-  }
-
-  const isAdmin = Boolean(state.session.profile.is_admin);
-  const target = participant || participantById(state.session.user.id);
-  if (!target?.user_id) {
-    els.dashboardStatus.textContent = 'No participant profile was found for this account.';
-    return;
-  }
-  if (!isAdmin && target.user_id !== state.session.user.id) return;
-
-  const slots = getOwnerSlots(state.data.plays, target.user_id);
-  state.editContext = { ownerId: target.user_id, displayName: target.display_name };
-  els.editTitle.textContent = target.user_id === state.session.user.id ? 'My Called It challenges' : `Manage ${target.display_name}'s challenges`;
-  els.editSlots.innerHTML = slots.map((play, index) => {
-    const slotNumber = index + 1;
-    if (!play) return challengeFormMarkup(slotNumber);
-    if (isAdmin && play.status === 'active') return challengeFormMarkup(slotNumber, play, true);
-    return activePlaySummary(play, slotNumber);
-  }).join('');
+function openChallengeModal(title, markup) {
+  els.editTitle.textContent = title;
+  els.editSlots.innerHTML = markup;
   els.editMessage.className = 'form-message';
   els.editMessage.textContent = '';
-  bindCalledItForms(target.user_id);
-  bindModalCancelButtons(target);
+  els.editModal.classList.add('single-play-mode');
   openModal(els.editModal);
-  if (focusChallengeId) setTimeout(() => els.editSlots.querySelector(`[data-challenge-id="${CSS.escape(focusChallengeId)}"]`)?.scrollIntoView({ block: 'center' }), 0);
+}
+
+function showEditError(message) {
+  els.editMessage.className = 'form-message error';
+  els.editMessage.textContent = message || 'Could not update the challenge.';
 }
 
 function currentPreviewSettings() {
@@ -331,48 +363,66 @@ function currentPreviewSettings() {
   };
 }
 
-function updateFormGoal(form) {
-  const direction = form.elements.direction.value;
-  const preview = form.querySelector('[data-goal-preview]');
-  const referencePrice = Number(form.dataset.previewPrice || form.dataset.referencePrice);
-  preview.textContent = goalPreview(referencePrice, direction, currentPreviewSettings());
+function syncAmount(form) {
+  const select = form.elements.portfolio_action;
+  const wrap = form.querySelector('.amount-wrap');
+  if (!select || !wrap) return;
+  const hidden = select.value === 'not_buying' || !select.value;
+  wrap.hidden = hidden;
+  if (form.elements.action_amount) form.elements.action_amount.required = !hidden;
 }
 
-function selectDirection(form, direction) {
-  form.elements.direction.value = direction;
-  form.querySelectorAll('[data-direction]').forEach(button => button.classList.toggle('selected', button.dataset.direction === direction));
-  updateFormGoal(form);
+function syncActionForDirection(form) {
+  const direction = form.elements.direction?.value || '';
+  const select = form.elements.portfolio_action;
+  if (!select) return;
+  const previous = select.value;
+  select.innerHTML = actionOptions(direction, previous);
+  select.disabled = !direction;
+  syncAmount(form);
+}
+
+function syncGoal(form) {
+  const goal = form.querySelector('[data-single-goal]');
+  if (!goal) return;
+  const direction = form.elements.direction?.value || '';
+  const raw = form.dataset.previewPrice || form.dataset.referencePrice || '';
+  goal.textContent = goalPreview(Number(raw), direction, currentPreviewSettings());
 }
 
 function bindTickerSearch(form) {
   const input = form.elements.ticker_search;
   const hidden = form.elements.ticker;
   const results = form.querySelector('.ticker-results');
-  const quotePreview = form.querySelector('[data-quote-preview]');
+  const quote = form.querySelector('[data-single-quote]');
+  if (!input || !hidden || !results || !quote) return;
+
   let timer = null;
-  let requestSequence = 0;
+  let sequence = 0;
 
   input.addEventListener('input', () => {
     hidden.value = '';
     form.dataset.previewPrice = '';
-    quotePreview.textContent = 'Choose a stock to load the current price.';
-    updateFormGoal(form);
+    quote.textContent = 'Choose a stock to load the current price.';
+    syncGoal(form);
     clearTimeout(timer);
     const query = input.value.trim();
+
     if (!query) {
       results.hidden = true;
       results.innerHTML = '';
       return;
     }
-    const sequence = ++requestSequence;
+
+    const current = ++sequence;
     timer = setTimeout(async () => {
       try {
         const rows = await searchSecurities(state.session.client, query, 10);
-        if (sequence !== requestSequence) return;
+        if (current !== sequence) return;
         results.innerHTML = rows.length ? rows.map(tickerResultMarkup).join('') : '<div class="ticker-no-results">No matching listed stocks.</div>';
         results.hidden = false;
       } catch (error) {
-        if (sequence !== requestSequence) return;
+        if (current !== sequence) return;
         results.innerHTML = `<div class="ticker-no-results">${escapeHtml(error.message || 'Could not search stocks.')}</div>`;
         results.hidden = false;
       }
@@ -385,102 +435,156 @@ function bindTickerSearch(form) {
     hidden.value = button.dataset.ticker;
     input.value = `${button.dataset.ticker} · ${button.dataset.company}`;
     results.hidden = true;
-    quotePreview.textContent = 'Loading current price…';
+    quote.textContent = 'Loading current price…';
+
     try {
       const response = await previewCalledIt(state.session.client, button.dataset.ticker);
       form.dataset.previewPrice = String(response.quote.price);
-      quotePreview.textContent = `${money(response.quote.price)} · ${response.quote.market_status === 'open' ? 'market open' : 'latest price'}`;
-      updateFormGoal(form);
+      quote.textContent = `${money(response.quote.price)} · ${response.quote.market_status === 'open' ? 'market open' : 'latest price'}`;
+      syncGoal(form);
     } catch (error) {
-      quotePreview.textContent = error.message || 'Current price is unavailable.';
-      els.editMessage.className = 'form-message error';
-      els.editMessage.textContent = error.message || 'Current price is unavailable.';
+      quote.textContent = error.message || 'Current price is unavailable.';
+      showEditError(error.message || 'Current price is unavailable.');
     }
   });
 
-  document.addEventListener('click', event => {
-    if (!form.contains(event.target)) results.hidden = true;
-  }, { once: false });
+  form.addEventListener('focusout', event => {
+    if (event.relatedTarget && form.contains(event.relatedTarget)) return;
+    results.hidden = true;
+  });
 }
 
-function bindCalledItForms(ownerId) {
-  els.editSlots.querySelectorAll('.called-it-form').forEach(form => {
-    const existing = form.dataset.challengeId ? state.data.plays.find(play => play.id === form.dataset.challengeId) : null;
-    if (existing?.reference_price) form.dataset.referencePrice = String(existing.reference_price);
-    bindTickerSearch(form);
-    form.querySelectorAll('[data-direction]').forEach(button => button.addEventListener('click', () => selectDirection(form, button.dataset.direction)));
-    const actionSelect = form.elements.portfolio_action;
-    const amountWrap = form.querySelector('.amount-wrap');
-    const syncAmount = () => {
-      const notBuying = actionSelect.value === 'not_buying';
-      amountWrap.hidden = notBuying;
-      form.elements.action_amount.required = !notBuying;
-    };
-    actionSelect.addEventListener('change', syncAmount);
-    syncAmount();
-    updateFormGoal(form);
+function bindSingleForm(form, play = null) {
+  if (!form) return;
+  if (play?.reference_price) form.dataset.referencePrice = String(play.reference_price);
 
-    form.addEventListener('submit', async event => {
-      event.preventDefault();
-      const ticker = form.elements.ticker.value;
-      const direction = form.elements.direction.value;
-      if (!ticker) {
-        els.editMessage.className = 'form-message error';
-        els.editMessage.textContent = 'Choose a stock from the search results.';
-        return;
-      }
-      if (!direction) {
-        els.editMessage.className = 'form-message error';
-        els.editMessage.textContent = 'Choose Go Up, Go Down, or Finish About the Same.';
-        return;
-      }
+  bindTickerSearch(form);
+  if (form.elements.direction) {
+    syncActionForDirection(form);
+    syncGoal(form);
+    form.querySelectorAll('[data-single-direction]').forEach(button => {
+      button.addEventListener('click', () => {
+        form.elements.direction.value = button.dataset.singleDirection;
+        form.querySelectorAll('[data-single-direction]').forEach(item => item.classList.toggle('selected', item === button));
+        syncActionForDirection(form);
+        syncGoal(form);
+      });
+    });
+  } else {
+    syncAmount(form);
+  }
 
-      const submitButton = form.querySelector('button[type="submit"]');
-      try {
-        submitButton.disabled = true;
-        els.editMessage.className = 'form-message';
-        els.editMessage.textContent = existing ? 'Saving changes…' : 'Saving challenge…';
+  form.elements.portfolio_action?.addEventListener('change', () => syncAmount(form));
+
+  form.querySelector('[data-single-cancel]')?.addEventListener('click', async () => {
+    if (!play?.id || !confirm('Cancel this challenge? It will not pay and the active challenge will close.')) return;
+    try {
+      await cancelCalledIt(state.session.client, play.id);
+      closeModals();
+      await refreshData();
+    } catch (error) {
+      showEditError(error.message);
+    }
+  });
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const submit = form.querySelector('button[type="submit"]');
+
+    try {
+      submit.disabled = true;
+      els.editMessage.className = 'form-message';
+      els.editMessage.textContent = 'Saving…';
+
+      const mode = form.dataset.mode;
+      const action = form.elements.portfolio_action.value;
+      const amount = action === 'not_buying' ? null : Number(form.elements.action_amount.value);
+
+      if (mode === 'owner-edit') {
+        const { error } = await state.session.client.rpc('edit_own_called_it_metadata', {
+          challenge_id: form.dataset.challengeId,
+          new_reason: form.elements.reason.value,
+          new_portfolio_action: action,
+          new_action_amount: amount
+        });
+        if (error) throw error;
+      } else {
+        const ticker = form.elements.ticker.value;
+        const direction = form.elements.direction.value;
+        if (!ticker) throw new Error('Choose a stock from the search results.');
+        if (!direction) throw new Error('Choose Go Up, Go Down, or Finish About the Same.');
+
         const payload = {
-          owner_id: ownerId,
+          owner_id: play?.owner_id || form.dataset.ownerId || state.session.user.id,
           slot_number: Number(form.dataset.slot),
           ticker,
           direction,
           reason: form.elements.reason.value,
-          portfolio_action: form.elements.portfolio_action.value,
-          action_amount: form.elements.portfolio_action.value === 'not_buying' ? null : Number(form.elements.action_amount.value)
+          portfolio_action: action,
+          action_amount: amount
         };
-        if (existing && state.session.profile?.is_admin) await adminEditCalledIt(state.session.client, existing.id, payload);
+
+        if (mode === 'admin-edit') await adminEditCalledIt(state.session.client, form.dataset.challengeId, payload);
         else await createCalledIt(state.session.client, payload);
-        await refreshData();
-        const target = participantById(ownerId);
-        if (target) openEditModal(target);
-      } catch (error) {
-        els.editMessage.className = 'form-message error';
-        els.editMessage.textContent = error.message || 'Could not save the challenge.';
-      } finally {
-        submitButton.disabled = false;
       }
-    });
+
+      closeModals();
+      await refreshData();
+    } catch (error) {
+      showEditError(error.message);
+      submit.disabled = false;
+    }
   });
 }
 
-function bindModalCancelButtons(target) {
-  els.editSlots.querySelectorAll('[data-cancel-id]').forEach(button => {
-    button.addEventListener('click', async () => {
-      if (!confirm('Cancel this challenge? It will not pay and the active challenge will close.')) return;
-      try {
-        button.disabled = true;
-        await cancelCalledIt(state.session.client, button.dataset.cancelId);
-        await refreshData();
-        openEditModal(target);
-      } catch (error) {
-        els.editMessage.className = 'form-message error';
-        els.editMessage.textContent = error.message || 'Could not cancel the challenge.';
-      } finally {
-        button.disabled = false;
-      }
-    });
-  });
+function openPlayEditor(challengeId) {
+  const play = state.data.plays.find(item => item.id === challengeId);
+  if (!play) {
+    openChallengeModal('Called It challenge', '<div class="called-it-static"><strong>Could not open challenge</strong><span>Challenge not found.</span></div>');
+    return;
+  }
+  if (!state.session.user || !state.session.profile) {
+    openModal(els.authModal);
+    return;
+  }
+  if (play.status !== 'active') {
+    openChallengeModal('Called It challenge', '<div class="called-it-static"><strong>Could not open challenge</strong><span>Only an active challenge can be edited.</span></div>');
+    return;
+  }
+  if (!state.session.profile.is_admin && play.owner_id !== state.session.user.id) return;
+
+  const adminMode = Boolean(state.session.profile.is_admin);
+  openChallengeModal(
+    `Edit ${play.ticker}`,
+    adminMode
+      ? singleChallengeFormMarkup({ play, slotNumber: play.slot_number, adminEdit: true })
+      : ownerEditFormMarkup(play)
+  );
+  bindSingleForm(els.editSlots.querySelector('.single-called-it-form'), play);
+}
+
+function openAddForOwner(ownerId) {
+  if (!state.session.user || !state.session.profile) {
+    if (backendIsConfigured()) openModal(els.authModal);
+    return;
+  }
+  if (ownerId !== state.session.user.id && !state.session.profile.is_admin) return;
+
+  const slot = nextAvailableSlot(ownerId);
+  if (!slot) {
+    openChallengeModal('Add Called It challenge', '<div class="called-it-static"><strong>Both slots are unavailable</strong><span>Both challenge slots are active, under review, or in cooldown.</span></div>');
+    return;
+  }
+
+  const owner = participantById(ownerId);
+  const title = ownerId === state.session.user.id
+    ? `Add Challenge ${slot}`
+    : `Add ${owner?.display_name || 'participant'} Challenge ${slot}`;
+
+  openChallengeModal(title, singleChallengeFormMarkup({ slotNumber: slot }));
+  const form = els.editSlots.querySelector('.single-called-it-form');
+  form.dataset.ownerId = ownerId;
+  bindSingleForm(form);
 }
 
 async function refreshData() {
@@ -497,12 +601,15 @@ async function refreshSessionAndData() {
     state.session = { configured: backendIsConfigured(), client: null, user: null, profile: null };
     state.data = fallbackDashboardData();
   }
+
+  if (!state.session.user) closeModals();
   renderAll();
 }
 
 els.authButton.addEventListener('click', async () => {
   if (state.session.user) {
     try {
+      closeModals();
       await signOut();
       await refreshSessionAndData();
     } catch {
@@ -510,10 +617,12 @@ els.authButton.addEventListener('click', async () => {
     }
     return;
   }
+
   if (!backendIsConfigured()) {
     els.dashboardStatus.textContent = 'Editing is not available yet.';
     return;
   }
+
   els.authMessage.textContent = '';
   openModal(els.authModal);
   setTimeout(() => els.authEmail.focus(), 0);
@@ -524,17 +633,22 @@ els.authForm.addEventListener('submit', async event => {
   els.authMessage.className = 'form-message';
   els.authMessage.textContent = 'Signing in…';
   const result = await signIn(els.authEmail.value, els.authPassword.value);
+
   if (!result.ok) {
     els.authMessage.className = 'form-message error';
     els.authMessage.textContent = result.message;
     return;
   }
+
   els.authPassword.value = '';
   closeModals();
   await refreshSessionAndData();
 });
 
-els.editMyPlaysButton.addEventListener('click', () => openEditModal());
+els.editMyPlaysButton.addEventListener('click', () => {
+  if (!state.session.user || !state.session.profile?.active) return;
+  openAddForOwner(state.session.user.id);
+});
 
 els.adminWeekButton.addEventListener('click', () => {
   const winner = state.data.winner;
@@ -561,11 +675,13 @@ els.weekForm.addEventListener('submit', async event => {
   event.preventDefault();
   if (!state.session.profile?.is_admin) return;
   const participant = participantById(els.winnerNameInput.value);
+
   if (!participant) {
     els.weekMessage.className = 'form-message error';
     els.weekMessage.textContent = 'Choose a winner.';
     return;
   }
+
   try {
     els.weekMessage.className = 'form-message';
     els.weekMessage.textContent = 'Saving…';
@@ -602,11 +718,22 @@ let pointerDownOnBackdrop = null;
 document.addEventListener('pointerdown', event => {
   pointerDownOnBackdrop = event.target.classList?.contains('modal') ? event.target : null;
 }, true);
+
 document.querySelectorAll('.modal').forEach(modal => modal.addEventListener('click', event => {
   if (event.target === modal && pointerDownOnBackdrop === modal) closeModals();
   pointerDownOnBackdrop = null;
 }));
+
 document.addEventListener('pointercancel', () => { pointerDownOnBackdrop = null; }, true);
-document.addEventListener('keydown', event => { if (event.key === 'Escape') closeModals(); });
+
+const gameHelp = document.querySelector('.game-help');
+document.addEventListener('click', event => {
+  if (gameHelp?.open && !gameHelp.contains(event.target)) gameHelp.removeAttribute('open');
+});
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Escape') return;
+  gameHelp?.removeAttribute('open');
+  closeModals();
+});
 
 await refreshSessionAndData();
