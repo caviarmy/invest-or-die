@@ -25,10 +25,12 @@ This repository record exists so a fresh implementation turn can recover the cri
 - Turn 7 adversarial review: corrected unverified configurable-rule fallbacks, article modal lifecycle/accessibility, and article shell CSS specificity before closing the turn
 - Turn 8 Goblin seasoning + asset integration: CODE COMPLETE / CORRECTION REVIEW COMPLETE / ANDROID AND BROWSER RUNTIME QA DEFERRED
 - Turn 8 adversarial review: corrected direction-mark contrast across dark-slip and paper surfaces; confirmed seasoning remains sparse and non-authoritative
+- Turns 7–8 combined post-review correction pass: SOURCE-LEVEL CORRECTIONS COMPLETE / ANDROID AND BROWSER RUNTIME QA DEFERRED
+- Turns 7–8 combined corrections: completed form/slip direction-mark consistency, spatial asset integration, readable Rules failure states, household-vs-software enforcement wording, supported article font weights, JavaScript reduced-motion handling, and namespaced article modal ownership
 - Manual Android/browser QA: DEFERRED UNTIL TURN 9 INTEGRATED QA
 - Next canonical turn: Turn 9 — Mobile, performance, accessibility, and de-AI audit
 
-Read the completed-turn records in order. Read `turn-8-completion.md` and `turn-8-correction-review.md` before beginning Turn 9. The Turn 5 completion/correction records remain authoritative for later work that touches Called It behavior, Turn 6 remains authoritative for Receipts state/payout semantics, and Turn 7 remains authoritative for secondary-page integration.
+Read the completed-turn records in order. Before beginning Turn 9, read `turn-7-8-combined-correction-review.md` as the latest authoritative cross-turn correction record in addition to `turn-8-completion.md` and `turn-8-correction-review.md`. The Turn 5 completion/correction records remain authoritative for later work that touches Called It behavior, Turn 6 remains authoritative for Receipts state/payout semantics, and Turn 7 remains authoritative for secondary-page integration.
 
 ## Mandatory environment rule
 
@@ -73,6 +75,20 @@ If action copy contains a mutable amount/price/percentage/date, compare the valu
 
 A static HTML fallback for a mutable setting must not silently present itself as the current rule. Until an authoritative value is loaded, either show an explicitly labeled fallback/default or fail closed with a missing/unavailable presentation.
 
+A truthful failure state must also remain usable. Do not replace a fake value with malformed copy such as `— above` or `— days`. If authoritative configuration is unavailable, keep the sentence grammatical and explain that the current setting is unavailable.
+
+Any rule or instruction using enforcement language such as `must`, `cannot`, `blocked`, `required to continue`, or `to keep playing` must name its enforcement source. If there is no application guard, identify it explicitly as a household/manual policy rather than implying software enforcement.
+
+## Cross-turn integration rules
+
+A later turn must review how its additions behave inside the workflow created by earlier turns, not only whether the new files satisfy the current-turn checklist.
+
+- When introducing a custom icon/mark family, inventory every presentation of that concept inside the same interaction flow. Do not mix authored assets and platform emoji in one file → saved/result workflow without an intentional reason.
+- Adding an asset is not completion by itself. For every arrow, seal, stamp, highlight, or annotation, identify what it visibly marks or points to and how it is spatially anchored. Remove decoration that has no referent.
+- When a page begins consuming shared CSS, inventory local generic component names such as `.modal`, `.card`, `.sheet`, `.button`, or `.header`. Namespace local components when ownership differs from the shared component.
+- When loading a limited font family/weight set, inventory all requested `font-weight`/style values on the page. Do not rely on nonexistent 850/950/1000 faces to create hierarchy.
+- Reduced-motion review covers JavaScript-driven motion as well as CSS `animation` and `transition`.
+
 ## Mandatory review gates for every implementation turn
 
 Before coding:
@@ -89,11 +105,16 @@ Before coding:
 - for every financial value, distinguish numeric validity from semantic finality; identify zeros/defaults/placeholders that are valid values but not final outcomes;
 - if action copy includes a mutable amount/price/percentage/date, compare its UI source to the authoritative mutation source;
 - if mutable settings are loaded after initial HTML, identify what the pre-load/error state displays and ensure it cannot masquerade as current authoritative configuration;
+- for rule/instruction copy that implies eligibility or blocking, identify the actual software guard; if none exists, plan manual/household-policy wording instead;
 - apply label economy to proposed visible labels before implementing them;
 - identify realistic worst-case legal values/strings that could affect layout;
 - inventory every structural breakpoint used by the changed component and identify the minimum width of each layout mode;
 - if creating external branded SVGs, require outlined text/path geometry rather than live device-font text;
+- if adding a decorative mark/arrow/seal, name its visual referent and intended spatial anchor before implementation;
+- if introducing a custom icon family, inventory all same-workflow input, active, saved/result, and summary representations of that concept;
 - if changing an exported helper, formatter, shared CSS utility, or shared render primitive, enumerate its consumers and identify any out-of-turn surfaces it can affect;
+- if a page consumes shared CSS while retaining local component styles, inventory generic selector collisions and define explicit ownership/namespacing;
+- if loading remote font subsets, compare the loaded weights/styles with every weight/style requested by the page;
 - if instructional copy changes inside a role-shared component, check signed-out, owner, admin-self, admin-other, and disabled/unavailable contexts where applicable;
 - if a compact empty state sits in Grid/Flex, inspect parent stretch behavior and shared/inherited min-heights, including a mixed row with one populated and one empty item;
 - if numeric/currency formatting or temporary numeric storage is touched, test sentinel inputs: null, undefined, blank string, numeric zero, negative, NaN, and normal positive values;
@@ -123,14 +144,20 @@ After coding:
 - re-run the state-provenance matrix against rendered output; no status-like decoration may invent a lifecycle/state merely because it fits the theme;
 - verify stored zero/default/fallback values are not presented as final outcomes when their lifecycle meaning is pending/provisional;
 - verify async-loaded mutable settings fail closed or are explicitly labeled as fallback/default until authoritative values arrive;
+- verify unavailable/failure copy is still grammatical, readable, and useful rather than merely non-misleading;
+- verify rules using enforcement language map to a real application guard or are explicitly identified as manual/household policy;
 - verify any mutable value embedded in action copy is the same value/snapshot the authoritative mutation will use; otherwise remove the promise;
 - verify labels match the actual data geometry they describe;
 - run a visible-label economy pass separately from semantic/accessibility labeling;
 - perform a source-level worst-case content check using actual field/numeric bounds and 320–360px assumptions even when runtime QA is deferred;
 - additionally test worst-case content immediately around every structural breakpoint and at the minimum width of every wider layout mode;
 - verify external branded SVGs contain no live `<text>` unless explicitly documented;
+- verify every added decorative mark visibly annotates/marks a real referent; do not keep checklist decoration that merely exists;
+- verify custom icon/mark families are consistent across the same workflow unless a different representation is intentional and documented;
 - load primary remote web fonts from the document head rather than CSS `@import`;
+- verify loaded font weights/styles actually cover every requested page weight/style; normalize unsupported numeric weights instead of relying on browser fallback;
 - verify any shared-helper change did not alter an out-of-scope surface; if it did, split semantic/shared output from turn-specific presentation;
+- verify local component selectors do not accidentally compete with shared global component selectors; namespace separate implementations;
 - verify role-sensitive instructions point to a control/action that actually exists for each role that can see the copy;
 - verify compact empty states remain compact after Grid/Flex cross-axis sizing and desktop media rules are applied;
 - verify display formatters **and temporary numeric state** preserve missing values as missing rather than coercing them into legitimate-looking zeroes;
@@ -138,6 +165,7 @@ After coding:
 - perform a semantic accessibility gate now: heading hierarchy, accessible control names, selected-state semantics, and status meaning;
 - check every interactive row/toggle/icon/autocomplete option against the ~44px mobile hit-target rule where practical;
 - separately inspect font size, contrast, and opacity for visually subordinate controls; a compliant hit target does not excuse unreadable microtext;
+- verify `prefers-reduced-motion` disables or bypasses JavaScript-driven counters/tweens/scroll effects as well as CSS animations/transitions;
 - for `aria-modal="true"` surfaces, verify focus entry, background inertness/inaccessibility, Tab/Shift+Tab containment, Escape/close behavior, body-scroll recovery, and focus restoration;
 - for custom ARIA widget roles such as `listbox`, `option`, `menu`, or `tab`, require the matching keyboard/focus interaction model; otherwise prefer native controls/semantics rather than decorative ARIA;
 - for toggle-like button groups, expose selected state semantically (`aria-pressed`, radio semantics, etc.) and update it whenever the visual selection changes;
@@ -181,6 +209,13 @@ Every later visual turn must explicitly answer these questions before it is call
 25. **Label economy:** What ambiguity does each visible micro-label resolve? If none, remove it.
 26. **Philosophy:** Did the financial/bureaucratic theme invent fake system behavior merely because it looked on-theme?
 27. **Fallback truth:** Can a static fallback/default for mutable configuration be mistaken for the current authoritative setting when loading fails?
+28. **Enforcement truth:** Does language such as `must`, `blocked`, or `to keep playing` map to a real software guard? If not, is manual/household enforcement named explicitly?
+29. **Failure usability:** When current data/configuration is unavailable, does the UI remain grammatical and useful rather than only technically truthful?
+30. **Asset intent:** Does each arrow/seal/stamp/highlight visibly annotate or mark something, or was it added merely to satisfy an asset checklist?
+31. **Workflow consistency:** Does the same concept use one coherent authored icon/mark language through input → saved/result states?
+32. **Font reality:** Do all requested font weights/styles actually exist in the loaded font set?
+33. **Reduced motion:** Are JavaScript-driven counters/tweens/effects bypassed when reduced motion is requested?
+34. **CSS ownership:** Are local component implementations namespaced away from conflicting shared global selectors?
 
 ## Mandatory adversarial correction-review prompt
 
@@ -195,9 +230,16 @@ Audit at minimum:
 - state provenance for every status/stamp/badge/official amount/action promise;
 - semantic meaning of zero/default/pending/fallback values, not only numeric validity;
 - whether an HTML/default fallback for mutable configuration can masquerade as current state if loading fails;
+- whether a truthful failure state is still grammatical and useful to the user;
+- whether rule/eligibility copy implies software enforcement that no guard actually implements;
 - authority timing for mutable values shown on actions;
 - worst-case content immediately around every structural breakpoint, not only 320–360px;
 - hit target, font size, contrast, and opacity separately for subordinate controls;
+- whether decorative assets actually annotate/mark a visual referent rather than merely existing;
+- whether custom icon families remain coherent across one interaction workflow;
+- whether requested font weights/styles exist in the loaded font set;
+- whether reduced-motion handling covers JavaScript-driven effects as well as CSS;
+- whether local component selectors collide with shared global CSS ownership;
 - regression scope against prior controllers/auth/backend/shared helpers;
 - whether any themed financial/bureaucratic treatment makes the system less truthful.
 
