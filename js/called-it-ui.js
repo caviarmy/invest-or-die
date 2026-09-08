@@ -31,15 +31,18 @@ export function directionLabel(direction) {
   return 'PREDICTION';
 }
 
+function directionAssetMarkup(direction, label) {
+  if (!['up', 'down', 'flat'].includes(direction)) return escapeHtml(label);
+  return `<img src="./assets/directions/${direction}.svg" alt="" aria-hidden="true" width="24" height="16"><span>${escapeHtml(label)}</span>`;
+}
+
 function slipDirectionMarkup(direction) {
   const definition = {
-    up: ['up', 'GOES UP'],
-    down: ['down', 'GOES DOWN'],
-    flat: ['flat', 'FINISHES ABOUT THE SAME']
+    up: 'GOES UP',
+    down: 'GOES DOWN',
+    flat: 'FINISHES ABOUT THE SAME'
   }[direction];
-  if (!definition) return 'PREDICTION';
-  const [asset, label] = definition;
-  return `<img src="./assets/directions/${asset}.svg" alt="" aria-hidden="true" width="24" height="16"><span>${label}</span>`;
+  return definition ? directionAssetMarkup(direction, definition) : 'PREDICTION';
 }
 
 export function actionLabel(play) {
@@ -107,7 +110,7 @@ export function predictionButtons(direction = '') {
     ['down', 'Go Down'],
     ['flat', 'Finish About the Same']
   ];
-  return defs.map(([value, label]) => `<button type="button" data-single-direction="${value}" class="prediction-choice ${direction === value ? 'selected' : ''}" aria-pressed="${direction === value ? 'true' : 'false'}">${label}</button>`).join('');
+  return defs.map(([value, label]) => `<button type="button" data-single-direction="${value}" class="prediction-choice ${direction === value ? 'selected' : ''}" aria-pressed="${direction === value ? 'true' : 'false'}">${directionAssetMarkup(value, label)}</button>`).join('');
 }
 
 function escapeUrl(value) {
