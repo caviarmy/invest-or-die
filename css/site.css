@@ -75,7 +75,8 @@ p{line-height:1.5}
 .tracker-buy .tracker-value{color:var(--text);white-space:nowrap}
 .tracker-label{font:600 9px/1.2 var(--font-mono);letter-spacing:.09em;color:#8d978f;margin-bottom:7px}
 .tracker-foot{display:grid;gap:5px;padding:9px 0 10px;border-top:1px solid var(--line)}
-.tracker-goblin-note{font:600 9px/1.2 var(--font-mono);letter-spacing:.07em;color:var(--highlight)}
+.tracker-goblin-note{position:relative;display:inline-flex;align-items:center;width:max-content;max-width:100%;padding-right:52px;font:600 9px/1.2 var(--font-mono);letter-spacing:.07em;color:var(--highlight)}
+.tracker-goblin-arrow{position:absolute;right:0;top:-11px;display:block;width:48px;height:22px;transform:rotate(-6deg);pointer-events:none}
 .tracker-copy{font-size:11px;color:#9fa9a1;line-height:1.4}
 
 .winner-panel{display:flex;flex-direction:column;border-top:1px solid var(--line-strong);border-bottom:1px solid var(--line-strong)}
@@ -126,7 +127,8 @@ p{line-height:1.5}
 .slot-label{font:600 9px/1.2 var(--font-mono);letter-spacing:.1em;color:#7f8981;margin-bottom:14px}
 .play-ticker{max-width:100%;font:700 clamp(34px,11vw,48px)/.88 var(--font-display);letter-spacing:-.035em;margin-bottom:5px;overflow-wrap:anywhere}
 .play-company{font-size:11px;color:#89938b;line-height:1.4;min-height:15px;overflow-wrap:anywhere}
-.prediction-badge{display:flex;width:100%;margin-top:13px;padding:8px 0 8px 10px;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-left:3px solid #56605a;border-radius:0;background:transparent;color:#c7cdc8;font:700 10px/1.2 var(--font-mono);letter-spacing:.055em}
+.prediction-badge{display:flex;align-items:center;gap:8px;width:100%;margin-top:13px;padding:8px 0 8px 10px;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-left:3px solid #56605a;border-radius:0;background:transparent;color:#c7cdc8;font:700 10px/1.2 var(--font-mono);letter-spacing:.055em}
+.prediction-badge img{display:block;width:24px;height:16px;flex:0 0 auto}
 .prediction-badge.prediction-up{border-left-color:var(--money);color:var(--money)}
 .prediction-badge.prediction-down{border-left-color:var(--loss);color:#ff8b84}
 .prediction-badge.prediction-flat{border-left-color:#727d75;color:#c7cdc8}
@@ -247,10 +249,9 @@ textarea{min-height:88px;resize:vertical}
 .quote-preview{font-size:clamp(20px,6vw,27px);font-weight:700;line-height:1.1}
 .goal-preview{margin-top:8px;padding-top:10px;border-top:1px dashed #aaa38d;color:#244c26;font-size:12px;font-weight:600;line-height:1.4}
 .prediction-choices{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.prediction-choice{min-height:48px;border:1px solid #817a67;background:transparent;color:#35342e;border-radius:0;padding:10px;font-family:var(--font-display);font-weight:700;text-transform:uppercase}
+.prediction-choice{min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid #817a67;background:transparent;color:#35342e;border-radius:0;padding:10px;font-family:var(--font-display);font-weight:700;text-transform:uppercase}
+.prediction-choice img{display:block;width:24px;height:16px;flex:0 0 auto}
 .prediction-choice.selected{border:2px solid #35683a;background:#dbe7cc;color:#214625;padding:9px}
-.prediction-choice[data-single-direction="up"]::before{content:"📈 "}
-.prediction-choice[data-single-direction="down"]::before{content:"📉 "}
 .prediction-choice[data-single-direction="down"]{border-color:#9a5c56;color:#822d28}
 .prediction-choice[data-single-direction="down"].selected{background:#f0c8c4;border-color:#a33d36;color:#77231e;box-shadow:none}
 .prediction-choice:last-of-type{grid-column:1/-1}
@@ -264,6 +265,8 @@ textarea{min-height:88px;resize:vertical}
 .single-play-mode .button-danger{background:transparent;border-color:#a33d36;color:#812b26}
 .called-it-static{display:grid;gap:3px;padding:13px 0;border:0;border-bottom:1px solid #aaa38d;background:transparent}
 .called-it-static strong{display:block;font-family:var(--font-display);font-size:24px;font-weight:700;letter-spacing:-.02em;color:var(--paper-ink)}
+.called-it-static strong:has(img){display:flex;align-items:center;gap:8px}
+.called-it-static strong img{display:block;width:24px;height:16px;flex:0 0 auto}
 .called-it-static span{display:block;color:#655f52;font-size:12px;margin:0}
 .locked-call-note{margin:12px 0 0;padding:9px 10px;border-left:3px solid #a38f22;background:#ddd4ad;color:#5d5330;font-size:11px;line-height:1.45}
 
@@ -284,7 +287,8 @@ textarea{min-height:88px;resize:vertical}
 .page-main{width:min(100% - 24px,860px);margin:0 auto;padding:28px 0 56px}
 .back-link{display:inline-flex;align-items:center;min-height:44px;margin-bottom:16px;text-decoration:none;color:var(--money);font:600 12px/1.2 var(--font-mono)}
 .rules-ledger{background:var(--paper);color:var(--paper-ink);border:1px solid #b6ae94;color-scheme:light}
-.rules-file-head{padding:20px 18px 24px;border-bottom:3px double #8f8873}
+.rules-file-head{position:relative;padding:20px 96px 24px 18px;border-bottom:3px double #8f8873;min-height:104px}
+.rules-brokerage-seal{position:absolute;right:18px;top:18px;display:block;width:64px;height:64px;opacity:.78;transform:rotate(2deg);mix-blend-mode:multiply}
 .rules-page h1{font-size:clamp(48px,13vw,72px);line-height:.88;letter-spacing:-.035em;margin:0 0 13px;text-transform:uppercase;color:var(--paper-ink)}
 .rules-intro{font-size:16px;color:#5b574c;max-width:680px;margin:0}
 .guide-section{padding:24px 18px;border-top:1px solid #b8b098}
@@ -306,6 +310,8 @@ textarea{min-height:88px;resize:vertical}
 .explain-grid article p{font-size:13px;color:#514e45;margin:0}
 .definition-box{margin:16px 0 24px;padding:3px 0 3px 14px;border-left:3px solid #315f37;border-radius:0;background:transparent;color:#514e45;font-size:13px;line-height:1.55}
 .definition-box strong{color:var(--paper-ink)}
+.rules-settings-status{margin:0 0 18px;padding:10px 12px;border-left:3px solid #7b6420;background:#ded6bd;color:#514e45;font-size:12px;line-height:1.45}
+.rules-settings-status[hidden]{display:none}
 .rules-columns{display:grid;grid-template-columns:1fr;gap:0;border-top:1px solid #aaa38d}
 .rules-columns-spaced{margin-top:28px}
 .rules-columns>div{min-width:0;padding:18px 0}
@@ -353,6 +359,8 @@ textarea{min-height:88px;resize:vertical}
 @media(max-width:380px){
   .action-controls{grid-template-columns:1fr;align-items:stretch}
   .amount-wrap{width:100%}
+  .rules-file-head{padding-right:82px}
+  .rules-brokerage-seal{right:14px;width:58px;height:58px}
 }
 
 @media(min-width:700px){
@@ -415,7 +423,8 @@ textarea{min-height:88px;resize:vertical}
   .dashboard-section{margin-top:34px}
   .game-help-copy{width:330px;font-size:13px}
   .page-main{width:min(860px,calc(100% - 36px));padding:44px 0 64px}
-  .rules-file-head{padding:30px 32px 32px}
+  .rules-file-head{padding:30px 122px 32px 32px;min-height:126px}
+  .rules-brokerage-seal{right:30px;top:28px;width:72px;height:72px}
   .rules-page h1{font-size:clamp(54px,8vw,82px)}
   .rules-intro{font-size:18px}
   .guide-section{display:grid;grid-template-columns:52px minmax(0,1fr);gap:20px;padding:30px 32px}
