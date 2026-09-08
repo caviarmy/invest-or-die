@@ -389,6 +389,7 @@ function openModal(modal, focusSelector = '') {
 
 function closeModals() {
   const returnFocus = modalReturnFocus;
+  document.querySelectorAll('.modal.open .single-called-it-form').forEach(form => nextQuoteRequest(form));
   document.querySelectorAll('.modal.open').forEach(modal => {
     modal.classList.remove('open', 'single-play-mode');
     modal.setAttribute('aria-hidden', 'true');
@@ -427,11 +428,11 @@ function currentPreviewSettings() {
 }
 
 function clearPreviewSnapshot(form) {
-  form.dataset.previewPrice = '';
-  form.dataset.previewTicker = '';
-  form.dataset.previewUp = '';
-  form.dataset.previewDown = '';
-  form.dataset.previewFlat = '';
+  delete form.dataset.previewPrice;
+  delete form.dataset.previewTicker;
+  delete form.dataset.previewUp;
+  delete form.dataset.previewDown;
+  delete form.dataset.previewFlat;
 }
 
 function previewSettingsForForm(form) {
@@ -449,9 +450,9 @@ function setPreviewSettings(form, settings) {
   const down = Number(settings?.down);
   const flat = Number(settings?.flat);
   if (![up, down, flat].every(Number.isFinite)) {
-    form.dataset.previewUp = '';
-    form.dataset.previewDown = '';
-    form.dataset.previewFlat = '';
+    delete form.dataset.previewUp;
+    delete form.dataset.previewDown;
+    delete form.dataset.previewFlat;
     return;
   }
   form.dataset.previewUp = String(up);
@@ -515,6 +516,8 @@ function setQuotePreview(form, quoteResponse, expectedTicker) {
   setPreviewSettings(form, quoteResponse.settings);
   quote.textContent = `${money(quoteResponse.quote.price)} · ${quoteResponse.quote.market_status === 'open' ? 'market open' : 'latest price'}`;
   syncGoal(form);
+  els.editMessage.className = 'form-message';
+  els.editMessage.textContent = '';
   return true;
 }
 
@@ -527,11 +530,11 @@ async function requestQuotePreview(form, ticker, loadingText = 'Loading current 
 
   try {
     const response = await previewCalledIt(state.session.client, expectedTicker);
-    if (!quoteRequestIsCurrent(form, requestId)) return null;
+    if (!form.isConnected || !els.editModal.contains(form) || !quoteRequestIsCurrent(form, requestId)) return null;
     if (!setQuotePreview(form, response, expectedTicker)) return null;
     return response;
   } catch (error) {
-    if (!quoteRequestIsCurrent(form, requestId)) return null;
+    if (!form.isConnected || !els.editModal.contains(form) || !quoteRequestIsCurrent(form, requestId)) return null;
     if (quote) quote.textContent = error.message || 'Current price is unavailable.';
     showEditError(error.message || 'Current price is unavailable.');
     return null;
