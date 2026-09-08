@@ -188,31 +188,69 @@ function leaderFor(type) {
   return { name: leaders.join(' + '), count: max };
 }
 
+function finiteHistoryNumber(...values) {
+  for (const value of values) {
+    if (value === null || value === undefined) continue;
+    if (typeof value === 'string' && !value.trim()) continue;
+    const numeric = Number(value);
+    if (Number.isFinite(numeric)) return numeric;
+  }
+  return null;
+}
+
+function historyPercent(value) {
+  const numeric = finiteHistoryNumber(value);
+  if (numeric === null) return '—';
+  return `${numeric > 0 ? '+' : ''}${numeric.toFixed(2)}%`;
+}
+
+function historyStatus(row, isWeekly) {
+  if (isWeekly) return { key: 'approved', label: 'Approved' };
+  const key = String(row.status || '').trim().toLowerCase();
+  if (key === 'approved') return { key, label: 'Approved' };
+  if (key === 'rejected') return { key, label: 'Rejected' };
+  if (key === 'under_review') return { key, label: 'Under Review' };
+  return { key: 'unknown', label: 'Status unavailable' };
+}
+
+function historyStatusMarkup(status) {
+  if (status.key === 'approved' || status.key === 'rejected') {
+    return `<span class="receipt-status receipt-status-${status.key}"><img src="./assets/stamps/${status.key}.svg" alt="" aria-hidden="true"><span class="sr-only">${escapeHtml(status.label)}</span></span>`;
+  }
+  return `<span class="receipt-status receipt-status-${escapeHtml(status.key)}">${escapeHtml(status.label)}</span>`;
+}
+
 function calledHistoryDetails(row) {
   const direction = row.direction ? directionLabel(row.direction).toLowerCase() : 'prediction';
-  const start = row.starting_price || row.call_price;
+  const start = finiteHistoryNumber(row.starting_price, row.call_price);
+  const targetLow = finiteHistoryNumber(row.target_low);
+  const targetHigh = finiteHistoryNumber(row.target_high);
   const goal = row.direction === 'flat'
-    ? `${money(row.target_low)}–${money(row.target_high)}`
-    : money(row.target_price);
-  const qualified = row.qualifying_price ? ` · submitted ${money(row.qualifying_price)}` : '';
-  return `${escapeHtml(row.ticker || '')} · ${escapeHtml(direction)} · from ${money(start)} · goal ${goal}${qualified}`;
+    ? (targetLow === null || targetHigh === null ? '—' : `${money(targetLow)}–${money(targetHigh)}`)
+    : money(finiteHistoryNumber(row.target_price));
+  const qualifyingPrice = finiteHistoryNumber(row.qualifying_price);
+  const qualified = qualifyingPrice === null ? '' : ` · submitted ${money(qualifyingPrice)}`;
+  const ticker = row.ticker ? escapeHtml(row.ticker) : 'Ticker unavailable';
+  return `${ticker} · ${escapeHtml(direction)} · from ${money(start)} · goal ${goal}${qualified}`;
 }
 
 function historyAdminActions(row) {
   if (!state.session.profile?.is_admin) return '';
 
   const actions = [];
+  const participant = row.participant_name || 'participant';
+  const eventDate = formatDate(row.event_date);
   if (row.event_type === 'called_it' && row.status === 'under_review') {
-    actions.push(`<button type="button" data-review-id="${escapeHtml(row.source_id)}" data-decision="approved">Approve +${money(state.data.settings.called_it_payout)}</button>`);
-    actions.push(`<button type="button" data-review-id="${escapeHtml(row.source_id)}" data-decision="rejected">Reject</button>`);
+    actions.push(`<button type="button" data-review-id="${escapeHtml(row.source_id)}" data-decision="approved" aria-label="Approve Called It result for ${escapeHtml(participant)} on ${escapeHtml(eventDate)}">Approve +${money(state.data.settings.called_it_payout)}</button>`);
+    actions.push(`<button type="button" data-review-id="${escapeHtml(row.source_id)}" data-decision="rejected" aria-label="Reject Called It result for ${escapeHtml(participant)} on ${escapeHtml(eventDate)}">Reject</button>`);
   } else if (row.event_type === 'called_it') {
     const play = state.data.plays.find(item => item.id === row.source_id);
     if (play && ['approved', 'rejected'].includes(row.status) && cooldownRemaining(play.lock_until)) {
-      actions.push(`<button type="button" data-reset-id="${escapeHtml(row.source_id)}">Reset Cooldown</button>`);
+      actions.push(`<button type="button" data-reset-id="${escapeHtml(row.source_id)}" aria-label="Reset Called It cooldown for ${escapeHtml(participant)}">Reset Cooldown</button>`);
     }
   }
 
-  actions.push(`<button class="history-delete-button" type="button" data-history-delete-id="${escapeHtml(row.id)}">Delete row</button>`);
+  actions.push(`<button class="history-delete-button" type="button" data-history-delete-id="${escapeHtml(row.id)}" aria-label="Delete receipt for ${escapeHtml(participant)} on ${escapeHtml(eventDate)}">Delete row</button>`);
   return `<div class="history-actions">${actions.join('')}</div>`;
 }
 
@@ -278,19 +316,20 @@ function renderHistory() {
   els.calledLeaderCount.textContent = `${called.count} ${called.count === 1 ? 'win' : 'wins'}`;
 
   if (!state.data.history.length) {
-    els.historyTableBody.innerHTML = '<tr><td colspan="6" class="history-empty">No results recorded yet.</td></tr>';
+    els.historyTableBody.innerHTML = '<tr class="history-empty-row"><td colspan="6" class="history-empty">No results recorded yet.</td></tr>';
     return;
   }
 
   els.historyTableBody.innerHTML = state.data.history.map(row => {
     const isWeekly = row.event_type === 'weekly_win';
     const result = isWeekly ? 'Win the Week' : 'Called It!';
+    const weekNumber = finiteHistoryNumber(row.week_number);
     const details = isWeekly
-      ? `${Number(row.return_percent) > 0 ? '+' : ''}${Number(row.return_percent).toFixed(2)}%${row.week_number ? ` · Week ${row.week_number}` : ''}`
+      ? `${historyPercent(row.return_percent)}${weekNumber === null ? '' : ` · Week ${weekNumber}`}`
       : calledHistoryDetails(row);
-    const status = isWeekly ? 'Approved' : String(row.status || 'approved').replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase());
+    const status = historyStatus(row, isWeekly);
 
-    return `<tr data-history-id="${escapeHtml(row.id)}"><td>${formatDate(row.event_date)}</td><td><strong>${escapeHtml(row.participant_name)}</strong></td><td><span class="history-type">${result}</span></td><td>${details}</td><td><span class="receipt-status receipt-status-${escapeHtml(row.status || 'approved')}">${escapeHtml(status)}</span>${historyAdminActions(row)}</td><td class="history-prize">${money(row.reward_amount)}</td></tr>`;
+    return `<tr data-history-id="${escapeHtml(row.id)}"><td class="history-date">${formatDate(row.event_date)}</td><td class="history-player"><strong>${escapeHtml(row.participant_name || 'Unknown')}</strong></td><td class="history-result"><span class="history-type">${result}</span></td><td class="history-details">${details}</td><td class="history-state">${historyStatusMarkup(status)}${historyAdminActions(row)}</td><td class="history-prize">${money(row.reward_amount)}</td></tr>`;
   }).join('');
 
   bindHistoryActions();
