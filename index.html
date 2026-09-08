@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#090b09">
+<meta name="theme-color" content="#171a16">
 <meta name="goblin-supabase-url" content="https://zdxuaphrtedzzsiheslg.supabase.co">
 <meta name="goblin-supabase-publishable-key" content="sb_publishable__hXEM3uZKNhZUjgxLWYEMw_ohF2QqjK">
 <title>Goblin Investing</title>
@@ -11,59 +11,75 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./css/site.css">
+<link rel="stylesheet" href="./css/visual-reredesign.css">
 </head>
-<body>
-<header class="site-header">
-  <div class="shell header-inner">
-    <a class="brand" href="./" aria-label="Goblin Investing home"><img class="brand-wordmark" src="./assets/goblin-investing-wordmark.svg" alt=""></a>
+<body class="visual-r2">
+<header class="site-header" id="top">
+  <div class="shell header-plate">
+    <a class="brand" href="./" aria-label="Goblin Investing home">
+      <span class="brand-alteration" aria-hidden="true">
+        <span class="brand-original">HOUSEHOLD</span>
+        <span class="brand-patch">GOBLIN</span>
+      </span>
+      <span class="brand-name">INVESTING</span>
+    </a>
     <div class="account-area">
-      <span class="market-desk-label" aria-hidden="true">HOUSEHOLD<br>SECURITIES DESK</span>
-      <a class="nav-link" href="./rules/">The Rules</a>
+      <span class="market-desk-label" aria-hidden="true">HOUSEHOLD SECURITIES DESK · VANCOUVER</span>
       <span id="accountLabel" class="account-label" hidden></span>
       <button id="authButton" class="button button-secondary" type="button">Sign In</button>
     </div>
   </div>
+  <nav class="shell desk-nav" aria-label="Goblin Investing sections">
+    <a href="#week"><span>01</span>Week</a>
+    <a href="#lesson"><span>02</span>Lesson</a>
+    <a href="#called-it"><span>03</span>Called It</a>
+    <a href="#receipts"><span>04</span>Receipts</a>
+    <a href="./rules/"><span>05</span>Rules</a>
+  </nav>
 </header>
 <main class="shell dashboard">
   <h1 class="sr-only">Goblin Investing</h1>
-  <section class="game-tracker" aria-label="Current game requirements">
-    <div class="tracker-system-line"><span>HOUSE ACCOUNT / WEEKLY BUY-IN</span><span class="tracker-requirement">REQUIREMENT IN EFFECT</span></div>
-    <div class="tracker-main">
-      <div class="tracker-week"><span class="tracker-label">CURRENT WEEK</span><strong id="currentWeekValue" class="tracker-value">Week —</strong></div>
-      <div class="tracker-buy"><div class="tracker-label">BUY-IN TO DATE</div><strong id="purchaseMinimumValue" class="tracker-value">—</strong></div>
+
+  <section id="week" class="game-tracker" aria-label="Current game requirements">
+    <div class="tracker-machine-line"><span>GI SERIES 80</span><span>ACCOUNT 003</span></div>
+    <div class="tracker-screen">
+      <div class="tracker-system-line"><span>WEEKLY PURCHASE REQUIREMENT</span><span class="tracker-requirement">LIVE</span></div>
+      <div class="tracker-main">
+        <div class="tracker-week"><span class="tracker-label">CURRENT</span><strong id="currentWeekValue" class="tracker-value">Week —</strong></div>
+        <div class="tracker-buy"><span class="tracker-label">DUE</span><strong id="purchaseMinimumValue" class="tracker-value">—</strong></div>
+      </div>
+      <div id="purchaseMinimumNote" class="tracker-copy">Current weekly buy-in requirement is unavailable.</div>
     </div>
-    <div class="tracker-foot"><span class="tracker-goblin-note">MANDATORY HUMAN WEALTH BUILDING <img class="tracker-goblin-arrow" src="./assets/marks/crooked-arrow.svg" alt="" aria-hidden="true" width="48" height="22"></span><span id="purchaseMinimumNote" class="tracker-copy">Current weekly buy-in requirement is unavailable.</span></div>
+    <div class="tracker-controls" aria-hidden="true"><span class="tracker-led"></span><span>POWER</span><span class="tracker-slot"></span><span class="tracker-knob"></span></div>
+    <span class="tracker-sticky" aria-hidden="true"><span>INVEST</span><strong>OR DIE</strong></span>
   </section>
 
-  <section class="lesson-section" aria-labelledby="lessonHeading">
+  <section id="lesson" class="lesson-section" aria-labelledby="lessonHeading">
     <aside class="lesson-panel">
-      <div class="lesson-code">TRAINING BULLETIN / 001</div>
-      <div class="lesson-main">
-        <img class="lesson-training-stamp" src="./assets/stamps/human-finance-training.svg" alt="" aria-hidden="true">
-        <div class="lesson-copy">
-          <div class="section-kicker">CURRENT LESSON</div>
-          <h2 id="lessonHeading">Pay Yourself First</h2>
-          <p>The lesson on turning a small weekly habit into long-term money.</p>
-        </div>
+      <div class="lesson-tab">TRAINING</div>
+      <img class="lesson-training-stamp" src="./assets/stamps/human-finance-training.svg" alt="" aria-hidden="true">
+      <div class="lesson-copy">
+        <div class="lesson-code">GI-TRN-001 / REV. A</div>
+        <h2 id="lessonHeading">Pay Yourself First</h2>
+        <p>The lesson on turning a small weekly habit into long-term money.</p>
       </div>
       <a class="lesson-link" href="./learn/invest-or-die/"><span>Read the file</span><span aria-hidden="true">→</span></a>
     </aside>
   </section>
 
-  <section class="dashboard-section win-week-section" aria-labelledby="weekHeading">
+  <section id="winner" class="dashboard-section win-week-section" aria-labelledby="weekHeading">
     <div class="winner-section-head">
-      <div><h2 id="weekHeading" class="major-section-title">Win the Week</h2></div>
+      <h2 id="weekHeading" class="major-section-title">Win the Week</h2>
       <div class="winner-rule">BEST RETURN WINS $1</div>
     </div>
     <article class="winner-panel">
-      <div class="winner-board-label">WEEKLY WINNER / RETURN</div>
       <div id="winnerContent" class="winner-content"><div class="winner-name winner-empty">Loading weekly result…</div></div>
-      <div id="winnerChartWrap" class="winner-chart-wrap" hidden><div class="winner-chart-label">SUPPORTING EVIDENCE / PORTFOLIO CHART</div><img id="winnerChart" class="winner-chart" alt="Current weekly portfolio chart" loading="lazy" decoding="async"></div>
+      <div id="winnerChartWrap" class="winner-chart-wrap" hidden><img id="winnerChart" class="winner-chart" alt="Current weekly portfolio chart" loading="lazy" decoding="async"></div>
       <button id="adminWeekButton" class="text-button winner-admin-button" type="button" hidden>Update this week</button>
     </article>
   </section>
 
-  <section class="plays-section" aria-labelledby="playsHeading">
+  <section id="called-it" class="plays-section" aria-labelledby="playsHeading">
     <div class="section-heading-row">
       <div>
         <div class="called-it-heading-line">
@@ -89,11 +105,11 @@
     <div id="participantsGrid" class="participants-grid" aria-live="polite"></div>
   </section>
 
-  <section class="history-section" aria-labelledby="historyHeading">
+  <section id="receipts" class="history-section" aria-labelledby="historyHeading">
     <div class="history-heading-row">
       <div>
+        <span class="receipts-document-code">GI-LEDGER / ACCOUNT 003</span>
         <h2 id="historyHeading" class="major-section-title">The Receipts</h2>
-        <p class="section-description">Weekly wins and submitted "Called It!" challenges stay on the record with their review status and payout.</p>
       </div>
     </div>
     <div class="leader-grid" aria-label="All-time leaders">
@@ -108,7 +124,7 @@
       </table>
     </div>
   </section>
-  <footer class="site-footer"><a href="./rules/">The Rules</a><a href="./learn/invest-or-die/">Current lesson</a></footer>
+  <footer class="site-footer"><a href="#top">Top</a><a href="./rules/">The Rules</a><a href="./learn/invest-or-die/">Current lesson</a></footer>
 </main>
 
 <div id="authModal" class="modal" aria-hidden="true"><div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="authTitle"><div class="modal-head"><div><div class="section-kicker">HOUSEHOLD SECURITIES DESK</div><h2 id="authTitle">Sign in</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><form id="authForm" class="form-stack"><label>Email<input id="authEmail" name="email" type="email" autocomplete="email" required></label><label>Password<input id="authPassword" name="password" type="password" autocomplete="current-password" required></label><button class="button button-primary" type="submit">Sign In</button><p id="authMessage" class="form-message" role="status" aria-live="polite"></p></form></div></div>
