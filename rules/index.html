@@ -3,101 +3,135 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1115">
+<meta name="theme-color" content="#171a16">
 <meta name="goblin-supabase-url" content="https://zdxuaphrtedzzsiheslg.supabase.co">
 <meta name="goblin-supabase-publishable-key" content="sb_publishable__hXEM3uZKNhZUjgxLWYEMw_ohF2QqjK">
 <title>The Rules · Goblin Investing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/site.css">
+<link rel="stylesheet" href="../css/visual-r3-rules.css">
 </head>
-<body>
-<header class="site-header"><div class="shell header-inner"><a class="brand" href="../" aria-label="Goblin Investing home"><span class="brand-mark">GI</span><span>Goblin Investing</span></a><nav class="top-nav" aria-label="Primary navigation"><a class="nav-link nav-link-active" href="./">The Rules</a></nav></div></header>
-<main class="page-main rules-page">
-  <a class="back-link" href="../">← Back to Goblin Investing</a>
-  <h1>The Rules</h1>
-  <p class="rules-intro">How to get set up, how each part of the site works, and what counts as a win.</p>
-
-  <section class="guide-section">
-    <div class="section-kicker">1 · GET SET UP</div>
-    <h2>How to Set Up</h2>
-    <ol class="setup-steps">
-      <li><b>Get your login.</b><span>Your Goblin Investing account is tied to your email.</span></li>
-      <li><b>Buy at least $5 of stock every week.</b><span>The homepage shows the current week and your buy-in to date. Week 6 means you must have bought at least $30 of stock total. Current portfolio value does not matter.</span></li>
-      <li><b>Play Win the Week.</b><span>Each week, the best percentage return wins $1.</span></li>
-      <li><b>Add "Called It!" challenges when you have a real reason.</b><span>These are separate from the weekly competition and reward doing research before making a prediction.</span></li>
-    </ol>
-  </section>
-
-  <section class="guide-section">
-    <div class="section-kicker">2 · HOMEPAGE</div>
-    <h2>What Each Section Is</h2>
-    <div class="explain-grid">
-      <article><h3>Win the Week</h3><p>The current weekly winner, their portfolio return, and the chart used for that week's result.</p></article>
-      <article><h3>"Called It!"</h3><p>Everyone's current due diligence challenges. Sign in to create, check, or manage your own.</p></article>
-      <article><h3>Current Lesson</h3><p>Investing articles are featured here. They are reference material, not part of the competition.</p></article>
-      <article><h3>The Receipts</h3><p>Past weekly winners and "Called It!" submissions. A Called It can be Under Review, Approved, or Rejected. Only Approved challenges count toward Most Called Its.</p></article>
-    </div>
-  </section>
-
-  <section class="guide-section">
-    <div class="section-kicker">3 · "CALLED IT!"</div>
-    <h2>"Called It!"</h2>
-    <div class="rules-subheading">Due Diligence Challenges</div>
-    <div class="definition-box"><strong>Due diligence</strong> means researching a stock before making a decision. A Called It challenge records what you think will happen, why you think it, and what you are doing with the investment before the result is known.</div>
-
-    <div class="rules-columns">
-      <div>
-        <h3>Make a challenge</h3>
-        <ol class="plain-rules numbered-rules">
-          <li>Choose a stock. The site records its current price for you.</li>
-          <li>Choose <strong>Go Up</strong>, <strong>Go Down</strong>, or <strong>Finish About the Same</strong>.</li>
-          <li>Explain why you think it will happen. Links are allowed.</li>
-          <li>Record what you are doing: Buying, Holding, Selling, or Not Buying. Buy, Hold, and Sell require at least <strong>$5</strong>.</li>
-        </ol>
+<body class="rules-manual-page">
+<header class="site-header secondary-site-header">
+  <div class="shell secondary-header-inner">
+    <a class="brand secondary-brand" href="../" aria-label="Goblin Investing home"><img class="secondary-wordmark" src="../assets/goblin-investing-wordmark.svg" alt="Goblin Investing"></a>
+    <nav class="secondary-nav" aria-label="Primary navigation"><a href="../">Home</a><a href="../learn/invest-or-die/">Lesson</a><a class="active" href="./" aria-current="page">Rules</a></nav>
+  </div>
+</header>
+<main class="rules-workbench">
+  <a class="rules-back" href="../">← Return to desk</a>
+  <div class="manual-layout">
+    <aside class="manual-cover" aria-label="Goblin Investing operating manual cover">
+      <span class="manual-spine" aria-hidden="true">OPERATIONS</span>
+      <div class="manual-cover-inner">
+        <span class="manual-office">HOUSEHOLD SECURITIES DESK</span>
+        <div class="manual-cover-rule"></div>
+        <h1><span>OPERATING</span><span>MANUAL</span></h1>
+        <strong>GOBLIN INVESTING</strong>
+        <div class="manual-desk-seal" aria-hidden="true"><span>DESK</span><b>03</b></div>
+        <span class="manual-revision">REVISION 09.08.86*</span>
+        <span class="manual-pencil" aria-hidden="true">*close enough</span>
       </div>
-      <div>
-        <h3>The goals</h3>
-        <ul class="plain-rules">
-          <li><strong>Go Up:</strong> the stock reaches <span id="ruleUpPercent">15</span>% above the starting price within <span data-rule-duration>28</span> days.</li>
-          <li><strong>Go Down:</strong> the stock reaches <span id="ruleDownPercent">15</span>% below the starting price within <span data-rule-duration>28</span> days.</li>
-          <li><strong>Finish About the Same:</strong> after <span data-rule-duration>28</span> days, the stock is within <span id="ruleFlatPercent">3</span>% above or below the starting price.</li>
-        </ul>
-      </div>
-    </div>
+    </aside>
 
-    <div class="rules-columns rules-columns-spaced">
-      <div>
-        <h3>Check the result</h3>
-        <ul class="plain-rules">
-          <li>Use <strong>Check Price</strong> on an active challenge to see where it stands.</li>
-          <li>Go Up and Go Down can reach their goal at any price check during the <span data-rule-duration>28</span>-day challenge.</li>
-          <li>Finish About the Same cannot qualify early. It is checked after the challenge ends, with <span data-rule-claim>7</span> days to claim it.</li>
-          <li>If the goal is met, <strong>Submit for Review</strong> appears.</li>
-          <li>The price is checked again when you submit. If the stock moved back outside the goal, it is not submitted yet.</li>
-        </ul>
-      </div>
-      <div>
-        <h3>Review and payout</h3>
-        <ul class="plain-rules">
-          <li>Submitting changes the challenge to <strong>Under Review</strong>.</li>
-          <li>That challenge slot is locked for <strong><span data-rule-cooldown>7</span> days</strong> after submission.</li>
-          <li>An Approved Called It pays <strong><span data-rule-payout>$5</span></strong> and counts toward Most Called Its.</li>
-          <li>A Rejected, Cancelled, or Expired challenge pays <strong>$0</strong>.</li>
-          <li>You can have up to <strong>two challenge slots</strong>. You cannot make another active call on a ticker you already have active.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="rule-note"><strong>Cancel:</strong> You can abandon an active challenge. Cancelled challenges do not pay. Once a challenge is submitted for review, its prediction is locked.</div>
-  </section>
+    <article class="manual-pages" aria-label="Goblin Investing rules manual">
+      <div class="binder-holes" aria-hidden="true"><i></i><i></i><i></i></div>
+      <header class="manual-page-head">
+        <span>GI-OPS</span><span>HOUSEHOLD SECURITIES DESK</span><span>REV. C</span>
+      </header>
 
-  <section class="guide-section">
-    <div class="section-kicker">4 · WEEKLY COMPETITION</div>
-    <h2>Win the Week</h2>
-    <ul class="plain-rules win-week-rules">
-      <li>Win the Week is separate from "Called It!".</li>
-      <li>You must stay current on the weekly buy-in requirement to keep playing.</li>
-      <li>The person with the best portfolio percentage return for the week wins <strong>$1</strong>.</li>
-    </ul>
-  </section>
+      <section class="manual-section manual-intro" aria-labelledby="rulesTitle">
+        <div class="manual-section-number" aria-hidden="true">00</div>
+        <div>
+          <h2 id="rulesTitle">The Rules</h2>
+          <p>Use this manual when you need to know what counts. Current configurable Called It values load from the game settings; fixed rules below do not change when those values are unavailable.</p>
+        </div>
+      </section>
+
+      <section class="manual-section" aria-labelledby="setupHeading">
+        <div class="manual-section-number" aria-hidden="true">01</div>
+        <div>
+          <h2 id="setupHeading">Start Here</h2>
+          <ol class="manual-steps">
+            <li><b>Get your login.</b><span>Your account is tied to your email.</span></li>
+            <li><b>Buy stock every week.</b><span>The homepage shows the current weekly buy-in and the required total to date. Current portfolio value does not matter.</span></li>
+            <li><b>Play Win the Week.</b><span>Best percentage return for the week wins $1.</span></li>
+            <li><b>File Called It challenges when you have a reason.</b><span>They are separate from the weekly contest and record the prediction before the result is known.</span></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="manual-section" aria-labelledby="calledRulesHeading">
+        <div class="manual-section-number" aria-hidden="true">02</div>
+        <div>
+          <h2 id="calledRulesHeading">Called It</h2>
+          <p class="manual-definition"><strong>Due diligence:</strong> research a stock before making a decision. A challenge records what you think will happen, why, and what you are doing with the investment before the result is known.</p>
+          <p id="rulesSettingsStatus" class="manual-settings-status" role="status" aria-live="polite">Loading current Called It settings…</p>
+
+          <div class="manual-columns">
+            <div>
+              <h3>File the call</h3>
+              <ol class="manual-rules">
+                <li>Choose a stock. The site records its current price.</li>
+                <li>Choose <strong>Go Up</strong>, <strong>Go Down</strong>, or <strong>Finish About the Same</strong>.</li>
+                <li>Explain why. Links are allowed.</li>
+                <li>Record what you are doing: Buying, Holding, Selling, or Not Buying. Buy, Hold, and Sell require at least <strong>$5</strong>.</li>
+              </ol>
+            </div>
+            <div>
+              <h3>Qualification</h3>
+              <ul class="manual-rules">
+                <li><strong>Go Up:</strong> <span id="ruleUpGoal">Current target unavailable.</span></li>
+                <li><strong>Go Down:</strong> <span id="ruleDownGoal">Current target unavailable.</span></li>
+                <li><strong>About the Same:</strong> <span id="ruleFlatGoal">Current range unavailable.</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="manual-columns manual-columns-spaced">
+            <div>
+              <h3>Check and submit</h3>
+              <ul class="manual-rules">
+                <li>Use <strong>Check Price</strong> on an active challenge.</li>
+                <li>Up and Down can qualify at any price check during the <span data-rule-duration-adjective>current</span> challenge.</li>
+                <li>About the Same cannot qualify early. It is checked after the challenge ends, with <span data-rule-claim-phrase>the current claim window</span> to claim it.</li>
+                <li>If the goal is met, <strong>Submit for Review</strong> appears.</li>
+                <li>Submission checks the price again. If it moved outside the goal, the challenge is not submitted yet.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Review and payout</h3>
+              <ul class="manual-rules">
+                <li>Submission changes the challenge to <strong>Under Review</strong>.</li>
+                <li>The slot is locked for <strong><span data-rule-cooldown-phrase>the current review cooldown</span></strong> after submission.</li>
+                <li>An Approved Called It pays <strong><span data-rule-payout>the current payout</span></strong> and counts toward the leaderboard.</li>
+                <li>Rejected, Cancelled, and Expired challenges pay <strong>$0</strong>.</li>
+                <li>You have up to <strong>two challenge slots</strong>. You cannot make another active call on a ticker you already have active.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="manual-note"><strong>Cancel:</strong> An active challenge can be abandoned and pays nothing. Once submitted for review, its prediction is locked.</p>
+        </div>
+      </section>
+
+      <section class="manual-section" aria-labelledby="weeklyRulesHeading">
+        <div class="manual-section-number" aria-hidden="true">03</div>
+        <div>
+          <h2 id="weeklyRulesHeading">Win the Week</h2>
+          <ul class="manual-rules">
+            <li>Win the Week is separate from Called It.</li>
+            <li>Staying current on the weekly buy-in is a household rule. The site shows the requirement; it does not verify brokerage purchases or block play.</li>
+            <li>Best portfolio percentage return for the week wins <strong>$1</strong>.</li>
+          </ul>
+          <span class="manual-highlight" aria-hidden="true">PORTFOLIO VALUE DOES NOT DECIDE THE WINNER.</span>
+        </div>
+      </section>
+
+      <footer class="manual-page-footer"><span>GI-OPS</span><span>END OF CURRENT REVISION</span></footer>
+    </article>
+  </div>
 </main>
 <script type="module" src="../js/rules.js"></script>
 </body>

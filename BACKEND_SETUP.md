@@ -14,7 +14,20 @@ Never commit a Supabase secret key, service-role key, market-data API key, or sc
 
 The browser can read the public dashboard, active challenges, game settings, ticker reference data, and The Receipts.
 
-Challenge mutations go through the `called-it` Edge Function. Participants cannot directly write `called_it_plays` through the Data API.
+All challenge lifecycle and market-authoritative mutations go through the `called-it` Edge Function: create, price check, submit, cancel, owner metadata edit, admin edit, review, and cooldown reset. The Edge Function remains authoritative for any field that can change the outcome of a challenge.
+
+### Owner-metadata cutover state
+
+The redesign candidate now routes owner metadata edits to the authenticated `owner_edit` action in the `called-it` Edge Function. That action can change only `reason`, `portfolio_action`, `action_amount`, and `amount_committed` on an active challenge after validating the authenticated actor and action/direction combination. It cannot change ticker, direction, prices, targets, qualification, review state, status, or other authoritative challenge terms.
+
+Production `main` still uses the older authenticated `edit_own_called_it_metadata` RPC because `main` and the redesign candidate share the same Supabase project. The narrow direct authenticated UPDATE grants and RPC therefore remain temporarily available until the frontend cutover is deployed. Do not revoke them before the production frontend switches to the redesign release.
+
+After the redesign frontend is cut over to production, the release cleanup is:
+
+1. verify owner edit through the production frontend;
+2. revoke the transitional authenticated direct UPDATE grants on `called_it_plays`;
+3. retire or restrict `edit_own_called_it_metadata`;
+4. re-run Supabase security advisors.
 
 The Edge Function is authoritative for:
 
@@ -29,6 +42,7 @@ The Edge Function is authoritative for:
 - qualification;
 - fresh price validation when submitting for review;
 - immutable qualifying price/time;
+- owner metadata edits;
 - review status and cooldown;
 - admin approval/rejection and cooldown reset.
 
@@ -125,9 +139,12 @@ Actions:
 - `check`
 - `submit`
 - `cancel`
+- `owner_edit`
 - `admin_edit`
 - `review`
 - `reset_cooldown`
+
+`owner_edit` was added during the visual-redesign cutover preparation. The redesign candidate routes the legacy owner-edit call shape to this action so production `main` can continue using the existing RPC until the frontend release is deployed.
 
 The function deliberately fails closed if a market quote cannot be obtained.
 
@@ -172,8 +189,10 @@ Row Level Security is enabled on exposed public tables.
 - signed-out visitors can read active participants, current challenges, game settings, securities, weekly winner data, and The Receipts;
 - signed-out visitors cannot mutate data;
 - authenticated participants can read their own challenge history in addition to the public challenge state;
-- participants cannot directly insert/update/delete challenge rows;
-- challenge writes are validated by the Edge Function against the authenticated user;
+- participants cannot directly change authoritative challenge terms or lifecycle fields;
+- the redesign candidate sends owner metadata edits to the server-authoritative `owner_edit` action;
+- the narrow direct owner-metadata grant/RPC remains temporarily for live `main` and is scheduled for removal immediately after frontend cutover;
+- authoritative challenge writes are validated by the Edge Function against the authenticated user;
 - admins can manage all participant challenges through the same server-authoritative API;
 - only admins can change game settings and weekly winner data;
 - internal quote cache, scheduler settings, and secrets are not exposed to browser roles.

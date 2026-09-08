@@ -1,0 +1,123 @@
+@media (max-width: 899px) {
+  .office-header { padding:18px 18px 0; }
+  .office-header__descriptor { display:none; }
+  main { padding:38px 18px 70px; }
+  .winner-sheet { grid-template-columns:1fr .75fr; }
+  .ticket-rail { grid-template-columns:1fr; }
+  .call-ticket--empty { width:72%; justify-self:end; }
+  .rules-proof { grid-template-columns:1fr; gap:18px; padding:16px; }
+  .rules-proof::after { display:none; }
+  .manual-cover { min-height:350px; }
+  .manual-page { min-height:620px; }
+}
+
+@media (max-width: 699px) {
+  .office-header { padding:15px 14px 0; }
+  .office-header__plate { padding-bottom:12px; }
+  .wordmark { gap:7px; min-height:46px; }
+  .wordmark__alteration { width:92px; height:32px; }
+  .wordmark__original { top:12px; font-size:7px; }
+  .wordmark__patch { left:6px; top:5px; padding:4px 7px 3px; font-size:13px; }
+  .wordmark__name { font-size:23px; padding-bottom:3px; }
+  .office-header__nav a { min-height:42px; gap:4px; padding:0 3px; font-size:8px; letter-spacing:.035em; }
+  .office-header__nav a span { font-size:6.5px; }
+  main { padding-left:14px; padding-right:14px; }
+  section { margin-bottom:52px; }
+  .opening-desk { min-height:320px; padding-bottom:16px; }
+  .terminal-unit { padding:12px 11px 16px; }
+  .terminal-screen { min-height:202px; padding:17px 16px; border-width:7px; }
+  .terminal-screen__status { font-size:8px; }
+  .terminal-readout { grid-template-columns:1fr 1fr; gap:11px; margin-top:27px; }
+  .terminal-readout > div { grid-template-columns:1fr; gap:4px; align-items:start; }
+  .terminal-key { padding-bottom:0; font-size:9px; }
+  .terminal-readout strong { justify-self:start; font-size:clamp(52px,19vw,82px); }
+  .terminal-equation { font-size:10px; }
+  .terminal-sticky { right:21px; bottom:-40px; width:112px; min-height:68px; font-size:18px; }
+  .terminal-sticky strong { font-size:22px; }
+  .training-folder { width:94%; padding:37px 23px 27px; min-height:310px; }
+  .training-folder__stamp { right:18px; top:23px; font-size:9px; border-width:2px; }
+  .training-folder h2 { margin-top:40px; font-size:clamp(47px,15vw,70px); }
+  .section-heading { align-items:flex-end; gap:12px; }
+  .section-heading h2 { font-size:clamp(41px,14vw,62px); }
+  .section-heading > span { text-align:right; font-size:9px; max-width:130px; }
+  .winner-sheet { grid-template-columns:1fr; padding:28px 22px 30px; gap:25px; }
+  .winner-name { font-size:clamp(66px,24vw,100px); }
+  .winner-return { font-size:clamp(48px,17vw,72px); }
+  .evidence-photo { width:86%; justify-self:end; }
+  .winner-pencil { left:14px; bottom:12px; font-size:11px; }
+  .section-heading--paper { padding-left:4px; padding-right:4px; }
+  .file-rail-label { display:none; }
+  .ticket-rail { margin-left:-14px; margin-right:-14px; padding:25px 10px 31px; gap:17px; }
+  .call-ticket { grid-template-columns:42px 1fr; }
+  .ticket-body { padding:17px 14px 22px; }
+  .ticket-topline { font-size:7px; gap:6px; line-height:1.25; }
+  .ticket-security { align-items:end; gap:8px; }
+  .ticker { font-size:54px; }
+  .company { font-size:8px; }
+  .ticket-call { font-size:17px; }
+  .ticket-price-line { gap:6px; }
+  .ticket-price-line strong { font-size:25px; }
+  .ticket-price-line span { font-size:18px; }
+  .ticket-calc { font-size:9px; }
+  .ticket-meta { grid-template-columns:1fr; gap:9px; }
+  .ticket-thesis p { font-size:13px; }
+  .call-ticket--empty { width:82%; }
+  .continuous-paper { margin-left:-4px; margin-right:-4px; padding:35px 31px 31px; }
+  .tractor-strip { width:20px; background-size:20px 24px; }
+  .receipts-head { position:relative; display:block; padding-top:4px; }
+  .receipts-head h2 { padding-top:18px; font-size:clamp(52px,18vw,74px); }
+  .permanent-stamp { position:absolute; top:0; right:0; font-size:7px; border-width:2px; padding:4px 5px; }
+  .ledger-leaders { grid-template-columns:1fr; gap:9px; }
+  .ledger-table { font-size:9px; }
+  .ledger-row { grid-template-columns:48px minmax(68px,.8fr) minmax(83px,1.2fr) 68px 18px; gap:5px; min-height:42px; }
+  .ledger-row--head { font-size:7px; }
+  .rules-proof { margin-left:-14px; margin-right:-14px; padding:14px; }
+  .manual-cover { min-height:300px; border-left-width:30px; }
+  .manual-cover__body { inset:12px; padding:26px 20px 23px; }
+  .manual-cover__title { font-size:clamp(42px,13vw,58px); }
+  .manual-cover__body .document-code { font-size:8px; }
+  .manual-cover strong { font-size:15px; }
+  .manual-note { right:22px; bottom:19px; font-size:11px; }
+  .manual-page { width:100%; min-height:670px; overflow:hidden; padding:39px 22px 55px 55px; background-position:-6px 0; }
+  .binder-holes { left:12px; }
+  .manual-page__header { font-size:7px; }
+  .manual-page h3 { font-size:23px; }
+  .manual-page p { font-size:14px; }
+  .manual-equation { grid-template-columns:1fr; gap:5px; }
+  .manual-page__footer { left:55px; right:22px; }
+  .lab-footer { padding-left:14px; padding-right:14px; }
+}
+
+@media (max-width: 380px) {
+  .wordmark__alteration { width:82px; }
+  .wordmark__patch { font-size:12px; }
+  .wordmark__name { font-size:21px; }
+  .office-header__nav a { font-size:7.5px; }
+  .office-header__nav a span { display:none; }
+  .terminal-readout strong { font-size:50px; }
+  .terminal-sticky { right:15px; width:106px; }
+  .training-folder h2 { font-size:46px; }
+  .winner-sheet { padding-left:17px; padding-right:17px; }
+  .ticket-price-line strong { font-size:23px; }
+  .ticket-body { padding-left:11px; padding-right:11px; }
+  .ledger-row { grid-template-columns:44px minmax(60px,.8fr) minmax(74px,1.2fr) 60px 16px; font-size:8px; }
+  .ledger-row--head { font-size:6.5px; }
+  .manual-cover__title { font-size:clamp(38px,12vw,48px); }
+}
+
+.call-ticket,
+.ticket-body,
+.ticket-price-line,
+.ticket-price-line strong,
+.ticket-security,
+.ticket-thesis,
+.rules-proof,
+.manual-cover,
+.manual-page,
+.manual-cover__body { min-width:0; }
+.ticket-body { overflow:hidden; }
+.ticket-price-line { grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); }
+.ticket-topline span:last-child { text-align:right; }
+.ticket-thesis p { overflow-wrap:anywhere; }
+
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } }

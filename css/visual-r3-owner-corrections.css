@@ -1,0 +1,209 @@
+/* Owner correction pass after R3 visual review. */
+
+/* Desktop hierarchy: the opening machine and training folder belong to the same page width as the rest of the desk. */
+@media(min-width:900px){
+  .visual-r2 .game-tracker,
+  .visual-r2 .lesson-panel{width:100%}
+}
+
+/* Fail-closed weekly result copy should never inherit the oversized winner typography. */
+.visual-r2 .winner-name.winner-empty{
+  max-width:100%;
+  font-size:clamp(28px,8vw,46px)!important;
+  line-height:.92;
+  letter-spacing:-.025em;
+  white-space:normal;
+  overflow-wrap:normal;
+  word-break:normal;
+}
+
+/* A two-ticket filing row should share one physical depth. Filled tickets can grow; the unused sibling stretches with it. */
+.visual-r2 .slot-list{align-items:stretch}
+.visual-r2 .play-slot{height:100%}
+.visual-r2 .empty-slot{min-height:300px}
+
+/* Receipts leaders are category summaries, not competing historical receipt entries. */
+.visual-r2 .leader-grid{
+  grid-template-columns:1fr;
+  gap:2px;
+  margin:10px 0 22px;
+  border:0;
+}
+.visual-r2 .leader-card{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  align-items:baseline;
+  gap:7px;
+  min-width:0;
+  padding:9px 0;
+  border:0;
+}
+.visual-r2 .leader-card::before{display:none}
+.visual-r2 .leader-label{
+  grid-column:1;
+  margin:0;
+  color:var(--r2-paper-ink);
+  font:700 clamp(17px,2.2vw,22px)/1 var(--r2-font-display);
+  letter-spacing:-.015em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.visual-r2 .leader-name{
+  grid-column:2;
+  margin:0;
+  color:#343a34;
+  font:700 clamp(15px,1.8vw,18px)/1 var(--r2-font-display);
+  letter-spacing:-.015em;
+  text-align:right;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.visual-r2 .leader-count{
+  grid-column:3;
+  margin:0;
+  color:#666e65;
+  font:600 9px/1 var(--r2-font-mono);
+  white-space:nowrap;
+}
+.visual-r2 .leader-count::before{content:"("}
+.visual-r2 .leader-count::after{content:")"}
+
+/* Remove decorative connector rules that read like broken layout lines. */
+.visual-r2 .history-heading-row{
+  padding-bottom:8px;
+  border-bottom:0;
+}
+.visual-r2 .history-table{border-top:1px solid #777f75;border-bottom:0}
+
+/* Training-folder action is a text link, not a link plus an unrelated horizontal rule. */
+.visual-r2 .lesson-panel::before{display:none}
+.visual-r2 .lesson-link{
+  min-height:0;
+  padding:7px 0;
+  gap:12px;
+  border-bottom:0;
+  text-decoration:none;
+}
+.visual-r2 .lesson-link span:first-child{
+  text-decoration:underline;
+  text-decoration-thickness:1px;
+  text-underline-offset:4px;
+}
+
+/* Signed-out action copy is allowed to look like a link rather than another button component. */
+.visual-r2 .inline-auth-link{
+  appearance:none;
+  border:0;
+  padding:0;
+  background:transparent;
+  color:inherit;
+  font:inherit;
+  text-decoration:underline;
+  text-underline-offset:3px;
+  cursor:pointer;
+}
+.visual-r2 .inline-auth-link:focus-visible{outline:2px solid var(--r2-phosphor);outline-offset:3px}
+
+/* Modals are working sheets. Keep them content-sized and scroll the sheet only when its contents exceed the viewport. */
+.visual-r2 #authModal .modal-card{max-height:min(78dvh,620px)}
+.visual-r2 #weekModal .modal-card{width:min(94vw,960px);max-height:76dvh}
+.visual-r2 #editModal.single-play-mode .modal-card{max-height:80dvh}
+
+@media(max-width:699px){
+  .visual-r2 #authModal,
+  .visual-r2 #weekModal,
+  .visual-r2 #editModal.single-play-mode{
+    align-items:flex-end;
+    padding:12px;
+  }
+  .visual-r2 #authModal .modal-card,
+  .visual-r2 #weekModal .modal-card{
+    width:100%;
+    min-height:0;
+    max-height:76dvh;
+    border:1px solid #9ba299;
+    border-top:9px solid #596158;
+    box-shadow:8px 10px 0 rgba(0,0,0,.34);
+  }
+  .visual-r2 #authModal .modal-card{max-height:72dvh}
+  .visual-r2 #editModal.single-play-mode .modal-card{
+    width:100%;
+    min-height:0;
+    max-height:80dvh;
+    border:1px solid #b6ae94;
+    border-top:9px solid #827b67;
+    box-shadow:8px 10px 0 rgba(0,0,0,.34);
+  }
+
+  /* Mobile receipt paper owns a true safe area. Both feed rails are inset completely inside the sheet. */
+  .visual-r2 .history-section{
+    box-sizing:border-box;
+    width:100%;
+    max-width:100%;
+    margin-left:0;
+    margin-right:0;
+    padding-left:40px;
+    padding-right:40px;
+  }
+  .visual-r2 .history-section::before,
+  .visual-r2 .history-section::after{
+    width:14px;
+    background-size:14px 24px;
+    background-position:center top;
+  }
+  .visual-r2 .history-section::before{left:8px}
+  .visual-r2 .history-section::after{right:8px}
+  .visual-r2 .history-section > *,
+  .visual-r2 .history-table-wrap,
+  .visual-r2 .history-table,
+  .visual-r2 .history-table tbody,
+  .visual-r2 .history-table tr{min-width:0;max-width:100%}
+  .visual-r2 .history-table,
+  .visual-r2 .history-table tbody,
+  .visual-r2 .history-table tr{width:100%}
+  .visual-r2 .history-player,
+  .visual-r2 .history-result,
+  .visual-r2 .history-details,
+  .visual-r2 .history-state{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:normal}
+
+  /* Keep category left; holder and count share a bounded right column clear of the feed rail. */
+  .visual-r2 .leader-card{
+    grid-template-columns:minmax(0,1fr) minmax(0,46%);
+    grid-template-rows:auto auto;
+    column-gap:10px;
+    row-gap:3px;
+    align-items:start;
+  }
+  .visual-r2 .leader-label{
+    grid-column:1;
+    grid-row:1 / span 2;
+    align-self:center;
+    white-space:normal;
+  }
+  .visual-r2 .leader-name{
+    grid-column:2;
+    grid-row:1;
+    justify-self:end;
+    max-width:100%;
+    text-align:right;
+    white-space:normal;
+    overflow-wrap:anywhere;
+  }
+  .visual-r2 .leader-count{
+    grid-column:2;
+    grid-row:2;
+    justify-self:end;
+    max-width:100%;
+  }
+}
+
+@media(max-width:430px){
+  .visual-r2 .history-section .major-section-title{
+    max-width:100%;
+    font-size:clamp(42px,14vw,54px);
+    letter-spacing:-.05em;
+  }
+  .visual-r2 .leader-label{font-size:15px}
+  .visual-r2 .leader-name{font-size:13px}
+  .visual-r2 .leader-count{font-size:8px}
+}

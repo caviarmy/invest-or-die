@@ -3,58 +3,98 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1115">
+<meta name="theme-color" content="#171a16">
 <meta name="goblin-supabase-url" content="https://zdxuaphrtedzzsiheslg.supabase.co">
 <meta name="goblin-supabase-publishable-key" content="sb_publishable__hXEM3uZKNhZUjgxLWYEMw_ohF2QqjK">
 <title>Goblin Investing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./css/site.css">
-<link rel="stylesheet" href="./css/dashboard-polish.css">
+<link rel="stylesheet" href="./css/visual-reredesign.css">
 </head>
-<body>
-<header class="site-header">
-  <div class="shell header-inner">
-    <a class="brand" href="./" aria-label="Goblin Investing home"><span class="brand-mark">GI</span><span>Goblin Investing</span></a>
+<body class="visual-r2">
+<header class="site-header" id="top">
+  <div class="shell header-plate">
+    <a class="brand" href="./" aria-label="Goblin Investing home">
+      <span class="brand-alteration" aria-hidden="true">
+        <span class="brand-original">HOUSEHOLD</span>
+        <span class="brand-patch">GOBLIN</span>
+      </span>
+      <span class="brand-name">INVESTING</span>
+    </a>
     <div class="account-area">
-      <a class="nav-link" href="./rules/">The Rules</a>
+      <span class="market-desk-label" aria-hidden="true">HOUSEHOLD SECURITIES DESK · VANCOUVER</span>
       <span id="accountLabel" class="account-label" hidden></span>
       <button id="authButton" class="button button-secondary" type="button">Sign In</button>
     </div>
   </div>
+  <nav class="shell desk-nav" aria-label="Goblin Investing sections">
+    <a href="#week"><span>01</span>Week</a>
+    <a href="#lesson"><span>02</span>Lesson</a>
+    <a href="#called-it"><span>03</span>Called It</a>
+    <a href="#receipts"><span>04</span>Receipts</a>
+    <a href="./rules/"><span>05</span>Rules</a>
+  </nav>
 </header>
 <main class="shell dashboard">
-  <section class="game-tracker" aria-label="Current game requirements">
-    <div class="tracker-week"><span class="tracker-label">CURRENT WEEK</span><strong id="currentWeekValue" class="tracker-value">Week 6</strong></div>
-    <div class="tracker-buy"><strong id="purchaseMinimumValue" class="tracker-value">$30</strong><div><div class="tracker-label">BUY-IN TO DATE</div><div id="purchaseMinimumNote" class="tracker-copy">At least $30 of stock bought total. Current portfolio value does not matter.</div></div></div>
+  <h1 class="sr-only">Goblin Investing</h1>
+
+  <section id="week" class="game-tracker" aria-label="Current game requirements">
+    <div class="tracker-machine-line"><span>GI SERIES 80</span><span>ACCOUNT 003</span></div>
+    <div class="tracker-screen">
+      <div class="tracker-system-line"><span>WEEKLY PURCHASE REQUIREMENT</span><span class="tracker-requirement">LIVE</span></div>
+      <div class="tracker-main">
+        <div class="tracker-week"><span class="tracker-label">CURRENT</span><strong id="currentWeekValue" class="tracker-value">Week —</strong></div>
+        <div class="tracker-buy"><span class="tracker-label">DUE</span><strong id="purchaseMinimumValue" class="tracker-value">—</strong></div>
+      </div>
+      <div id="purchaseMinimumNote" class="tracker-copy">Loading current weekly buy-in…</div>
+    </div>
+    <div class="tracker-controls" aria-hidden="true"><span class="tracker-led"></span><span>POWER</span><span class="tracker-slot"></span><span class="tracker-knob"></span></div>
+    <span class="tracker-sticky" aria-hidden="true"><span>INVEST</span><strong>OR DIE</strong></span>
   </section>
 
-  <section class="lesson-section" aria-labelledby="lessonHeading">
-    <aside class="panel quick-panel lesson-panel">
-      <div class="section-kicker">CURRENT LESSON</div>
-      <h2 id="lessonHeading">Pay Yourself First</h2>
-      <p>The lesson on turning a small weekly habit into long-term money.</p>
-      <a class="button button-primary" href="./learn/invest-or-die/">Read the lesson</a>
+  <section id="lesson" class="lesson-section" aria-labelledby="lessonHeading">
+    <aside class="lesson-panel">
+      <div class="lesson-tab">TRAINING</div>
+      <img class="lesson-training-stamp" src="./assets/stamps/human-finance-training.svg" alt="" aria-hidden="true">
+      <div class="lesson-copy">
+        <div class="lesson-code">GI-TRN-001 / REV. A</div>
+        <h2 id="lessonHeading">Pay Yourself First</h2>
+        <p>The lesson on turning a small weekly habit into long-term money.</p>
+      </div>
+      <a class="lesson-link" href="./learn/invest-or-die/"><span>Read the file</span><span aria-hidden="true">→</span></a>
     </aside>
   </section>
 
-  <section class="dashboard-section win-week-section" aria-labelledby="weekHeading">
-    <h1 id="weekHeading" class="major-section-title section-title-outside">Win the Week</h1>
-    <div class="hero-grid">
-      <article class="panel winner-panel">
-        <div id="winnerContent" class="winner-content"><div class="winner-name winner-empty">Winner not posted yet.</div><p class="muted">This week's result will show here after it is entered.</p></div>
-        <div id="winnerChartWrap" class="winner-chart-wrap" hidden><img id="winnerChart" class="winner-chart" alt="Current weekly portfolio chart"></div>
-        <button id="adminWeekButton" class="text-button" type="button" hidden>Update this week</button>
-      </article>
+  <section id="winner" class="dashboard-section win-week-section" aria-labelledby="weekHeading">
+    <div class="winner-section-head">
+      <h2 id="weekHeading" class="major-section-title">Win the Week</h2>
+      <div class="winner-rule">BEST RETURN WINS $1</div>
     </div>
+    <article class="winner-panel">
+      <div id="winnerContent" class="winner-content"><div class="winner-name winner-empty">Loading weekly result…</div></div>
+      <div id="winnerChartWrap" class="winner-chart-wrap" hidden><img id="winnerChart" class="winner-chart" alt="Current weekly portfolio chart" loading="lazy" decoding="async"></div>
+      <button id="adminWeekButton" class="text-button winner-admin-button" type="button" hidden>Update this week</button>
+    </article>
   </section>
 
-  <section class="plays-section" aria-labelledby="playsHeading">
+  <section id="called-it" class="plays-section" aria-labelledby="playsHeading">
     <div class="section-heading-row">
       <div>
         <div class="called-it-heading-line">
           <h2 id="playsHeading" class="major-section-title">"Called It!"</h2>
           <details class="game-help">
-            <summary aria-label='What is "Called It!"?'>?</summary>
-            <div class="game-help-copy">Pick a stock, choose whether it will go up, down, or finish about the same, and explain why. The site records the price and goal for you. Check the price during the challenge and submit it for review when the goal is met. An approved challenge pays $5.</div>
+            <summary aria-label="Called It help">?</summary>
+            <div class="game-help-copy">
+              <strong class="game-help-title">How a call works</strong>
+              <ol class="game-help-steps">
+                <li>Pick a listed stock, choose Up, Down, or About the Same, and explain why.</li>
+                <li>File the call. The site records the official starting price and goal.</li>
+                <li>Check the price during the challenge. If the goal is met, submit it for review.</li>
+              </ol>
+              <div class="game-help-payout">Approved calls earn the current Called It payout.</div>
+            </div>
           </details>
         </div>
         <div class="major-section-subtitle">Due Diligence Challenges</div>
@@ -65,71 +105,32 @@
     <div id="participantsGrid" class="participants-grid" aria-live="polite"></div>
   </section>
 
-  <section class="history-section" aria-labelledby="historyHeading">
-    <div class="section-heading-row history-heading-row"><div><h2 id="historyHeading" class="major-section-title">The Receipts</h2><p class="section-description">Weekly wins and submitted "Called It!" challenges are recorded here, including review status and payouts.</p></div></div>
-    <div class="leader-grid">
-      <article class="leader-card"><div class="trophy" aria-hidden="true">🏆</div><div><div class="section-kicker">MOST WEEKLY WINS</div><div id="weeklyLeaderName" class="leader-name">No wins yet</div><div id="weeklyLeaderCount" class="leader-count">0 wins</div></div></article>
-      <article class="leader-card"><div class="trophy" aria-hidden="true">🏆</div><div><div class="section-kicker">MOST CALLED ITS</div><div id="calledLeaderName" class="leader-name">No wins yet</div><div id="calledLeaderCount" class="leader-count">0 wins</div></div></article>
+  <section id="receipts" class="history-section" aria-labelledby="historyHeading">
+    <div class="history-heading-row">
+      <div>
+        <span class="receipts-document-code">GI-LEDGER / ACCOUNT 003</span>
+        <h2 id="historyHeading" class="major-section-title">The Receipts</h2>
+      </div>
     </div>
-    <div class="history-table-wrap"><table class="history-table"><thead><tr><th>Date</th><th>Player</th><th>Result</th><th>Details</th><th>Status</th><th>Prize</th></tr></thead><tbody id="historyTableBody"><tr><td colspan="6" class="history-empty">No results recorded yet.</td></tr></tbody></table></div>
+    <div class="leader-grid" aria-label="All-time leaders">
+      <article class="leader-card"><h3 class="leader-label">Weekly wins</h3><div id="weeklyLeaderName" class="leader-name">Loading…</div><div id="weeklyLeaderCount" class="leader-count">—</div></article>
+      <article class="leader-card"><h3 class="leader-label">Called It wins</h3><div id="calledLeaderName" class="leader-name">Loading…</div><div id="calledLeaderCount" class="leader-count">—</div></article>
+    </div>
+    <div class="history-table-wrap">
+      <table class="history-table">
+        <caption class="sr-only">Goblin Investing results history</caption>
+        <thead><tr><th scope="col">Date</th><th scope="col">Player</th><th scope="col">Result</th><th scope="col">Details</th><th scope="col">Status</th><th scope="col">Prize</th></tr></thead>
+        <tbody id="historyTableBody"><tr class="history-empty-row"><td colspan="6" class="history-empty">Loading results history…</td></tr></tbody>
+      </table>
+    </div>
   </section>
-  <footer class="site-footer"><a href="./rules/">The Rules</a><a href="./learn/invest-or-die/">Current lesson</a></footer>
+  <footer class="site-footer"><a href="#top">Top</a><a href="./rules/">The Rules</a><a href="./learn/invest-or-die/">Current lesson</a></footer>
 </main>
 
-<div id="authModal" class="modal" aria-hidden="true"><div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="authTitle"><div class="modal-head"><div><div class="section-kicker">GOBLIN INVESTING</div><h2 id="authTitle">Sign in</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><form id="authForm" class="form-stack"><label>Email<input id="authEmail" name="email" type="email" autocomplete="email" required></label><label>Password<input id="authPassword" name="password" type="password" autocomplete="current-password" required></label><button class="button button-primary" type="submit">Sign In</button><p id="authMessage" class="form-message" role="status" aria-live="polite"></p></form></div></div>
-<div id="editModal" class="modal" aria-hidden="true"><div class="modal-card modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="editTitle"><div class="modal-head"><div><div class="section-kicker">"CALLED IT!"</div><h2 id="editTitle">Called It challenge</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><div id="editSlots" class="edit-slots"></div><p id="editMessage" class="form-message" role="status" aria-live="polite"></p></div></div>
+<div id="authModal" class="modal" aria-hidden="true"><div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="authTitle"><div class="modal-head"><div><div class="section-kicker">HOUSEHOLD SECURITIES DESK</div><h2 id="authTitle">Sign in</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><form id="authForm" class="form-stack"><label>Email<input id="authEmail" name="email" type="email" autocomplete="email" required></label><label>Password<input id="authPassword" name="password" type="password" autocomplete="current-password" required></label><button class="button button-primary" type="submit">Sign In</button><p id="authMessage" class="form-message" role="status" aria-live="polite"></p></form></div></div>
+<div id="editModal" class="modal" aria-hidden="true"><div class="modal-card modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="editTitle"><div class="modal-head"><div><h2 id="editTitle">Called It challenge</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><div id="editSlots" class="edit-slots"></div><p id="editMessage" class="form-message" role="status" aria-live="polite"></p></div></div>
 <div id="weekModal" class="modal" aria-hidden="true"><div class="modal-card modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="weekModalTitle"><div class="modal-head"><div><div class="section-kicker">ADMIN</div><h2 id="weekModalTitle">Update Game</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Close">×</button></div><form id="weekForm" class="form-stack"><div class="form-section"><div class="form-section-title">Win the Week</div><div class="settings-grid"><label>Winner<select id="winnerNameInput" required></select></label><label>Weekly return (%)<input id="winnerReturnInput" type="number" step="0.01" min="-1000" max="10000" required></label><label>Current game week<input id="currentWeekInput" type="number" min="1" step="1" required></label><label>Week start<input id="weekStartInput" type="date" required></label><label>Week end<input id="weekEndInput" type="date" required></label><label>Current chart image<input id="winnerChartInput" type="file" accept="image/png,image/jpeg,image/webp"></label></div></div><div class="form-section"><div class="form-section-title">Called It settings</div><div class="settings-grid"><label>Goes Up target (%)<input id="calledUpInput" type="number" min="0.1" max="100" step="0.1" required></label><label>Goes Down target (%)<input id="calledDownInput" type="number" min="0.1" max="99.9" step="0.1" required></label><label>About the Same range (±%)<input id="calledFlatInput" type="number" min="0.1" max="25" step="0.1" required></label><label>Challenge length (days)<input id="calledDurationInput" type="number" min="1" max="365" step="1" required></label><label>Review cooldown (days)<input id="calledCooldownInput" type="number" min="0" max="90" step="1" required></label><label>Flat claim window (days)<input id="calledClaimInput" type="number" min="1" max="90" step="1" required></label><label>Approved payout ($)<input id="calledPayoutInput" type="number" min="0" max="1000" step="0.01" required></label></div></div><button class="button button-primary" type="submit">Save Game</button><p id="weekMessage" class="form-message" role="status" aria-live="polite"></p></form></div></div>
-<script src="./js/mutation-guard.js"></script>
 <script type="module" src="./js/app.js"></script>
-<script type="module" src="./js/dashboard-polish.js"></script>
-<script type="module">
-import { getBackendClient } from './js/backend.js';
-
-const addChallengeButton = document.getElementById('editMyPlaysButton');
-const editModal = document.getElementById('editModal');
-
-function closeStaleChallengeModal() {
-  if (!editModal?.classList.contains('open')) return;
-  editModal.classList.remove('open', 'single-play-mode');
-  editModal.setAttribute('aria-hidden', 'true');
-  if (!document.querySelector('.modal.open')) document.body.style.overflow = '';
-}
-
-function lockChallengeButton() {
-  if (!addChallengeButton) return;
-  addChallengeButton.hidden = true;
-  addChallengeButton.disabled = true;
-}
-
-async function syncChallengeAccess(client) {
-  if (!addChallengeButton) return;
-  if (!client) {
-    lockChallengeButton();
-    closeStaleChallengeModal();
-    return;
-  }
-  const { data: sessionData } = await client.auth.getSession();
-  const user = sessionData.session?.user || null;
-  if (!user) {
-    lockChallengeButton();
-    closeStaleChallengeModal();
-    return;
-  }
-  const { data: profile } = await client
-    .from('participants')
-    .select('active')
-    .eq('user_id', user.id)
-    .maybeSingle();
-  const allowed = Boolean(profile?.active);
-  addChallengeButton.hidden = !allowed;
-  addChallengeButton.disabled = !allowed;
-}
-
-const client = await getBackendClient();
-await syncChallengeAccess(client);
-client?.auth.onAuthStateChange(() => {
-  setTimeout(() => syncChallengeAccess(client), 0);
-});
-</script>
+<script type="module" src="./js/visual-r3-state-copy.js"></script>
 </body>
 </html>
