@@ -31,6 +31,11 @@
   box-shadow:3px 3px 0 #0c0e0c;
 }
 
+/* The stamp sits on pale paper; darken it enough to read at phone brightness. */
+.visual-r2 .winner-content:has(.winner-return)::after{
+  filter:brightness(.42) saturate(2) contrast(1.25)!important;
+}
+
 /* Add/edit belongs to the actual slip, not the participant-name header or section header. */
 .visual-r2 #editMyPlaysButton,
 .visual-r2 .participant-head .admin-edit-button{display:none!important}
