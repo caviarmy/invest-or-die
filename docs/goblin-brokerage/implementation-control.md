@@ -19,10 +19,11 @@ This repository record exists so a fresh implementation turn can recover the cri
 - Turn 4 source-level correction review: COMPLETE / VISUAL RUNTIME QA DEFERRED
 - Turn 5 Called It form + modal + help: CODE COMPLETE / CORRECTION REVIEW COMPLETE / ANDROID AND BROWSER RUNTIME QA DEFERRED
 - Turn 4 participant accessibility carry-forward: RESOLVED during Turn 5 controller work
+- Turn 6 The Receipts / leaderboard: CODE COMPLETE / SOURCE REVIEW COMPLETE / ANDROID AND BROWSER RUNTIME QA DEFERRED
 - Manual Android/browser QA: DEFERRED UNTIL LATER INTEGRATED QA
-- Next canonical turn: Turn 6 — The Receipts / leaderboard
+- Next canonical turn: Turn 7 — Rules page + lesson header consistency
 
-Read the completed-turn records in order. In particular, read `turn-5-completion.md` and `turn-5-correction-review.md` before touching Called It or beginning Turn 6.
+Read the completed-turn records in order. Read `turn-6-completion.md` before beginning Turn 7. The Turn 5 completion/correction records remain authoritative for any later work that touches Called It.
 
 ## Mandatory environment rule
 
