@@ -194,6 +194,11 @@
 }
 
 @media(max-width:430px){
+  .visual-r2 .history-section .major-section-title{
+    max-width:100%;
+    font-size:clamp(44px,15vw,58px);
+    letter-spacing:-.05em;
+  }
   .visual-r2 .leader-label{font-size:16px}
   .visual-r2 .leader-name{font-size:14px}
   .visual-r2 .leader-count{font-size:8px}
