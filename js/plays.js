@@ -1,28 +1,23 @@
-const FALLBACK_PARTICIPANTS = [
-  { user_id: null, display_name: 'Covey', sort_order: 1, active: true, is_admin: false },
-  { user_id: null, display_name: 'Cal', sort_order: 2, active: true, is_admin: false },
-  { user_id: null, display_name: 'Charbonneau', sort_order: 3, active: true, is_admin: false }
-];
-
-const FALLBACK_SETTINGS = {
-  current_week: 6,
-  weekly_stock_buy_min: 5,
-  called_it_up_percent: 15,
-  called_it_down_percent: 15,
-  called_it_flat_percent: 3,
-  called_it_duration_days: 28,
-  called_it_review_lock_days: 7,
-  called_it_flat_claim_days: 7,
-  called_it_payout: 5
+const EMPTY_SETTINGS = {
+  current_week: null,
+  weekly_stock_buy_min: null,
+  called_it_up_percent: null,
+  called_it_down_percent: null,
+  called_it_flat_percent: null,
+  called_it_duration_days: null,
+  called_it_review_lock_days: null,
+  called_it_flat_claim_days: null,
+  called_it_payout: null
 };
 
 export function fallbackDashboardData() {
   return {
-    participants: FALLBACK_PARTICIPANTS,
+    available: false,
+    participants: [],
     plays: [],
     winner: null,
     history: [],
-    settings: { ...FALLBACK_SETTINGS }
+    settings: { ...EMPTY_SETTINGS }
   };
 }
 
@@ -43,14 +38,13 @@ export async function loadDashboardData(client) {
   if (historyResult.error) throw historyResult.error;
   if (settingsResult.error) throw settingsResult.error;
 
-  const participants = participantsResult.data?.length ? participantsResult.data : FALLBACK_PARTICIPANTS;
-
   return {
-    participants,
+    available: true,
+    participants: participantsResult.data || [],
     plays: playsResult.data || [],
     winner: winnerResult.data || null,
     history: historyResult.data || [],
-    settings: { ...FALLBACK_SETTINGS, ...(settingsResult.data || {}) }
+    settings: { ...EMPTY_SETTINGS, ...(settingsResult.data || {}) }
   };
 }
 
