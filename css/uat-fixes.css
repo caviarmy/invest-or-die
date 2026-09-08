@@ -88,7 +88,7 @@
 .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
   content:"";
   position:absolute;
-  inset:-24px 0 -24px 0;
+  inset:-24px 2px -24px 2px;
   width:auto;
   height:auto;
   max-width:none!important;
@@ -121,7 +121,7 @@
   }
   .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
   .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
-    inset:-20px 0 -20px 0;
+    inset:-20px 2px -20px 2px;
     opacity:.54;
   }
 }
