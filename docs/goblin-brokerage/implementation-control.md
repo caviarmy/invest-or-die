@@ -1,6 +1,6 @@
 # Goblin Brokerage Redesign — Implementation Control
 
-**Authoritative design brief:** `goblin_investing_redesign_master_v6.md`  
+**Authoritative design brief:** `goblin_investing_redesign_master_v8.md` (Google Drive handoff)  
 **Working branch:** `goblin-brokerage-redesign`  
 **Production frontend:** `main` / GitHub Pages  
 **Shared backend:** production Supabase project is shared by `main` and the redesign branch.
@@ -27,10 +27,13 @@ This repository record exists so a fresh implementation turn can recover the cri
 - Turn 8 adversarial review: corrected direction-mark contrast across dark-slip and paper surfaces; confirmed seasoning remains sparse and non-authoritative
 - Turns 7–8 combined post-review correction pass: SOURCE-LEVEL CORRECTIONS COMPLETE / ANDROID AND BROWSER RUNTIME QA DEFERRED
 - Turns 7–8 combined corrections: completed form/slip direction-mark consistency, spatial asset integration, readable Rules failure states, household-vs-software enforcement wording, supported article font weights, JavaScript reduced-motion handling, and namespaced article modal ownership
-- Manual Android/browser QA: DEFERRED UNTIL TURN 9 INTEGRATED QA
-- Next canonical turn: Turn 9 — Mobile, performance, accessibility, and de-AI audit
+- Turn 9 mobile/performance/accessibility/de-AI/truth/integration audit: CODE COMPLETE / SOURCE-LEVEL REVIEW COMPLETE / ANDROID AND INTEGRATED BROWSER RUNTIME QA DEFERRED
+- Turn 9 adversarial correction review: COMPLETE; corrected plausible fallback state, numeric-sentinel/qualification defects, preview snapshot fallback, missing action amounts, mobile/header boundaries, interactive targets, and release-candidate cleanup
+- Turn 9 cross-turn integration review: COMPLETE; corrected false lesson reader-state treatment and revalidated shared focus/CSS ownership, direction workflow, historical terms, async ownership, Rules, Receipts, and article independence
+- Manual Android/browser QA: DEFERRED — the Turn 9 environment could not load the actual candidate with its external CDN/backend dependencies; source inspection was not counted as runtime QA
+- Next canonical turn: Turn 10 — NOT STARTED; deferred owner-edit production authority cutover remains a pre-merge gate
 
-Read the completed-turn records in order. Before beginning Turn 9, read `turn-7-8-combined-correction-review.md` as the latest authoritative cross-turn correction record in addition to `turn-8-completion.md` and `turn-8-correction-review.md`. The Turn 5 completion/correction records remain authoritative for later work that touches Called It behavior, Turn 6 remains authoritative for Receipts state/payout semantics, and Turn 7 remains authoritative for secondary-page integration.
+Before beginning any later turn, read `turn-9-completion.md` and `turn-9-correction-review.md` as the latest release-candidate records. The Turn 5 completion/correction records remain authoritative for Called It form/async/historical-term behavior, Turn 6 remains authoritative for Receipts state/payout semantics, Turn 7 remains authoritative for secondary-page integration, and `turn-7-8-combined-correction-review.md` remains the latest pre-Turn-9 cross-turn correction record.
 
 ## Mandatory environment rule
 
