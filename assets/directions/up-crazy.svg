@@ -1,7 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 150" aria-hidden="true">
-  <g fill="none" stroke="#39b90f" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M12 126 C27 111 31 96 42 105 C55 115 58 83 70 92 C82 101 84 67 98 76 C112 85 111 46 128 56 C141 64 145 35 160 27" stroke-width="9"/>
-    <path d="M130 24 L162 26 L160 57" stroke-width="9"/>
-    <path d="M14 130 C29 114 34 100 44 108 C57 118 60 87 72 96 C84 105 87 71 100 80 C114 89 114 50 130 60 C143 68 148 39 163 31" stroke-width="3" opacity=".35"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 720" preserveAspectRatio="none" aria-hidden="true">
+  <g fill="none" stroke="#38c814" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M148 174 C181 151 188 130 211 151 C236 174 247 110 274 130 C301 150 311 85 340 108 C370 132 389 60 418 84 C446 107 463 35 500 -18" stroke-width="15" opacity=".78"/>
+    <path d="M458 8 L505 -22 L493 36" stroke-width="15" opacity=".78"/>
+    <path d="M142 184 C178 158 191 140 214 160 C239 181 251 121 279 141 C306 160 319 96 348 117 C378 139 395 69 425 92 C453 113 470 43 509 -10" stroke-width="5" opacity=".25"/>
+    <path d="M153 165 C185 146 197 127 217 144 C240 163 252 103 281 124 C307 143 319 79 347 101 C376 124 393 53 423 78" stroke-width="3" opacity=".22"/>
   </g>
 </svg>
