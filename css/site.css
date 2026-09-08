@@ -31,7 +31,7 @@ h1,h2,h3{font-family:var(--font-display);font-weight:700}
 p{line-height:1.5}
 .shell{width:min(100% - 24px,1120px);margin:0 auto}
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-.mono,.tracker-value,.winner-return,.winner-week,.play-meta b,.play-expiry,.leader-count,.history-table,.quote-preview,.goal-preview{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.mono,.tracker-value,.winner-return,.winner-week,.play-meta b,.play-expiry,.leader-count,.history-date,.history-details,.history-prize,.receipt-status,.history-actions button,.quote-preview,.goal-preview{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
 .artifact-rule{height:1px;background:var(--line);border:0;margin:0}
 .ledger-surface{background:var(--paper);color:var(--paper-ink);border:1px solid #b6ae94}
 .stamp{display:inline-flex;align-items:center;border:2px solid currentColor;padding:5px 8px;font-family:var(--font-display);font-weight:700;letter-spacing:.055em;text-transform:uppercase;transform:rotate(-1.25deg);line-height:1}
@@ -157,27 +157,44 @@ p{line-height:1.5}
 .play-edit-pencil{position:absolute;top:9px;right:9px;width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line-strong);border-radius:var(--control-radius);background:var(--ink);color:#e6e8e1;font-size:16px;line-height:1;font-weight:700;z-index:2}
 .play-edit-pencil:hover,.play-edit-pencil:focus-visible{border-color:var(--money);color:var(--money);outline:2px solid transparent}
 
-.history-section{padding:30px 0 0;border-top:2px solid var(--line-strong);margin-top:14px}
-.leader-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px}
-.leader-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:15px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
-.trophy{font-size:28px;line-height:1;filter:grayscale(1)}
-.leader-name{font-family:var(--font-display);font-size:27px;font-weight:700;letter-spacing:-.025em;line-height:.95;text-transform:uppercase}
-.leader-count{font-size:11px;color:var(--muted);margin-top:7px}
-.history-table-wrap{overflow:auto;border:1px solid var(--line);border-radius:0;background:var(--surface)}
-.history-table{width:100%;border-collapse:collapse;min-width:760px}
-.history-table th{padding:11px 12px;text-align:left;font:600 9px/1.2 var(--font-mono);letter-spacing:.07em;color:#8b958d;border-bottom:2px solid var(--line-strong);background:var(--surface-3)}
-.history-table td{padding:12px;border-bottom:1px solid var(--line);font-size:11px;vertical-align:top}
+.history-section{padding:18px 14px 14px;border:1px solid #b6ae94;margin-top:14px;background:var(--paper);color:var(--paper-ink);color-scheme:light}
+.history-heading-row{gap:12px;margin:0;padding:0 0 14px;border-bottom:3px double #8f8873}
+.history-heading-row::after{content:"";display:block;width:min(196px,58vw);height:44px;flex:0 0 auto;background:url("../assets/stamps/permanent-record.svg") left center/contain no-repeat}
+.history-section .major-section-title{color:var(--paper-ink);margin-bottom:8px}
+.history-section .section-description{max-width:650px;margin:0;color:#5b574c}
+.leader-grid{display:grid;grid-template-columns:1fr;gap:0;margin:0;border-bottom:2px solid #8f8873}
+.leader-card{min-width:0;padding:15px 0;border-bottom:1px solid #b8b098;background:transparent}
+.leader-card:last-child{border-bottom:0}
+.leader-label{margin:0 0 8px;color:#676255;font:600 10px/1.2 var(--font-mono);letter-spacing:.055em;text-transform:uppercase}
+.leader-name{max-width:100%;font-family:var(--font-display);font-size:clamp(27px,8vw,36px);font-weight:700;letter-spacing:-.025em;line-height:.95;text-transform:uppercase;overflow-wrap:anywhere;color:var(--paper-ink)}
+.leader-count{font-size:11px;color:#676255;margin-top:7px}
+.history-table-wrap{overflow:visible;border:0;background:transparent}
+.history-table{width:100%;min-width:0;border-collapse:collapse;table-layout:fixed;color:var(--paper-ink)}
+.history-table th{padding:10px 9px;text-align:left;font:600 9px/1.2 var(--font-mono);letter-spacing:.055em;color:#5f5a4e;border-bottom:2px solid #8f8873;background:#d8d0b7}
+.history-table th:nth-child(1){width:11%}
+.history-table th:nth-child(2){width:18%}
+.history-table th:nth-child(3){width:13%}
+.history-table th:nth-child(4){width:31%}
+.history-table th:nth-child(5){width:18%}
+.history-table th:nth-child(6){width:9%;text-align:right}
+.history-table td{min-width:0;padding:12px 9px;border-bottom:1px solid #b8b098;font-size:11px;line-height:1.45;vertical-align:top;color:#37362f;overflow-wrap:anywhere}
 .history-table tr:last-child td{border-bottom:0}
-.history-type{font-family:var(--font-display);font-weight:600;color:#dfe2dc;text-transform:uppercase}
-.history-prize{color:var(--money);font-weight:700}
-.history-empty{text-align:center;color:var(--muted);padding:26px!important}
-.receipt-status{display:inline-flex;border-radius:2px;padding:4px 6px;font:700 9px/1 var(--font-mono);letter-spacing:.05em;background:transparent;border:1px solid #59625b;color:#ccd2cc}
-.receipt-status-approved{border-color:#537a58;color:var(--money)}
-.receipt-status-rejected{border-color:#8f4039;color:#ff9d96}
-.receipt-status-under_review{border-color:#626a8b;color:#cdd3f5}
-.history-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
-.history-actions button{border:1px solid var(--line-strong);background:transparent;color:#e5e7e1;border-radius:2px;padding:6px 7px;font-family:var(--font-display);font-size:9px;font-weight:600;text-transform:uppercase}
-.history-actions .history-delete-button{border-color:#77423d;color:#ffc1bc}
+.history-player strong{font-family:var(--font-display);font-size:13px;line-height:1.05;color:var(--paper-ink);text-transform:uppercase}
+.history-type{font-family:var(--font-display);font-weight:700;color:#2d2d28;text-transform:uppercase}
+.history-date{font-size:10px;color:#5f5a4e}
+.history-details{font-size:10px;color:#4d4a41}
+.history-prize{text-align:right;color:#315f37;font-weight:700;white-space:nowrap}
+.history-empty{text-align:center;color:#676255;padding:28px 12px!important}
+.receipt-status{display:inline-flex;align-items:center;min-height:30px;border-radius:0;padding:6px 8px;font-size:9px;font-weight:700;letter-spacing:.045em;text-transform:uppercase;background:transparent;border:2px solid #706a5c;color:#514d42}
+.receipt-status img{display:block;width:min(100%,104px);height:auto}
+.receipt-status-approved,.receipt-status-rejected{min-height:0;padding:0;border:0;background:transparent}
+.receipt-status-under_review{border-color:#5b6077;color:#424861;transform:rotate(-.5deg)}
+.receipt-status-unknown{border-style:dashed;border-color:#8c8470;color:#6f6859}
+.history-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.history-actions button{min-height:44px;border:1px solid #756f60;background:transparent;color:#34332c;border-radius:2px;padding:7px 8px;font-size:8px;font-weight:600;letter-spacing:.02em;text-transform:uppercase}
+.history-actions button:hover:not(:disabled),.history-actions button:focus-visible{border-color:#39372f;background:#d8d0b7;outline:2px solid transparent}
+.history-actions .history-delete-button{border-color:#a88f87;color:#7c4843;opacity:.68}
+.history-actions .history-delete-button:hover,.history-actions .history-delete-button:focus-visible{opacity:1;border-color:#8c4c46;background:#e1c9c1}
 .site-footer{display:flex;gap:18px;padding:34px 0 0;border-top:1px solid var(--line);margin-top:28px;color:#89928a;font:500 11px/1 var(--font-mono)}
 .site-footer a{text-decoration:none}
 
@@ -293,6 +310,22 @@ textarea{min-height:88px;resize:vertical}
 .guide-section-compact p{margin:0;color:#aeb6ae}
 
 @media(max-width:699px){
+  .history-table{display:block}
+  .history-table thead{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+  .history-table tbody{display:block}
+  .history-table tr:not(.history-empty-row){display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"date prize" "player player" "result result" "details details" "state state";column-gap:12px;row-gap:7px;padding:14px 0;border-bottom:1px solid #aaa38d}
+  .history-table tr:last-child{border-bottom:0}
+  .history-table tr:not(.history-empty-row) td{display:block;padding:0;border:0}
+  .history-date{grid-area:date;align-self:center}
+  .history-player{grid-area:player}
+  .history-player strong{display:block;font-size:clamp(22px,7vw,29px);overflow-wrap:anywhere}
+  .history-result{grid-area:result}
+  .history-details{grid-area:details;line-height:1.55}
+  .history-state{grid-area:state;display:flex!important;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding-top:3px!important}
+  .history-prize{grid-area:prize;align-self:center;font-size:14px}
+  .history-actions{margin:0 0 0 auto;justify-content:flex-end}
+  .history-empty-row{display:block}
+  .history-empty-row td{display:block;width:100%;border:0}
   body:has(.game-help[open]){overflow:hidden}
   .single-play-mode{align-items:stretch;padding:0}
   .single-play-mode .modal-card{width:100%;min-height:100dvh;max-height:100dvh;border:0;border-radius:0;padding:max(14px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));box-shadow:none}
@@ -350,7 +383,14 @@ textarea{min-height:88px;resize:vertical}
   .play-ticker{font-size:48px}
   .challenge-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
   .challenge-actions .challenge-action:only-child{grid-column:1/-1}
-  .leader-grid{grid-template-columns:1fr 1fr;gap:12px}
+  .history-section{padding:24px}
+  .history-heading-row{align-items:flex-end;padding-bottom:18px}
+  .history-heading-row::after{margin-left:auto;background-position:right center}
+  .leader-grid{grid-template-columns:1fr 1fr}
+  .leader-card{padding:18px 20px;border-bottom:0}
+  .leader-card:first-child{padding-left:0;border-right:1px solid #b8b098}
+  .leader-card:last-child{padding-right:0}
+  .leader-name{font-size:36px}
   .modal{padding:18px;align-items:center}
   .modal-card{width:min(100%,520px);max-height:calc(100dvh - 36px);padding:20px}
   .modal-card-wide{width:min(100%,860px)}
