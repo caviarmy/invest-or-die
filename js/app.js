@@ -68,9 +68,26 @@ const els = {
 
 let modalReturnFocus = null;
 
+function finiteDataNumber(value) {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'string' && !value.trim()) return null;
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : null;
+}
+
 function renderTracker() {
-  const week = Number(state.data.settings?.current_week) || 1;
-  const weeklyMin = Number(state.data.settings?.weekly_stock_buy_min) || 5;
+  const week = finiteDataNumber(state.data.settings?.current_week);
+  const weeklyMin = finiteDataNumber(state.data.settings?.weekly_stock_buy_min);
+  const validWeek = Number.isInteger(week) && week >= 1;
+  const validMinimum = weeklyMin !== null && weeklyMin > 0;
+
+  if (!state.data.available || !validWeek || !validMinimum) {
+    els.currentWeekValue.textContent = 'Week —';
+    els.purchaseMinimumValue.textContent = '—';
+    els.purchaseMinimumNote.textContent = 'Current weekly buy-in requirement is unavailable.';
+    return;
+  }
+
   const total = week * weeklyMin;
   els.currentWeekValue.textContent = `Week ${week}`;
   els.purchaseMinimumValue.textContent = money(total);
@@ -78,6 +95,12 @@ function renderTracker() {
 }
 
 function renderWinner() {
+  if (!state.data.available) {
+    els.winnerContent.innerHTML = '<div class="winner-name winner-empty">Weekly result unavailable.</div><p class="muted">Current winner data could not be loaded.</p>';
+    els.winnerChartWrap.hidden = true;
+    return;
+  }
+
   const winner = state.data.winner;
   if (!winner) {
     els.winnerContent.innerHTML = '<div class="winner-name winner-empty">Winner not posted yet.</div><p class="muted">This week\'s result will show here after it is entered.</p>';
@@ -85,15 +108,16 @@ function renderWinner() {
     return;
   }
 
-  const sign = Number(winner.return_percent) > 0 ? '+' : '';
+  const returnPercent = finiteDataNumber(winner.return_percent);
+  const returnText = returnPercent === null ? '—' : `${returnPercent > 0 ? '+' : ''}${returnPercent.toFixed(2)}%`;
   els.winnerContent.innerHTML = `
-    <div class="winner-name">${escapeHtml(winner.winner_name)}</div>
-    <div class="winner-return">${sign}${Number(winner.return_percent).toFixed(2)}%</div>
+    <div class="winner-name">${escapeHtml(winner.winner_name || 'Winner name unavailable')}</div>
+    <div class="winner-return">${returnText}</div>
     <div class="winner-week">${formatDate(winner.week_start)} – ${formatDate(winner.week_end)}</div>`;
 
   if (winner.chart_url) {
     els.winnerChart.src = winner.chart_url;
-    els.winnerChart.alt = `${winner.winner_name} weekly portfolio chart`;
+    els.winnerChart.alt = `${winner.winner_name || 'Current winner'} weekly portfolio chart`;
     els.winnerChartWrap.hidden = false;
   } else {
     els.winnerChartWrap.hidden = true;
@@ -144,6 +168,15 @@ function bindChallengeCardActions() {
 }
 
 function renderParticipants() {
+  if (!state.data.available) {
+    els.participantsGrid.innerHTML = '<p class="data-unavailable">Current Called It records are unavailable.</p>';
+    return;
+  }
+  if (!state.data.participants.length) {
+    els.participantsGrid.innerHTML = '<p class="data-unavailable">No active participants are listed.</p>';
+    return;
+  }
+
   const userId = state.session.user?.id || null;
   const isAdmin = Boolean(state.session.profile?.is_admin);
 
@@ -313,6 +346,15 @@ function bindHistoryActions() {
 }
 
 function renderHistory() {
+  if (!state.data.available) {
+    els.weeklyLeaderName.textContent = 'Unavailable';
+    els.weeklyLeaderCount.textContent = '—';
+    els.calledLeaderName.textContent = 'Unavailable';
+    els.calledLeaderCount.textContent = '—';
+    els.historyTableBody.innerHTML = '<tr class="history-empty-row"><td colspan="6" class="history-empty">Results history is unavailable.</td></tr>';
+    return;
+  }
+
   const weekly = leaderFor('weekly_win');
   const called = leaderFor('called_it');
   els.weeklyLeaderName.textContent = weekly.name;
@@ -343,13 +385,14 @@ function renderHistory() {
 function renderAccount() {
   const profile = state.session.profile;
   const signedIn = Boolean(state.session.user);
-  const canAddOwnChallenge = Boolean(signedIn && profile?.active);
+  const dataAvailable = Boolean(state.data.available);
+  const canAddOwnChallenge = Boolean(dataAvailable && signedIn && profile?.active);
   const ownSlot = canAddOwnChallenge ? nextAvailableSlot(state.session.user.id) : null;
 
   els.authButton.textContent = signedIn ? 'Sign Out' : 'Sign In';
   els.accountLabel.hidden = !signedIn;
   els.accountLabel.textContent = signedIn ? `Signed in as ${profile?.display_name || 'account'}` : '';
-  els.adminWeekButton.hidden = !profile?.is_admin;
+  els.adminWeekButton.hidden = !dataAvailable || !profile?.is_admin;
 
   els.editMyPlaysButton.hidden = !canAddOwnChallenge;
   els.editMyPlaysButton.disabled = !canAddOwnChallenge || !ownSlot;
@@ -358,7 +401,11 @@ function renderAccount() {
 
 function renderStatus() {
   if (!backendIsConfigured()) {
-    els.dashboardStatus.textContent = 'Live editing is not enabled yet.';
+    els.dashboardStatus.textContent = 'Live Goblin Investing data is not configured. Current records and settings are unavailable.';
+    return;
+  }
+  if (!state.data.available) {
+    els.dashboardStatus.textContent = 'Live Goblin Investing data could not be loaded. Current records and settings are unavailable.';
     return;
   }
   if (state.session.user && !state.session.profile) {
@@ -463,14 +510,6 @@ function showEditError(message) {
   els.editMessage.textContent = message || 'Could not update the challenge.';
 }
 
-function currentPreviewSettings() {
-  return {
-    up: Number(state.data.settings.called_it_up_percent),
-    down: Number(state.data.settings.called_it_down_percent),
-    flat: Number(state.data.settings.called_it_flat_percent)
-  };
-}
-
 function clearPreviewSnapshot(form) {
   delete form.dataset.previewPrice;
   delete form.dataset.previewTicker;
@@ -480,20 +519,21 @@ function clearPreviewSnapshot(form) {
 }
 
 function previewSettingsForForm(form) {
+  const raw = [form.dataset.previewUp, form.dataset.previewDown, form.dataset.previewFlat];
+  if (raw.some(value => value === undefined || value === null || value === '')) return null;
   const snapshot = {
-    up: Number(form.dataset.previewUp),
-    down: Number(form.dataset.previewDown),
-    flat: Number(form.dataset.previewFlat)
+    up: Number(raw[0]),
+    down: Number(raw[1]),
+    flat: Number(raw[2])
   };
-  if (Number.isFinite(snapshot.up) && Number.isFinite(snapshot.down) && Number.isFinite(snapshot.flat)) return snapshot;
-  return currentPreviewSettings();
+  return [snapshot.up, snapshot.down, snapshot.flat].every(value => Number.isFinite(value) && value > 0) ? snapshot : null;
 }
 
 function setPreviewSettings(form, settings) {
   const up = Number(settings?.up);
   const down = Number(settings?.down);
   const flat = Number(settings?.flat);
-  if (![up, down, flat].every(Number.isFinite)) {
+  if (![up, down, flat].every(value => Number.isFinite(value) && value > 0)) {
     delete form.dataset.previewUp;
     delete form.dataset.previewDown;
     delete form.dataset.previewFlat;
@@ -538,7 +578,7 @@ function syncGoal(form) {
   if (!goal) return;
   const direction = form.elements.direction?.value || '';
   const raw = form.dataset.previewPrice || form.dataset.referencePrice || '';
-  goal.textContent = goalPreview(Number(raw), direction, previewSettingsForForm(form));
+  goal.textContent = goalPreview(raw, direction, previewSettingsForForm(form));
 }
 
 function storedGoalPreview(play) {
@@ -728,7 +768,13 @@ function bindSingleForm(form, play = null) {
 
       const mode = form.dataset.mode;
       const action = form.elements.portfolio_action.value;
-      const amount = action === 'not_buying' ? null : Number(form.elements.action_amount.value);
+      let amount = null;
+      if (action !== 'not_buying') {
+        const rawAmount = String(form.elements.action_amount.value || '').trim();
+        if (!rawAmount) throw new Error('Enter the dollar amount for this action.');
+        amount = Number(rawAmount);
+        if (!Number.isFinite(amount) || amount < 5) throw new Error('Enter an action amount of at least $5.');
+      }
 
       if (mode === 'owner-edit') {
         const { error } = await state.session.client.rpc('edit_own_called_it_metadata', {
@@ -798,6 +844,10 @@ function openAddForOwner(ownerId) {
     if (backendIsConfigured()) openModal(els.authModal, '#authEmail');
     return;
   }
+  if (!state.data.available) {
+    els.dashboardStatus.textContent = 'Current Called It records are unavailable. Reload before adding a challenge.';
+    return;
+  }
   if (ownerId !== state.session.user.id && !state.session.profile.is_admin) return;
 
   const slot = nextAvailableSlot(ownerId);
@@ -818,17 +868,31 @@ function openAddForOwner(ownerId) {
 }
 
 async function refreshData() {
-  state.data = await loadDashboardData(state.session.client);
+  try {
+    state.data = await loadDashboardData(state.session.client);
+  } catch (error) {
+    console.error('Could not refresh dashboard data.', error);
+    state.data = fallbackDashboardData();
+  }
   renderAll();
 }
 
 async function refreshSessionAndData() {
   try {
     state.session = await getSessionState();
+  } catch (error) {
+    console.error('Could not refresh session state.', error);
+    state.session = { configured: backendIsConfigured(), client: null, user: null, profile: null };
+    state.data = fallbackDashboardData();
+    closeModals();
+    renderAll();
+    return;
+  }
+
+  try {
     state.data = await loadDashboardData(state.session.client);
   } catch (error) {
-    console.error(error);
-    state.session = { configured: backendIsConfigured(), client: null, user: null, profile: null };
+    console.error('Could not refresh dashboard data.', error);
     state.data = fallbackDashboardData();
   }
 
@@ -883,27 +947,31 @@ els.authForm.addEventListener('submit', async event => {
 });
 
 els.editMyPlaysButton.addEventListener('click', () => {
-  if (!state.session.user || !state.session.profile?.active) return;
+  if (!state.session.user || !state.session.profile?.active || !state.data.available) return;
   openAddForOwner(state.session.user.id);
 });
 
 els.adminWeekButton.addEventListener('click', () => {
+  if (!state.data.available) {
+    els.dashboardStatus.textContent = 'Current game settings are unavailable. Reload before editing the week.';
+    return;
+  }
   const winner = state.data.winner;
   const settings = state.data.settings;
   els.winnerNameInput.innerHTML = '<option value="">Choose winner</option>' + state.data.participants.map(participant => `<option value="${escapeHtml(participant.user_id)}">${escapeHtml(participant.display_name)}</option>`).join('');
   els.winnerNameInput.value = winner?.winner_user_id || '';
   els.winnerReturnInput.value = winner?.return_percent ?? '';
-  els.currentWeekInput.value = settings.current_week || 1;
+  els.currentWeekInput.value = settings.current_week ?? '';
   els.weekStartInput.value = winner?.week_start || '';
   els.weekEndInput.value = winner?.week_end || '';
   els.winnerChartInput.value = '';
-  els.calledUpInput.value = settings.called_it_up_percent;
-  els.calledDownInput.value = settings.called_it_down_percent;
-  els.calledFlatInput.value = settings.called_it_flat_percent;
-  els.calledDurationInput.value = settings.called_it_duration_days;
-  els.calledCooldownInput.value = settings.called_it_review_lock_days;
-  els.calledClaimInput.value = settings.called_it_flat_claim_days;
-  els.calledPayoutInput.value = settings.called_it_payout;
+  els.calledUpInput.value = settings.called_it_up_percent ?? '';
+  els.calledDownInput.value = settings.called_it_down_percent ?? '';
+  els.calledFlatInput.value = settings.called_it_flat_percent ?? '';
+  els.calledDurationInput.value = settings.called_it_duration_days ?? '';
+  els.calledCooldownInput.value = settings.called_it_review_lock_days ?? '';
+  els.calledClaimInput.value = settings.called_it_flat_claim_days ?? '';
+  els.calledPayoutInput.value = settings.called_it_payout ?? '';
   els.weekMessage.textContent = '';
   openModal(els.weekModal, '#winnerNameInput');
 });
@@ -919,12 +987,19 @@ els.weekForm.addEventListener('submit', async event => {
     return;
   }
 
+  const weeklyMinimum = finiteDataNumber(state.data.settings.weekly_stock_buy_min);
+  if (weeklyMinimum === null || weeklyMinimum <= 0) {
+    els.weekMessage.className = 'form-message error';
+    els.weekMessage.textContent = 'Current weekly purchase setting is unavailable. Reload before saving game settings.';
+    return;
+  }
+
   try {
     els.weekMessage.className = 'form-message';
     els.weekMessage.textContent = 'Saving…';
     await saveGameSettings(state.session.client, {
       current_week: els.currentWeekInput.value,
-      weekly_stock_buy_min: state.data.settings.weekly_stock_buy_min || 5,
+      weekly_stock_buy_min: weeklyMinimum,
       called_it_up_percent: els.calledUpInput.value,
       called_it_down_percent: els.calledDownInput.value,
       called_it_flat_percent: els.calledFlatInput.value,
