@@ -23,10 +23,12 @@ This repository record exists so a fresh implementation turn can recover the cri
 - Turn 6 process review: architecture hardened with state-provenance, semantic-value, breakpoint-boundary, authority-label, readability/subordination, and adversarial correction-review gates
 - Turn 7 Rules page + article integration: CODE COMPLETE / CORRECTION REVIEW COMPLETE / ANDROID AND BROWSER RUNTIME QA DEFERRED
 - Turn 7 adversarial review: corrected unverified configurable-rule fallbacks, article modal lifecycle/accessibility, and article shell CSS specificity before closing the turn
-- Manual Android/browser QA: DEFERRED UNTIL LATER INTEGRATED QA
-- Next canonical turn: Turn 8 — Goblin seasoning and asset integration
+- Turn 8 Goblin seasoning + asset integration: CODE COMPLETE / CORRECTION REVIEW COMPLETE / ANDROID AND BROWSER RUNTIME QA DEFERRED
+- Turn 8 adversarial review: corrected direction-mark contrast across dark-slip and paper surfaces; confirmed seasoning remains sparse and non-authoritative
+- Manual Android/browser QA: DEFERRED UNTIL TURN 9 INTEGRATED QA
+- Next canonical turn: Turn 9 — Mobile, performance, accessibility, and de-AI audit
 
-Read the completed-turn records in order. Read `turn-7-completion.md` and `turn-7-correction-review.md` before beginning Turn 8. The Turn 5 completion/correction records remain authoritative for later work that touches Called It, and the Turn 6 records remain authoritative for later Receipts work.
+Read the completed-turn records in order. Read `turn-8-completion.md` and `turn-8-correction-review.md` before beginning Turn 9. The Turn 5 completion/correction records remain authoritative for later work that touches Called It behavior, Turn 6 remains authoritative for Receipts state/payout semantics, and Turn 7 remains authoritative for secondary-page integration.
 
 ## Mandatory environment rule
 
