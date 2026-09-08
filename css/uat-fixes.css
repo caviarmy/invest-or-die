@@ -88,16 +88,18 @@
 .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
   content:"";
   position:absolute;
-  inset:-38px 0 -58px 0;
+  inset:-24px 0 -24px 0;
   width:auto;
   height:auto;
+  max-width:none!important;
+  max-height:none!important;
   aspect-ratio:auto;
   background-position:center;
   background-repeat:no-repeat;
   background-size:100% 100%;
   pointer-events:none;
   z-index:2;
-  opacity:.68;
+  opacity:.58;
   mix-blend-mode:multiply;
 }
 .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after{
@@ -119,7 +121,7 @@
   }
   .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
   .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
-    inset:-30px 0 -46px 0;
-    opacity:.64;
+    inset:-20px 0 -20px 0;
+    opacity:.54;
   }
 }
