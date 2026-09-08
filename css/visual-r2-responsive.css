@@ -1,0 +1,81 @@
+@media(max-width:899px){
+  .visual-r2 .dashboard{padding-top:34px}
+  .visual-r2 .header-plate{padding-top:16px}
+  .visual-r2 .market-desk-label{display:none}
+  .visual-r2 .winner-panel{grid-template-columns:1fr;gap:24px}
+  .visual-r2 .winner-chart-wrap{width:min(86%,560px);justify-self:end}
+  .visual-r2 .slot-list{grid-template-columns:1fr}
+  .visual-r2 .history-section{padding:38px 44px 32px}
+}
+
+@media(max-width:699px){
+  .visual-r2 .shell{width:min(100% - 24px,1180px)}
+  .visual-r2 .header-plate{align-items:flex-start;gap:10px;padding:14px 0 10px}
+  .visual-r2 .brand{gap:7px;min-height:44px}
+  .visual-r2 .brand-alteration{width:96px;height:32px}
+  .visual-r2 .brand-original{font-size:7px;top:12px}
+  .visual-r2 .brand-patch{left:6px;top:6px;font-size:13px;padding:4px 7px 3px}
+  .visual-r2 .brand-name{font-size:24px;padding-bottom:4px}
+  .visual-r2 .account-area{margin-left:auto}
+  .visual-r2 .account-label{display:none!important}
+  .visual-r2 .account-area .button{padding:0 9px;font-size:9px}
+  .visual-r2 .desk-nav{width:100%;grid-template-columns:repeat(5,minmax(0,1fr))}
+  .visual-r2 .desk-nav a{gap:0;padding:0 3px;font-size:8px;letter-spacing:.02em}
+  .visual-r2 .desk-nav a span{display:none}
+  .visual-r2 .dashboard{padding-top:34px}
+  .visual-r2 .game-tracker{margin-bottom:74px;padding:12px 11px 16px}
+  .visual-r2 .tracker-screen{min-height:204px;padding:17px 16px;border-width:7px}
+  .visual-r2 .tracker-system-line{font-size:8px}
+  .visual-r2 .tracker-main{gap:11px;margin-top:27px}
+  .visual-r2 .tracker-week,.visual-r2 .tracker-buy{display:grid;grid-template-columns:1fr;gap:4px;align-items:start}
+  .visual-r2 .tracker-label{padding-bottom:0;font-size:9px}
+  .visual-r2 .tracker-main{grid-template-columns:1fr 1fr;gap:12px}
+  .visual-r2 .tracker-week .tracker-value,.visual-r2 .tracker-buy .tracker-value{justify-self:start;font-size:40px;letter-spacing:-.075em}
+  .visual-r2 .tracker-copy{font-size:9px;line-height:1.35}
+  .visual-r2 .tracker-sticky{right:21px;bottom:-39px;width:114px;min-height:72px;font-size:17px}
+  .visual-r2 .tracker-sticky strong{font-size:22px}
+  .visual-r2 .lesson-section{margin-bottom:62px}
+  .visual-r2 .lesson-panel{width:94%;min-height:310px;padding:37px 23px 27px}
+  .visual-r2 .lesson-training-stamp{right:18px;top:23px;width:120px}
+  .visual-r2 .lesson-copy h2{margin-top:40px;font-size:clamp(47px,15vw,70px)}
+  .visual-r2 .winner-section-head{align-items:flex-end;gap:12px}
+  .visual-r2 .winner-rule{max-width:130px;font-size:9px;text-align:right}
+  .visual-r2 .winner-panel{padding:28px 22px 30px}
+  .visual-r2 .winner-name{font-size:clamp(66px,24vw,100px)}
+  .visual-r2 .winner-return{font-size:clamp(48px,17vw,72px)}
+  .visual-r2 .winner-chart-wrap{width:86%}
+  .visual-r2 .section-heading-row{align-items:flex-start;flex-direction:column}
+  .visual-r2 .section-heading-row .button{width:100%}
+  .visual-r2 .participant-card{margin-left:-12px;margin-right:-12px;padding:0 10px 25px}
+  .visual-r2 .participant-head{padding:11px 10px}
+  .visual-r2 .play-slot{grid-template-columns:42px minmax(0,1fr)}
+  .visual-r2 .play-slot > :not(.slot-label):not(.play-edit-pencil){margin-left:14px;margin-right:14px}
+  .visual-r2 .play-ticker{font-size:54px;margin-top:17px}
+  .visual-r2 .prediction-badge{font-size:15px;max-width:calc(100% - 28px)}
+  .visual-r2 .play-meta{grid-template-columns:1fr 1fr}
+  .visual-r2 .history-section{margin-left:-4px;margin-right:-4px;padding:35px 31px 31px}
+  .visual-r2 .history-section::before,.visual-r2 .history-section::after{width:20px;background-size:20px 24px}
+  .visual-r2 .history-heading-row{position:relative;display:block;padding-top:4px}
+  .visual-r2 .history-heading-row::after{position:absolute;top:0;right:0;width:118px;height:40px}
+  .visual-r2 .receipts-document-code{font-size:8px;padding-right:120px}
+  .visual-r2 .history-section .major-section-title{padding-top:18px;font-size:clamp(52px,18vw,74px)}
+  .visual-r2 .leader-grid{grid-template-columns:1fr;gap:9px}
+  .visual-r2 .site-footer{flex-wrap:wrap}
+}
+
+@media(max-width:380px){
+  .visual-r2 .shell{width:min(100% - 20px,1180px)}
+  .visual-r2 .brand-alteration{width:88px}
+  .visual-r2 .brand-name{font-size:21px}
+  .visual-r2 .desk-nav a{font-size:7.4px}
+  .visual-r2 .account-area .button{font-size:8px;padding:0 7px}
+  .visual-r2 .tracker-main{gap:8px}
+  .visual-r2 .tracker-week .tracker-value,.visual-r2 .tracker-buy .tracker-value{font-size:34px}
+  .visual-r2 .participant-card{margin-left:-10px;margin-right:-10px}
+  .visual-r2 .tracker-sticky{right:16px;width:106px;min-height:68px;font-size:16px}
+  .visual-r2 .tracker-sticky strong{font-size:20px}
+  .visual-r2 .play-ticker{font-size:49px}
+  .visual-r2 .play-meta{grid-template-columns:1fr}
+  .visual-r2 .play-meta div:nth-child(even){padding-left:0;border-left:0}
+  .visual-r2 .play-meta div:nth-child(n+2){border-top:1px solid #b7bdb4}
+}
