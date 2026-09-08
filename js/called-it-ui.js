@@ -223,10 +223,9 @@ export function singleChallengeFormMarkup({ play = null, slotNumber = 1, adminEd
     : 'Choose a prediction to see the goal.';
   const quoteLabel = adminEdit ? 'Price basis' : 'Currently trading at';
   const prefix = adminEdit ? 'called-admin' : 'called-add';
-  const modeLabel = adminEdit ? 'ADMIN REFILE' : 'NEW CALL';
 
   return `<form class="single-called-it-form" data-mode="${adminEdit ? 'admin-edit' : 'add'}" data-slot="${slotNumber}" ${play?.id ? `data-challenge-id="${escapeHtml(play.id)}"` : ''}>
-    <div class="call-form-register"><span>CALL WORKSHEET / SLIP ${String(slotNumber).padStart(2, '0')}</span><span>${modeLabel}</span></div>
+    <div class="call-form-register" aria-hidden="true">SLIP ${String(slotNumber).padStart(2, '0')}</div>
     <div class="call-form-row">
       <label class="statement-label" for="${prefix}-ticker-search">I think</label>
       <div class="ticker-search-wrap">
@@ -235,7 +234,7 @@ export function singleChallengeFormMarkup({ play = null, slotNumber = 1, adminEd
         <div id="${prefix}-ticker-results" class="ticker-results" hidden></div>
       </div>
     </div>
-    <div class="call-form-row price-row">
+    <div class="call-form-row">
       <span id="${prefix}-quote-label" class="statement-label">${quoteLabel}</span>
       <output class="quote-preview" data-single-quote aria-labelledby="${prefix}-quote-label" aria-live="polite">${quote}</output>
     </div>
@@ -249,7 +248,7 @@ export function singleChallengeFormMarkup({ play = null, slotNumber = 1, adminEd
       <label class="statement-label" for="${prefix}-reason">Because</label>
       <textarea id="${prefix}-reason" name="reason" maxlength="4000" required placeholder="What did you find? Why do you think the stock will do this? Add links if you used them.">${escapeHtml(play?.reason || '')}</textarea>
     </div>
-    <div class="call-form-row action-row">
+    <div class="call-form-row">
       <label class="statement-label" for="${prefix}-action">So I am</label>
       <div class="action-controls">
         <select id="${prefix}-action" name="portfolio_action" ${direction ? '' : 'disabled'}>${actionOptions(direction, action)}</select>
@@ -265,16 +264,16 @@ export function ownerEditFormMarkup(play) {
   const prefix = 'called-owner';
   const target = goalLabel(play);
 
-  return `<form class="single-called-it-form owner-edit-form" data-mode="owner-edit" data-challenge-id="${escapeHtml(play.id)}">
-    <div class="call-form-register"><span>CALL WORKSHEET / SLIP ${String(play.slot_number || 1).padStart(2, '0')}</span><span>OWNER CORRECTION</span></div>
-    <div class="called-it-static call-static-row"><span class="static-label">STOCK</span><strong>${escapeHtml(play.ticker)}</strong><span>${escapeHtml(play.company_name || '')}</span></div>
-    <div class="called-it-static call-static-row"><span class="static-label">LOCKED CALL</span><strong>${escapeHtml(directionLabel(play.direction))}</strong><span>From ${money(play.reference_price)} · target ${target}</span></div>
+  return `<form class="single-called-it-form" data-mode="owner-edit" data-challenge-id="${escapeHtml(play.id)}">
+    <div class="call-form-register" aria-hidden="true">SLIP ${String(play.slot_number || 1).padStart(2, '0')}</div>
+    <div class="called-it-static"><strong>${escapeHtml(play.ticker)}</strong><span>${escapeHtml(play.company_name || '')}</span></div>
+    <div class="called-it-static"><strong>${escapeHtml(directionLabel(play.direction))}</strong><span>From ${money(play.reference_price)} · target ${target}</span></div>
     <div class="locked-call-note">The stock and prediction are locked after the call is made. You can still fix your explanation or what you plan to do.</div>
     <div class="call-form-row because-field">
       <label class="statement-label" for="${prefix}-reason">Because</label>
       <textarea id="${prefix}-reason" name="reason" maxlength="4000" required>${escapeHtml(play.reason || '')}</textarea>
     </div>
-    <div class="call-form-row action-row">
+    <div class="call-form-row">
       <label class="statement-label" for="${prefix}-action">So I am</label>
       <div class="action-controls">
         <select id="${prefix}-action" name="portfolio_action">${actionOptions(play.direction, play.portfolio_action)}</select>
