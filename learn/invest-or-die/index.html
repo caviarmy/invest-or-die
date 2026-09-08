@@ -21,7 +21,7 @@ body.lesson-article-page{margin:0;background:#0b1115;color:#f7f8f7;font-family:v
 .article-file-register{margin:18px 0 0;padding:10px 12px;border-left:4px solid var(--lesson-blue);background:#101a31;color:#bac9f2;font:600 10px/1.3 var(--font-mono);letter-spacing:.09em}
 .hero-section{min-height:90svh;display:flex;flex-direction:column;justify-content:center}
 
-.warpath{
+.lesson-article .warpath{
   max-width:520px;
   margin:0 auto;
   padding:0 18px;
@@ -188,7 +188,7 @@ details{margin-top:24px;border-top:1px solid var(--line);padding-top:12px;color:
 summary{cursor:pointer;color:#8c99a0}
 
 .modal{position:fixed;inset:0;background:rgba(4,8,10,.82);z-index:40;display:none;align-items:flex-end;justify-content:center;padding:16px}
-.modal.open{display:flex}.sheet{width:min(100%,500px);background:#182128;border:1px solid #344149;border-radius:24px;padding:20px;animation:sheetup .28s ease}
+.modal.open{display:flex}.sheet{width:min(100%,500px);max-height:calc(100dvh - 32px);overflow:auto;overscroll-behavior:contain;background:#182128;border:1px solid #344149;border-radius:24px;padding:20px;animation:sheetup .28s ease}
 @keyframes sheetup{from{transform:translateY(24px);opacity:0}}.sheettop{display:flex;justify-content:space-between;gap:14px}.close{width:44px;height:44px;flex:0 0 44px;border-radius:50%;border:1px solid #3c4951;background:#202a31;color:#d7dfe3;font-size:20px}.sheet p{color:#a8b4bb;font-size:14px;line-height:1.45}.sheet strong{color:#fff}
 
 @media(max-width:380px){h1{font-size:40px}.hero-card .bigmoney{font-size:68px}.final .grand{font-size:64px}.compare-grid{grid-template-columns:1fr 26px 1fr}.need .n,.covered .n{font-size:24px}}
@@ -377,13 +377,13 @@ summary{cursor:pointer;color:#8c99a0}
 </section>
 </main>
 
-<div class="modal" id="matchModal"><div class="sheet"><div class="sheettop"><h3>Employer match</h3><button class="close" type="button" aria-label="Close employer match details" data-close>×</button></div><p>Your employer puts money into your retirement account when you contribute. This example models an employer contribution equal to <strong>4% of pay</strong> from age 25 through 65.</p></div></div>
+<div class="modal" id="matchModal" role="dialog" aria-modal="true" aria-labelledby="matchModalTitle" aria-hidden="true"><div class="sheet"><div class="sheettop"><h3 id="matchModalTitle">Employer match</h3><button class="close" type="button" aria-label="Close employer match details" data-close>×</button></div><p>Your employer puts money into your retirement account when you contribute. This example models an employer contribution equal to <strong>4% of pay</strong> from age 25 through 65.</p></div></div>
 
-<div class="modal" id="rothModal"><div class="sheet"><div class="sheettop"><h3>Roth IRA</h3><button class="close" type="button" aria-label="Close Roth IRA details" data-close>×</button></div><p>A Roth IRA is a retirement account you fill with money you've already paid taxes on. The boring-but-important number: in <strong>2026</strong> you can put in up to <strong>$7,500 per year</strong> if you're under 50, or <strong>$8,600 per year</strong> at 50+. This model assumes you eventually get enough adult money to max it starting at 40, with future limits rising with inflation.</p></div></div>
+<div class="modal" id="rothModal" role="dialog" aria-modal="true" aria-labelledby="rothModalTitle" aria-hidden="true"><div class="sheet"><div class="sheettop"><h3 id="rothModalTitle">Roth IRA</h3><button class="close" type="button" aria-label="Close Roth IRA details" data-close>×</button></div><p>A Roth IRA is a retirement account you fill with money you've already paid taxes on. The boring-but-important number: in <strong>2026</strong> you can put in up to <strong>$7,500 per year</strong> if you're under 50, or <strong>$8,600 per year</strong> at 50+. This model assumes you eventually get enough adult money to max it starting at 40, with future limits rising with inflation.</p></div></div>
 
-<div class="modal" id="socialModal"><div class="sheet"><div class="sheettop"><h3>Social Security</h3><button class="close" type="button" aria-label="Close Social Security details" data-close>×</button></div><p>Today's average retired worker receives about <strong>$2,075 per month</strong>. Social Security is not projected to disappear, but under the 2026 Trustees' current-law projection the retirement trust fund would exhaust its reserves in <strong>2032</strong>. Ongoing revenue would cover about <strong>78% of scheduled benefits</strong> then, declining to <strong>62% by 2100</strong>. Congress can change the program before that happens, so your exact future benefit is unknown. The current projection still points to a smaller safety net for your generation than today's scheduled benefits.</p></div></div>
+<div class="modal" id="socialModal" role="dialog" aria-modal="true" aria-labelledby="socialModalTitle" aria-hidden="true"><div class="sheet"><div class="sheettop"><h3 id="socialModalTitle">Social Security</h3><button class="close" type="button" aria-label="Close Social Security details" data-close>×</button></div><p>Today's average retired worker receives about <strong>$2,075 per month</strong>. Social Security is not projected to disappear, but under the 2026 Trustees' current-law projection the retirement trust fund would exhaust its reserves in <strong>2032</strong>. Ongoing revenue would cover about <strong>78% of scheduled benefits</strong> then, declining to <strong>62% by 2100</strong>. Congress can change the program before that happens, so your exact future benefit is unknown. The current projection still points to a smaller safety net for your generation than today's scheduled benefits.</p></div></div>
 
-<div class="modal" id="budgetModal"><div class="sheet"><div class="sheettop"><h3>Retirement budget</h3><button class="close" type="button" aria-label="Close retirement budget details" data-close>×</button></div><p>This page uses a retirement spending range equal to about <strong>55% to 80%</strong> of modeled final working income. That works out to roughly <strong>$8.1k to $11.8k per month</strong> in future dollars. The portfolio does not get emptied at retirement: it remains invested while withdrawals fund living expenses. This example uses a <strong>4% first-year annual withdrawal rate</strong>, or about <strong>$8.3k/month from $2.50M</strong> and <strong>$13.4k/month from $4.02M</strong>. A 4% rate is a planning guideline, not a guarantee that a portfolio can never run out.</p></div></div>
+<div class="modal" id="budgetModal" role="dialog" aria-modal="true" aria-labelledby="budgetModalTitle" aria-hidden="true"><div class="sheet"><div class="sheettop"><h3 id="budgetModalTitle">Retirement budget</h3><button class="close" type="button" aria-label="Close retirement budget details" data-close>×</button></div><p>This page uses a retirement spending range equal to about <strong>55% to 80%</strong> of modeled final working income. That works out to roughly <strong>$8.1k to $11.8k per month</strong> in future dollars. The portfolio does not get emptied at retirement: it remains invested while withdrawals fund living expenses. This example uses a <strong>4% first-year annual withdrawal rate</strong>, or about <strong>$8.3k/month from $2.50M</strong> and <strong>$13.4k/month from $4.02M</strong>. A 4% rate is a planning guideline, not a guarantee that a portfolio can never run out.</p></div></div>
 
 <script>
 const ro=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');e.target.querySelectorAll('.counter').forEach(startCounter)}}),{threshold:.18});
@@ -400,12 +400,70 @@ function startCounter(el){
  requestAnimationFrame(f)
 }
 
-document.querySelectorAll('.info').forEach(btn=>btn.addEventListener('click',()=>{
- document.getElementById(btn.dataset.modal+'Modal').classList.add('open');document.body.style.overflow='hidden'
-}));
+let modalReturnFocus=null;
+let pointerDownBackdrop=null;
+
+function setArticleBackgroundInert(openModal=null){
+ document.querySelectorAll('body > *').forEach(node=>{
+  if(!(node instanceof HTMLElement)||node.tagName==='SCRIPT')return;
+  node.inert=Boolean(openModal&&node!==openModal)
+ })
+}
+
+function modalFocusableElements(modal){
+ return [...modal.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')]
+  .filter(element=>!element.closest('[hidden]')&&element.getClientRects().length>0)
+}
+
+function openArticleModal(trigger){
+ const modal=document.getElementById(trigger.dataset.modal+'Modal');
+ if(!modal)return;
+ modalReturnFocus=trigger;
+ modal.classList.add('open');
+ modal.setAttribute('aria-hidden','false');
+ document.body.style.overflow='hidden';
+ setArticleBackgroundInert(modal);
+ requestAnimationFrame(()=>modal.querySelector('[data-close]')?.focus())
+}
+
+function closeModals(){
+ const returnFocus=modalReturnFocus;
+ document.querySelectorAll('.modal.open').forEach(modal=>{
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden','true')
+ });
+ document.body.style.overflow='';
+ setArticleBackgroundInert(null);
+ modalReturnFocus=null;
+ if(returnFocus?.isConnected)requestAnimationFrame(()=>returnFocus.focus())
+}
+
+document.querySelectorAll('.info').forEach(btn=>btn.addEventListener('click',()=>openArticleModal(btn)));
 document.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',closeModals));
-document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModals()}));
-function closeModals(){document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open'));document.body.style.overflow=''}
+document.querySelectorAll('.modal').forEach(modal=>{
+ modal.addEventListener('pointerdown',event=>{pointerDownBackdrop=event.target===modal?modal:null});
+ modal.addEventListener('click',event=>{
+  if(event.target===modal&&pointerDownBackdrop===modal)closeModals();
+  pointerDownBackdrop=null
+ })
+});
+document.addEventListener('pointercancel',()=>{pointerDownBackdrop=null},true);
+document.addEventListener('keydown',event=>{
+ const modal=document.querySelector('.modal.open');
+ if(!modal)return;
+ if(event.key==='Escape'){
+  event.preventDefault();
+  closeModals();
+  return
+ }
+ if(event.key!=='Tab')return;
+ const focusable=modalFocusableElements(modal);
+ if(!focusable.length)return;
+ const first=focusable[0],last=focusable[focusable.length-1];
+ if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();return}
+ if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();return}
+ if(!modal.contains(document.activeElement)){event.preventDefault();(event.shiftKey?last:first).focus()}
+});
 </script>
 </body>
 </html>
