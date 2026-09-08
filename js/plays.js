@@ -10,6 +10,13 @@ const EMPTY_SETTINGS = {
   called_it_payout: null
 };
 
+function numericInput(value) {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'string' && !value.trim()) return null;
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : null;
+}
+
 export function fallbackDashboardData() {
   return {
     available: false,
@@ -61,15 +68,15 @@ export function getOwnerSlots(plays, ownerId) {
 export async function saveGameSettings(client, values) {
   if (!client) throw new Error('Admin editing is not available yet.');
   const payload = {
-    current_week: Number(values.current_week),
-    weekly_stock_buy_min: Number(values.weekly_stock_buy_min),
-    called_it_up_percent: Number(values.called_it_up_percent),
-    called_it_down_percent: Number(values.called_it_down_percent),
-    called_it_flat_percent: Number(values.called_it_flat_percent),
-    called_it_duration_days: Number(values.called_it_duration_days),
-    called_it_review_lock_days: Number(values.called_it_review_lock_days),
-    called_it_flat_claim_days: Number(values.called_it_flat_claim_days),
-    called_it_payout: Number(values.called_it_payout),
+    current_week: numericInput(values.current_week),
+    weekly_stock_buy_min: numericInput(values.weekly_stock_buy_min),
+    called_it_up_percent: numericInput(values.called_it_up_percent),
+    called_it_down_percent: numericInput(values.called_it_down_percent),
+    called_it_flat_percent: numericInput(values.called_it_flat_percent),
+    called_it_duration_days: numericInput(values.called_it_duration_days),
+    called_it_review_lock_days: numericInput(values.called_it_review_lock_days),
+    called_it_flat_claim_days: numericInput(values.called_it_flat_claim_days),
+    called_it_payout: numericInput(values.called_it_payout),
     updated_at: new Date().toISOString()
   };
 
@@ -105,8 +112,8 @@ export async function saveWeeklyWinner(client, values, chartFile) {
     winner_user_id: values.winner_user_id || null,
     week_start: values.week_start,
     week_end: values.week_end,
-    winner_name: values.winner_name.trim(),
-    return_percent: Number(values.return_percent),
+    winner_name: String(values.winner_name || '').trim(),
+    return_percent: numericInput(values.return_percent),
     chart_url: chartUrl
   };
 
