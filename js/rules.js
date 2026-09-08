@@ -20,6 +20,10 @@ function formatMoney(value) {
   return value.toLocaleString(undefined, { style: 'currency', currency: 'USD' });
 }
 
+function formatPercent(value) {
+  return `${value.toLocaleString()}%`;
+}
+
 try {
   const client = await getBackendClient();
   if (client) {
@@ -38,9 +42,9 @@ try {
       const claim = finiteSettingNumber(data.called_it_flat_claim_days);
       const payout = finiteSettingNumber(data.called_it_payout);
 
-      if (up !== null) setText('ruleUpPercent', up.toLocaleString());
-      if (down !== null) setText('ruleDownPercent', down.toLocaleString());
-      if (flat !== null) setText('ruleFlatPercent', flat.toLocaleString());
+      if (up !== null) setText('ruleUpPercent', formatPercent(up));
+      if (down !== null) setText('ruleDownPercent', formatPercent(down));
+      if (flat !== null) setText('ruleFlatPercent', formatPercent(flat));
       if (duration !== null) setAll('[data-rule-duration]', duration.toLocaleString());
       if (cooldown !== null) setAll('[data-rule-cooldown]', cooldown.toLocaleString());
       if (claim !== null) setAll('[data-rule-claim]', claim.toLocaleString());
