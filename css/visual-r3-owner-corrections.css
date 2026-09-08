@@ -134,10 +134,66 @@
     border-top:9px solid #827b67;
     box-shadow:8px 10px 0 rgba(0,0,0,.34);
   }
+
+  /* Keep the continuous-feed sheet fully inside the mobile shell. The feed holes are decoration; content owns the safe inner column. */
+  .visual-r2 .history-section{
+    box-sizing:border-box;
+    width:100%;
+    max-width:100%;
+    margin-left:0;
+    margin-right:0;
+    padding-left:34px;
+    padding-right:34px;
+  }
+  .visual-r2 .history-section::before,
+  .visual-r2 .history-section::after{
+    width:18px;
+    background-size:18px 24px;
+  }
+  .visual-r2 .history-section::before{left:2px}
+  .visual-r2 .history-section::after{right:2px}
+  .visual-r2 .history-section > *,
+  .visual-r2 .history-table-wrap,
+  .visual-r2 .history-table,
+  .visual-r2 .history-table tbody,
+  .visual-r2 .history-table tr{min-width:0;max-width:100%}
+  .visual-r2 .history-table,
+  .visual-r2 .history-table tbody,
+  .visual-r2 .history-table tr{width:100%}
+  .visual-r2 .history-player,
+  .visual-r2 .history-result,
+  .visual-r2 .history-details,
+  .visual-r2 .history-state{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:normal}
+
+  /* On phones, keep the category on the left and give the holder/count one bounded right-hand column. */
+  .visual-r2 .leader-card{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows:auto auto;
+    column-gap:12px;
+    row-gap:3px;
+    align-items:start;
+  }
+  .visual-r2 .leader-label{
+    grid-column:1;
+    grid-row:1 / span 2;
+    align-self:center;
+    white-space:normal;
+  }
+  .visual-r2 .leader-name{
+    grid-column:2;
+    grid-row:1;
+    max-width:100%;
+    white-space:normal;
+    overflow-wrap:anywhere;
+  }
+  .visual-r2 .leader-count{
+    grid-column:2;
+    grid-row:2;
+    justify-self:end;
+  }
 }
 
 @media(max-width:430px){
-  .visual-r2 .leader-card{grid-template-columns:minmax(0,1fr) auto auto;gap:5px}
   .visual-r2 .leader-label{font-size:16px}
   .visual-r2 .leader-name{font-size:14px}
   .visual-r2 .leader-count{font-size:8px}
