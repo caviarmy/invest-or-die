@@ -26,6 +26,7 @@ body{margin:0;background:var(--ink);color:var(--text);font-family:var(--font-bod
 a{color:inherit}
 button,input,textarea,select{font:inherit}
 button{cursor:pointer}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--money);outline-offset:3px}
 h1,h2,h3,p{margin-top:0}
 h1,h2,h3{font-family:var(--font-display);font-weight:700}
 p{line-height:1.5}
@@ -54,6 +55,7 @@ p{line-height:1.5}
 .major-section-title{font-size:clamp(36px,10vw,52px);line-height:.9;letter-spacing:-.035em;margin-bottom:8px;text-transform:uppercase}
 .major-section-subtitle,.rules-subheading{font-family:var(--font-display);font-size:17px;line-height:1.2;font-weight:600;color:#aab1aa;margin-top:2px}
 .section-description{margin:8px 0 0;color:#aeb4ae;font-size:14px;line-height:1.5}
+.data-unavailable{margin:0;color:#aeb4ae;font-size:13px;line-height:1.5}
 
 .button{border:1px solid var(--line-strong);border-radius:var(--control-radius);padding:11px 14px;font-family:var(--font-display);font-weight:700;letter-spacing:.025em;line-height:1;min-height:44px;text-transform:uppercase}
 .button-primary{background:var(--money);border-color:var(--money);color:var(--ink)}
@@ -61,7 +63,7 @@ p{line-height:1.5}
 .button-danger{background:transparent;color:#ffb6b1;border-color:#783933}
 .button:hover:not(:disabled){filter:brightness(1.08)}
 .button:disabled{opacity:.42;cursor:not-allowed}
-.text-button{border:0;background:none;padding:0;color:var(--money);font-family:var(--font-display);font-weight:600;letter-spacing:.02em;text-decoration:none;align-self:flex-start;margin-top:16px}
+.text-button{display:inline-flex;align-items:center;min-height:44px;border:0;background:none;padding:0;color:var(--money);font-family:var(--font-display);font-weight:600;letter-spacing:.02em;text-decoration:none;align-self:flex-start;margin-top:16px}
 
 .game-tracker{margin-bottom:0;background:transparent;border-top:2px solid var(--money);border-bottom:1px solid var(--line-strong)}
 .tracker-system-line{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font:600 9px/1.2 var(--font-mono);letter-spacing:.08em;color:#727d74}
@@ -157,7 +159,8 @@ p{line-height:1.5}
 .target-reached span,.under-review-box span{font-size:11px;color:#b9c1ba;line-height:1.4}
 .play-slot-review{border-color:#626a8b}
 .play-edit-pencil{position:absolute;top:9px;right:9px;width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line-strong);border-radius:var(--control-radius);background:var(--ink);color:#e6e8e1;font-size:16px;line-height:1;font-weight:700;z-index:2}
-.play-edit-pencil:hover,.play-edit-pencil:focus-visible{border-color:var(--money);color:var(--money);outline:2px solid transparent}
+.play-edit-pencil:hover{border-color:var(--money);color:var(--money)}
+.play-edit-pencil:focus-visible{border-color:var(--money);color:var(--money);outline:2px solid var(--money);outline-offset:2px}
 
 .history-section{padding:18px 14px 14px;border:1px solid #b6ae94;margin-top:14px;background:var(--paper);color:var(--paper-ink);color-scheme:light}
 .history-heading-row{gap:12px;margin:0;padding:0 0 14px;border-bottom:3px double #8f8873}
@@ -195,11 +198,12 @@ p{line-height:1.5}
 .receipt-status-unknown{border-style:dashed;border-color:#8c8470;color:#6f6859}
 .history-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .history-actions button{min-height:44px;border:1px solid #756f60;background:transparent;color:#34332c;border-radius:2px;padding:8px 9px;font-size:10px;line-height:1.2;font-weight:600;letter-spacing:.02em;text-transform:uppercase}
-.history-actions button:hover:not(:disabled),.history-actions button:focus-visible{border-color:#39372f;background:#d8d0b7;outline:2px solid transparent}
+.history-actions button:hover:not(:disabled){border-color:#39372f;background:#d8d0b7}
+.history-actions button:focus-visible{border-color:#39372f;background:#d8d0b7;outline:2px solid #39372f;outline-offset:2px}
 .history-actions .history-delete-button{border-color:#a88f87;color:#7c4843}
 .history-actions .history-delete-button:hover,.history-actions .history-delete-button:focus-visible{border-color:#8c4c46;background:#e1c9c1}
 .site-footer{display:flex;gap:18px;padding:34px 0 0;border-top:1px solid var(--line);margin-top:28px;color:#89928a;font:500 11px/1 var(--font-mono)}
-.site-footer a{text-decoration:none}
+.site-footer a{display:inline-flex;align-items:center;min-height:44px;text-decoration:none}
 
 .modal{position:fixed;inset:0;z-index:50;background:rgba(3,5,4,.82);display:none;align-items:flex-end;justify-content:center;padding:10px}
 .modal.open{display:flex}
@@ -225,6 +229,7 @@ textarea{min-height:88px;resize:vertical}
 .single-play-mode .modal-head{position:sticky;top:-1px;z-index:12;margin:0;padding:12px 0;border-bottom:2px solid #8f8873;background:var(--paper)}
 .single-play-mode .modal-head h2{color:var(--paper-ink);font-size:clamp(28px,8vw,38px);line-height:.92}
 .single-play-mode .icon-button{border-color:#716b5a;color:var(--paper-ink)}
+.single-play-mode a:focus-visible,.single-play-mode button:focus-visible,.single-play-mode summary:focus-visible{outline-color:#1f4e23}
 .single-play-mode .form-message{color:#605c50;padding-top:10px}
 .single-play-mode .form-message.error{color:#9d2924}
 .single-called-it-form{display:grid;gap:0;color:var(--paper-ink)}
@@ -287,6 +292,7 @@ textarea{min-height:88px;resize:vertical}
 .page-main{width:min(100% - 24px,860px);margin:0 auto;padding:28px 0 56px}
 .back-link{display:inline-flex;align-items:center;min-height:44px;margin-bottom:16px;text-decoration:none;color:var(--money);font:600 12px/1.2 var(--font-mono)}
 .rules-ledger{background:var(--paper);color:var(--paper-ink);border:1px solid #b6ae94;color-scheme:light}
+.rules-ledger a:focus-visible,.rules-ledger button:focus-visible,.rules-ledger summary:focus-visible{outline-color:#1f4e23}
 .rules-file-head{position:relative;padding:20px 96px 24px 18px;border-bottom:3px double #8f8873;min-height:104px}
 .rules-brokerage-seal{position:absolute;right:18px;top:18px;display:block;width:64px;height:64px;opacity:.78;transform:rotate(2deg);mix-blend-mode:multiply}
 .rules-page h1{font-size:clamp(48px,13vw,72px);line-height:.88;letter-spacing:-.035em;margin:0 0 13px;text-transform:uppercase;color:var(--paper-ink)}
@@ -354,6 +360,14 @@ textarea{min-height:88px;resize:vertical}
   .game-help-title{color:var(--paper-ink);font-size:28px;padding-right:82px}
   .game-help-steps li::marker{color:#355d39}
   .game-help-payout{border-color:#aaa38d;color:#4d4a40}
+}
+
+@media(max-width:420px){
+  .header-inner{gap:8px}
+  .brand-wordmark{width:132px}
+  .account-area{gap:6px;min-width:0}
+  .account-area .nav-link{font-size:11px;letter-spacing:.02em}
+  .account-area .button{padding-inline:8px;font-size:11px;letter-spacing:.015em}
 }
 
 @media(max-width:380px){
