@@ -205,7 +205,7 @@ function historyPercent(value) {
 }
 
 function historyStatus(row, isWeekly) {
-  if (isWeekly) return { key: 'approved', label: 'Approved' };
+  if (isWeekly) return { key: 'recorded', label: 'Recorded' };
   const key = String(row.status || '').trim().toLowerCase();
   if (key === 'approved') return { key, label: 'Approved' };
   if (key === 'rejected') return { key, label: 'Rejected' };
@@ -218,6 +218,11 @@ function historyStatusMarkup(status) {
     return `<span class="receipt-status receipt-status-${status.key}"><img src="./assets/stamps/${status.key}.svg" alt="" aria-hidden="true"><span class="sr-only">${escapeHtml(status.label)}</span></span>`;
   }
   return `<span class="receipt-status receipt-status-${escapeHtml(status.key)}">${escapeHtml(status.label)}</span>`;
+}
+
+function historyPrize(row, isWeekly, status) {
+  if (!isWeekly && (status.key === 'under_review' || status.key === 'unknown')) return '—';
+  return money(row.reward_amount);
 }
 
 function calledHistoryDetails(row) {
@@ -241,7 +246,7 @@ function historyAdminActions(row) {
   const participant = row.participant_name || 'participant';
   const eventDate = formatDate(row.event_date);
   if (row.event_type === 'called_it' && row.status === 'under_review') {
-    actions.push(`<button type="button" data-review-id="${escapeHtml(row.source_id)}" data-decision="approved" aria-label="Approve Called It result for ${escapeHtml(participant)} on ${escapeHtml(eventDate)}">Approve +${money(state.data.settings.called_it_payout)}</button>`);
+    actions.push(`<button type="button" data-review-id="${escapeHtml(row.source_id)}" data-decision="approved" aria-label="Approve Called It result for ${escapeHtml(participant)} on ${escapeHtml(eventDate)}">Approve</button>`);
     actions.push(`<button type="button" data-review-id="${escapeHtml(row.source_id)}" data-decision="rejected" aria-label="Reject Called It result for ${escapeHtml(participant)} on ${escapeHtml(eventDate)}">Reject</button>`);
   } else if (row.event_type === 'called_it') {
     const play = state.data.plays.find(item => item.id === row.source_id);
@@ -329,7 +334,7 @@ function renderHistory() {
       : calledHistoryDetails(row);
     const status = historyStatus(row, isWeekly);
 
-    return `<tr data-history-id="${escapeHtml(row.id)}"><td class="history-date">${formatDate(row.event_date)}</td><td class="history-player"><strong>${escapeHtml(row.participant_name || 'Unknown')}</strong></td><td class="history-result"><span class="history-type">${result}</span></td><td class="history-details">${details}</td><td class="history-state">${historyStatusMarkup(status)}${historyAdminActions(row)}</td><td class="history-prize">${money(row.reward_amount)}</td></tr>`;
+    return `<tr data-history-id="${escapeHtml(row.id)}"><td class="history-date">${formatDate(row.event_date)}</td><td class="history-player"><strong>${escapeHtml(row.participant_name || 'Unknown')}</strong></td><td class="history-result"><span class="history-type">${result}</span></td><td class="history-details">${details}</td><td class="history-state">${historyStatusMarkup(status)}${historyAdminActions(row)}</td><td class="history-prize">${historyPrize(row, isWeekly, status)}</td></tr>`;
   }).join('');
 
   bindHistoryActions();
