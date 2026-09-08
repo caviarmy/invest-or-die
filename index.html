@@ -89,12 +89,23 @@
   </section>
 
   <section class="history-section" aria-labelledby="historyHeading">
-    <div class="section-heading-row history-heading-row"><div><h2 id="historyHeading" class="major-section-title">The Receipts</h2><p class="section-description">Weekly wins and submitted "Called It!" challenges are recorded here, including review status and payouts.</p></div></div>
-    <div class="leader-grid">
-      <article class="leader-card"><div class="trophy" aria-hidden="true">🏆</div><div><div class="section-kicker">MOST WEEKLY WINS</div><div id="weeklyLeaderName" class="leader-name">No wins yet</div><div id="weeklyLeaderCount" class="leader-count">0 wins</div></div></article>
-      <article class="leader-card"><div class="trophy" aria-hidden="true">🏆</div><div><div class="section-kicker">MOST CALLED ITS</div><div id="calledLeaderName" class="leader-name">No wins yet</div><div id="calledLeaderCount" class="leader-count">0 wins</div></div></article>
+    <div class="history-heading-row">
+      <div>
+        <h2 id="historyHeading" class="major-section-title">The Receipts</h2>
+        <p class="section-description">Weekly wins and submitted "Called It!" challenges stay on the record with their review status and payout.</p>
+      </div>
     </div>
-    <div class="history-table-wrap"><table class="history-table"><thead><tr><th>Date</th><th>Player</th><th>Result</th><th>Details</th><th>Status</th><th>Prize</th></tr></thead><tbody id="historyTableBody"><tr><td colspan="6" class="history-empty">No results recorded yet.</td></tr></tbody></table></div>
+    <div class="leader-grid" aria-label="All-time leaders">
+      <article class="leader-card"><h3 class="leader-label">Weekly wins</h3><div id="weeklyLeaderName" class="leader-name">No wins yet</div><div id="weeklyLeaderCount" class="leader-count">0 wins</div></article>
+      <article class="leader-card"><h3 class="leader-label">Called It wins</h3><div id="calledLeaderName" class="leader-name">No wins yet</div><div id="calledLeaderCount" class="leader-count">0 wins</div></article>
+    </div>
+    <div class="history-table-wrap">
+      <table class="history-table">
+        <caption class="sr-only">Goblin Investing results history</caption>
+        <thead><tr><th scope="col">Date</th><th scope="col">Player</th><th scope="col">Result</th><th scope="col">Details</th><th scope="col">Status</th><th scope="col">Prize</th></tr></thead>
+        <tbody id="historyTableBody"><tr class="history-empty-row"><td colspan="6" class="history-empty">No results recorded yet.</td></tr></tbody>
+      </table>
+    </div>
   </section>
   <footer class="site-footer"><a href="./rules/">The Rules</a><a href="./learn/invest-or-die/">Current lesson</a></footer>
 </main>
