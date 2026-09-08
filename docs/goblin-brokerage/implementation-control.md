@@ -21,10 +21,12 @@ This repository record exists so a fresh implementation turn can recover the cri
 - Turn 4 participant accessibility carry-forward: RESOLVED during Turn 5 controller work
 - Turn 6 The Receipts / leaderboard: CODE COMPLETE / CORRECTION REVIEW COMPLETE / ANDROID AND BROWSER RUNTIME QA DEFERRED
 - Turn 6 process review: architecture hardened with state-provenance, semantic-value, breakpoint-boundary, authority-label, readability/subordination, and adversarial correction-review gates
+- Turn 7 Rules page + article integration: CODE COMPLETE / CORRECTION REVIEW COMPLETE / ANDROID AND BROWSER RUNTIME QA DEFERRED
+- Turn 7 adversarial review: corrected unverified configurable-rule fallbacks, article modal lifecycle/accessibility, and article shell CSS specificity before closing the turn
 - Manual Android/browser QA: DEFERRED UNTIL LATER INTEGRATED QA
-- Next canonical turn: Turn 7 — Rules page + lesson header consistency
+- Next canonical turn: Turn 8 — Goblin seasoning and asset integration
 
-Read the completed-turn records in order. Read `turn-6-completion.md` and `turn-6-correction-review.md` before beginning Turn 7. The Turn 5 completion/correction records remain authoritative for any later work that touches Called It.
+Read the completed-turn records in order. Read `turn-7-completion.md` and `turn-7-correction-review.md` before beginning Turn 8. The Turn 5 completion/correction records remain authoritative for later work that touches Called It, and the Turn 6 records remain authoritative for later Receipts work.
 
 ## Mandatory environment rule
 
@@ -67,6 +69,8 @@ A valid database value is not automatically a valid user-facing conclusion. In p
 
 If action copy contains a mutable amount/price/percentage/date, compare the value shown by the UI with the value source used by the authoritative mutation. If those are not the same coherent snapshot/transaction contract, omit the mutable promise from the control and display the authoritative result afterward.
 
+A static HTML fallback for a mutable setting must not silently present itself as the current rule. Until an authoritative value is loaded, either show an explicitly labeled fallback/default or fail closed with a missing/unavailable presentation.
+
 ## Mandatory review gates for every implementation turn
 
 Before coding:
@@ -82,6 +86,7 @@ Before coding:
 - build a state-provenance matrix for every status/stamp/badge/official amount/action promise affected by the turn;
 - for every financial value, distinguish numeric validity from semantic finality; identify zeros/defaults/placeholders that are valid values but not final outcomes;
 - if action copy includes a mutable amount/price/percentage/date, compare its UI source to the authoritative mutation source;
+- if mutable settings are loaded after initial HTML, identify what the pre-load/error state displays and ensure it cannot masquerade as current authoritative configuration;
 - apply label economy to proposed visible labels before implementing them;
 - identify realistic worst-case legal values/strings that could affect layout;
 - inventory every structural breakpoint used by the changed component and identify the minimum width of each layout mode;
@@ -115,6 +120,7 @@ After coding:
 - verify status-sounding copy/icons are backed by real application state or reworded as static labels;
 - re-run the state-provenance matrix against rendered output; no status-like decoration may invent a lifecycle/state merely because it fits the theme;
 - verify stored zero/default/fallback values are not presented as final outcomes when their lifecycle meaning is pending/provisional;
+- verify async-loaded mutable settings fail closed or are explicitly labeled as fallback/default until authoritative values arrive;
 - verify any mutable value embedded in action copy is the same value/snapshot the authoritative mutation will use; otherwise remove the promise;
 - verify labels match the actual data geometry they describe;
 - run a visible-label economy pass separately from semantic/accessibility labeling;
@@ -172,6 +178,7 @@ Every later visual turn must explicitly answer these questions before it is call
 24. **Readable subordination:** Are secondary/debug controls still readable in font size/contrast/opacity after visual de-emphasis?
 25. **Label economy:** What ambiguity does each visible micro-label resolve? If none, remove it.
 26. **Philosophy:** Did the financial/bureaucratic theme invent fake system behavior merely because it looked on-theme?
+27. **Fallback truth:** Can a static fallback/default for mutable configuration be mistaken for the current authoritative setting when loading fails?
 
 ## Mandatory adversarial correction-review prompt
 
@@ -185,6 +192,7 @@ Re-read the authoritative architecture, the current turn-only diff, the backend/
 Audit at minimum:
 - state provenance for every status/stamp/badge/official amount/action promise;
 - semantic meaning of zero/default/pending/fallback values, not only numeric validity;
+- whether an HTML/default fallback for mutable configuration can masquerade as current state if loading fails;
 - authority timing for mutable values shown on actions;
 - worst-case content immediately around every structural breakpoint, not only 320–360px;
 - hit target, font size, contrast, and opacity separately for subordinate controls;
