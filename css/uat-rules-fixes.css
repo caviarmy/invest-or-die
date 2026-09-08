@@ -1,0 +1,20 @@
+/* UAT correction: keep one procedural list language inside the manual. */
+.manual-intro{padding-bottom:18px}
+.manual-intro h2{margin-bottom:0}
+.manual-rules{
+  list-style:none;
+  padding-left:0;
+  gap:0;
+}
+.manual-rules li{
+  position:relative;
+  padding:10px 0;
+  border-top:1px solid #c6cbc2;
+}
+.manual-rules li:first-child{border-top:0}
+.manual-rules li::marker{content:""}
+.manual-pencil{
+  font-family:var(--font-mono);
+  font-style:normal;
+  font-weight:700;
+}

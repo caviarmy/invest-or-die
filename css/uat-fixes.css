@@ -1,0 +1,99 @@
+/* Owner UAT corrections after first main-device pass. */
+
+/* The terminal values are the instruction. Do not restate the buy-in math underneath them. */
+.visual-r2 .tracker-copy{display:none!important}
+
+/* Sticky note stays physical, but its lettering is block/office-marker rather than browser-dependent cursive. */
+.visual-r2 .tracker-sticky{
+  font-family:var(--r2-font-mono)!important;
+  font-style:normal;
+  font-weight:700;
+  line-height:.95;
+  letter-spacing:.035em;
+}
+.visual-r2 .tracker-sticky strong{
+  font-family:inherit;
+  font-style:normal;
+  font-weight:700;
+  letter-spacing:.035em;
+}
+
+/* The GOBLIN patch is supposed to be slapped over a HUMAN nameplate, not neatly contained by it. */
+.visual-r2 .brand-alteration{overflow:visible}
+.visual-r2 .brand-patch{
+  left:-7px;
+  right:-8px;
+  top:5px;
+  width:auto;
+  padding:5px 7px 4px;
+  text-align:center;
+  transform:rotate(-2.3deg);
+  box-shadow:3px 3px 0 #0c0e0c;
+}
+
+/* The stamp sits on pale paper; darken it enough to read at phone brightness. */
+.visual-r2 .winner-content:has(.winner-return)::after{
+  filter:brightness(.42) saturate(2) contrast(1.25)!important;
+}
+
+/* Add/edit belongs to the actual slip, not the participant-name header or section header. */
+.visual-r2 #editMyPlaysButton,
+.visual-r2 .participant-head .admin-edit-button{display:none!important}
+.visual-r2 .empty-slot.can-add-slot::after{display:none}
+.visual-r2 .empty-slot-add{
+  grid-column:2;
+  justify-self:end;
+  align-self:end;
+  min-width:86px;
+  min-height:44px;
+  margin:0 18px 18px;
+  padding:0 13px;
+  border:1px solid #747b72;
+  border-radius:0;
+  background:#e9ece4;
+  color:#253027;
+  font:700 10px/1 var(--r2-font-mono);
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  cursor:pointer;
+  z-index:3;
+}
+.visual-r2 .empty-slot-add:hover{background:#d9ded5;border-color:#315f37}
+.visual-r2 .empty-slot-add:focus-visible{outline:2px solid #315f37;outline-offset:3px}
+
+/* Filed directional calls get an intentionally obnoxious hand-drawn arrow over the ticket. */
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
+  content:"";
+  position:absolute;
+  right:12px;
+  top:76px;
+  width:min(40%,170px);
+  aspect-ratio:1.05;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-size:contain;
+  pointer-events:none;
+  z-index:2;
+  opacity:.94;
+}
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after{
+  background-image:url("../assets/directions/up-crazy.svg");
+  transform:rotate(-3deg);
+}
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
+  background-image:url("../assets/directions/down-crazy.svg");
+  transform:rotate(2deg);
+}
+.visual-r2 .play-edit-pencil{z-index:4}
+
+@media(max-width:699px){
+  .visual-r2 .brand-patch{left:-6px;right:-7px;top:5px;padding-inline:6px}
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
+    right:10px;
+    top:72px;
+    width:43%;
+    max-width:150px;
+  }
+}

@@ -1,14 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 62" role="img" aria-label="Goblin Investing">
-  <rect x="1" y="7" width="116" height="42" fill="#2a2f29" stroke="#747b72"/>
-  <rect x="5" y="11" width="108" height="34" fill="none" stroke="#20241f" stroke-width="3"/>
-  <text x="59" y="31" text-anchor="middle" fill="#8d9489" font-family="IBM Plex Mono,monospace" font-size="8" font-weight="600" letter-spacing="1.2">HOUSEHOLD</text>
-  <path d="M20 28 L99 28" stroke="#a8aea4" stroke-width="2"/>
-  <g transform="rotate(-1.8 58 23)">
-    <rect x="12" y="15" width="80" height="25" fill="#e8e7dc"/>
-    <rect x="15" y="18" width="80" height="25" fill="#0c0e0c" opacity=".55"/>
-    <rect x="12" y="15" width="80" height="25" fill="#e8e7dc"/>
-    <text x="52" y="32" text-anchor="middle" fill="#161816" font-family="Arial Narrow,Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="1.2">GOBLIN</text>
+  <rect x="8" y="7" width="104" height="42" fill="#2a2f29" stroke="#747b72"/>
+  <rect x="12" y="11" width="96" height="34" fill="none" stroke="#20241f" stroke-width="3"/>
+  <text x="60" y="31" text-anchor="middle" fill="#8d9489" font-family="IBM Plex Mono,monospace" font-size="9" font-weight="600" letter-spacing="1.2">HUMAN</text>
+  <path d="M22 28 L98 28" stroke="#a8aea4" stroke-width="2"/>
+  <g transform="rotate(-2.2 60 28)">
+    <rect x="4" y="17" width="120" height="27" fill="#0c0e0c" opacity=".55"/>
+    <rect x="1" y="14" width="120" height="27" fill="#e8e7dc"/>
+    <text x="61" y="33" text-anchor="middle" fill="#161816" font-family="Arial Narrow,Arial,sans-serif" font-size="18" font-weight="700" letter-spacing="1.4">GOBLIN</text>
   </g>
-  <text x="126" y="37" fill="#f2f0e6" font-family="Arial Narrow,Arial,sans-serif" font-size="27" font-weight="700" letter-spacing=".4">INVESTING</text>
-  <path d="M126 47 H270" stroke="#687268" stroke-width="1"/>
+  <text x="130" y="37" fill="#f2f0e6" font-family="Arial Narrow,Arial,sans-serif" font-size="27" font-weight="700" letter-spacing=".4">INVESTING</text>
+  <path d="M130 47 H272" stroke="#687268" stroke-width="1"/>
 </svg>
