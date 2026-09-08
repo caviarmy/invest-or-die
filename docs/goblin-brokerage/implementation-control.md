@@ -1,6 +1,6 @@
 # Goblin Brokerage Redesign — Implementation Control
 
-**Authoritative design brief:** `goblin_investing_redesign_master_v5.md`  
+**Authoritative design brief:** `goblin_investing_redesign_master_v6.md`  
 **Working branch:** `goblin-brokerage-redesign`  
 **Production frontend:** `main` / GitHub Pages  
 **Shared backend:** production Supabase project is shared by `main` and the redesign branch.
@@ -19,11 +19,12 @@ This repository record exists so a fresh implementation turn can recover the cri
 - Turn 4 source-level correction review: COMPLETE / VISUAL RUNTIME QA DEFERRED
 - Turn 5 Called It form + modal + help: CODE COMPLETE / CORRECTION REVIEW COMPLETE / ANDROID AND BROWSER RUNTIME QA DEFERRED
 - Turn 4 participant accessibility carry-forward: RESOLVED during Turn 5 controller work
-- Turn 6 The Receipts / leaderboard: CODE COMPLETE / SOURCE REVIEW COMPLETE / ANDROID AND BROWSER RUNTIME QA DEFERRED
+- Turn 6 The Receipts / leaderboard: CODE COMPLETE / CORRECTION REVIEW COMPLETE / ANDROID AND BROWSER RUNTIME QA DEFERRED
+- Turn 6 process review: architecture hardened with state-provenance, semantic-value, breakpoint-boundary, authority-label, readability/subordination, and adversarial correction-review gates
 - Manual Android/browser QA: DEFERRED UNTIL LATER INTEGRATED QA
 - Next canonical turn: Turn 7 — Rules page + lesson header consistency
 
-Read the completed-turn records in order. Read `turn-6-completion.md` before beginning Turn 7. The Turn 5 completion/correction records remain authoritative for any later work that touches Called It.
+Read the completed-turn records in order. Read `turn-6-completion.md` and `turn-6-correction-review.md` before beginning Turn 7. The Turn 5 completion/correction records remain authoritative for any later work that touches Called It.
 
 ## Mandatory environment rule
 
@@ -50,6 +51,22 @@ Keep a visible label when it is genuinely needed for comprehension, real state, 
 
 This rule does **not** remove semantic/accessibility requirements. Inputs, dialogs, icon controls, repeated actions, and similar controls still need correct labels/names even when a redundant visible caption is removed.
 
+## Truth requires provenance
+
+For every visible status-like label, stamp, badge, color-state, official-sounding phrase, financial amount, and action promise, name its source before treating it as application truth.
+
+Classify each item as:
+- authoritative stored state;
+- authoritative derived state;
+- pending/provisional state;
+- static artifact language.
+
+If its provenance cannot be named, it must not look like official state.
+
+A valid database value is not automatically a valid user-facing conclusion. In particular, a stored numeric zero may be a final zero, a pending/default value, a placeholder, or a real entered value. Review semantic finality separately from numeric validity.
+
+If action copy contains a mutable amount/price/percentage/date, compare the value shown by the UI with the value source used by the authoritative mutation. If those are not the same coherent snapshot/transaction contract, omit the mutable promise from the control and display the authoritative result afterward.
+
 ## Mandatory review gates for every implementation turn
 
 Before coding:
@@ -62,8 +79,12 @@ Before coding:
 - if one preview response supplies both a base value and derivation settings, treat them as one coherent snapshot;
 - when markup structure will be replaced, list the classes/containers expected to disappear;
 - identify any new copy/icon that could be mistaken for live runtime status and name the authoritative state source;
+- build a state-provenance matrix for every status/stamp/badge/official amount/action promise affected by the turn;
+- for every financial value, distinguish numeric validity from semantic finality; identify zeros/defaults/placeholders that are valid values but not final outcomes;
+- if action copy includes a mutable amount/price/percentage/date, compare its UI source to the authoritative mutation source;
 - apply label economy to proposed visible labels before implementing them;
 - identify realistic worst-case legal values/strings that could affect layout;
+- inventory every structural breakpoint used by the changed component and identify the minimum width of each layout mode;
 - if creating external branded SVGs, require outlined text/path geometry rather than live device-font text;
 - if changing an exported helper, formatter, shared CSS utility, or shared render primitive, enumerate its consumers and identify any out-of-turn surfaces it can affect;
 - if instructional copy changes inside a role-shared component, check signed-out, owner, admin-self, admin-other, and disabled/unavailable contexts where applicable;
@@ -72,11 +93,13 @@ Before coding:
 - treat DOM `dataset`/attributes, serialized form values, query parameters, and local storage as numeric boundaries too; blank string is not a safe missing numeric sentinel;
 - identify whether the changed component creates a nested vertical scroll surface on mobile;
 - for structural UI changes, identify the intended semantic heading structure and accessible names for repeated controls;
-- inventory every custom interactive hit target, not only shared `.button` elements.
+- inventory every custom interactive hit target, not only shared `.button` elements;
+- if secondary/debug/admin controls will be visually subordinated, decide how hierarchy will be reduced without using unreadable font sizes/opacity/contrast.
 
 After coding:
 - re-fetch modified files from the working branch;
 - compare the full branch diff to `main` for accidental files;
+- inspect the turn-only diff and verify it contains only intended scope;
 - syntax-check JavaScript;
 - review mobile event ordering (`pointerdown`, focus/blur, `click`);
 - verify overlays intercept taps and cannot click through;
@@ -90,9 +113,13 @@ After coding:
 - search for dead imports, obsolete selectors/classes, duplicate handlers, observers, timers, and stale docs;
 - reconcile removed markup classes against CSS and remove confirmed-dead selectors;
 - verify status-sounding copy/icons are backed by real application state or reworded as static labels;
+- re-run the state-provenance matrix against rendered output; no status-like decoration may invent a lifecycle/state merely because it fits the theme;
+- verify stored zero/default/fallback values are not presented as final outcomes when their lifecycle meaning is pending/provisional;
+- verify any mutable value embedded in action copy is the same value/snapshot the authoritative mutation will use; otherwise remove the promise;
 - verify labels match the actual data geometry they describe;
 - run a visible-label economy pass separately from semantic/accessibility labeling;
 - perform a source-level worst-case content check using actual field/numeric bounds and 320–360px assumptions even when runtime QA is deferred;
+- additionally test worst-case content immediately around every structural breakpoint and at the minimum width of every wider layout mode;
 - verify external branded SVGs contain no live `<text>` unless explicitly documented;
 - load primary remote web fonts from the document head rather than CSS `@import`;
 - verify any shared-helper change did not alter an out-of-scope surface; if it did, split semantic/shared output from turn-specific presentation;
@@ -102,6 +129,7 @@ After coding:
 - avoid nested vertical `overflow:auto` inside repeated slips/cards unless there is a documented interaction need and mobile testing covers it;
 - perform a semantic accessibility gate now: heading hierarchy, accessible control names, selected-state semantics, and status meaning;
 - check every interactive row/toggle/icon/autocomplete option against the ~44px mobile hit-target rule where practical;
+- separately inspect font size, contrast, and opacity for visually subordinate controls; a compliant hit target does not excuse unreadable microtext;
 - for `aria-modal="true"` surfaces, verify focus entry, background inertness/inaccessibility, Tab/Shift+Tab containment, Escape/close behavior, body-scroll recovery, and focus restoration;
 - for custom ARIA widget roles such as `listbox`, `option`, `menu`, or `tab`, require the matching keyboard/focus interaction model; otherwise prefer native controls/semantics rather than decorative ARIA;
 - for toggle-like button groups, expose selected state semantically (`aria-pressed`, radio semantics, etc.) and update it whenever the visual selection changes;
@@ -109,34 +137,62 @@ After coding:
 - for existing records edited under mutable global settings, distinguish stored historical terms from values that would be recalculated today; opening an editor must not silently rewrite the displayed historical target using current settings;
 - when a selected entity becomes unresolved during search/edit, clear dependent previews **and invalidate pending work** rather than leaving or restoring stale price/target output;
 - for mobile sheets/popovers, distinguish intentional viewport-containment scrolling from accidental nested scrolling, and explicitly prevent background-page scrolling while the sheet is open;
+- run the separate adversarial correction-review prompt below after the implementation self-check;
+- do not advance the next canonical turn until correction review is complete or remaining items are explicitly classified as runtime-only QA;
 - mark CODE COMPLETE separately from QA COMPLETE;
 - update the relevant turn record before moving on.
 
 ## Visual-review truth test
 
-Every later visual turn must explicitly answer these questions before it is called code-complete:
+Every later visual turn must explicitly answer these questions before it is called correction-review complete:
 
 1. **Truth:** Does any visual element claim a live state the application does not actually know?
-2. **Geometry:** Do labels/headings correspond to the actual values/layout beneath them?
-3. **Bounds:** Do legal worst-case strings and numeric values fit narrow mobile assumptions?
-4. **Independence:** Will external assets render consistently without device-specific fonts or hidden dependencies?
-5. **Cleanup:** Did replacing markup also remove the obsolete implementation residue it replaced?
-6. **Scope:** Did a shared helper/utility change alter surfaces outside the current turn?
-7. **Role:** Does instructional copy still make sense for every role that can see it?
-8. **Sentinels:** Can null/blank/missing data become a legitimate-looking value in API, formatter, DOM dataset, or serialized state?
-9. **Scroll topology:** Did the redesign create an unnecessary nested vertical scroll region?
-10. **Semantics:** Does the new visual hierarchy have matching headings and accessible control names?
-11. **ARIA contract:** If a custom widget role was added, is its required keyboard/focus behavior actually implemented?
-12. **Authority timing:** Does workflow copy distinguish preview/selection from the step that persists official server-authoritative state?
-13. **Historical terms:** Does editing an existing record preserve its stored target/price until a real term-changing action intentionally restarts it?
-14. **Dependent preview freshness:** When a stock/entity selection becomes unresolved, are stale dependent values cleared immediately?
-15. **Async ownership:** Can a late response update UI after the user has moved to another selection/component?
-16. **Snapshot coherence:** Are values displayed together derived from the same authoritative preview response when one is available?
-17. **Invalidation:** Do clear/new-selection/close/replacement events invalidate pending work?
-18. **Stale-component isolation:** Can a detached component write a late success/error into current shared UI?
-19. **Modal completeness:** Is an actual modal's background inaccessible and its keyboard focus contained?
-20. **Hit target:** Did every custom interactive element receive the same mobile target scrutiny as ordinary buttons?
-21. **Label economy:** What ambiguity does each visible micro-label resolve? If none, remove it.
+2. **Provenance:** For every official-looking status/stamp/amount/action promise, what authoritative source or static-artifact classification supports it?
+3. **Semantic finality:** Can a valid stored zero/default/fallback be mistaken for a final user-facing result while the lifecycle is still pending?
+4. **Geometry:** Do labels/headings correspond to the actual values/layout beneath them?
+5. **Bounds:** Do legal worst-case strings and numeric values fit narrow mobile assumptions?
+6. **Breakpoint boundary:** Do worst-case values fit immediately below/at every structural breakpoint and at the minimum width of each wider layout mode?
+7. **Authority timing:** Does any mutable value shown on an action come from the same snapshot/contract the authoritative mutation will use?
+8. **Independence:** Will external assets render consistently without device-specific fonts or hidden dependencies?
+9. **Cleanup:** Did replacing markup also remove the obsolete implementation residue it replaced?
+10. **Scope:** Did a shared helper/utility change alter surfaces outside the current turn?
+11. **Role:** Does instructional copy still make sense for every role that can see it?
+12. **Sentinels:** Can null/blank/missing data become a legitimate-looking value in API, formatter, DOM dataset, or serialized state?
+13. **Scroll topology:** Did the redesign create an unnecessary nested vertical scroll region?
+14. **Semantics:** Does the new visual hierarchy have matching headings and accessible control names?
+15. **ARIA contract:** If a custom widget role was added, is its required keyboard/focus behavior actually implemented?
+16. **Historical terms:** Does editing an existing record preserve its stored target/price until a real term-changing action intentionally restarts it?
+17. **Dependent preview freshness:** When a stock/entity selection becomes unresolved, are stale dependent values cleared immediately?
+18. **Async ownership:** Can a late response update UI after the user has moved to another selection/component?
+19. **Snapshot coherence:** Are values displayed together derived from the same authoritative preview response when one is available?
+20. **Invalidation:** Do clear/new-selection/close/replacement events invalidate pending work?
+21. **Stale-component isolation:** Can a detached component write a late success/error into current shared UI?
+22. **Modal completeness:** Is an actual modal's background inaccessible and its keyboard focus contained?
+23. **Hit target:** Did every custom interactive element receive the same mobile target scrutiny as ordinary buttons?
+24. **Readable subordination:** Are secondary/debug controls still readable in font size/contrast/opacity after visual de-emphasis?
+25. **Label economy:** What ambiguity does each visible micro-label resolve? If none, remove it.
+26. **Philosophy:** Did the financial/bureaucratic theme invent fake system behavior merely because it looked on-theme?
+
+## Mandatory adversarial correction-review prompt
+
+Run this as a separate pass after implementation. Do not merely restate the completion record.
+
+```text
+Assume the implementation may be subtly wrong. Try to falsify its completion claims.
+
+Re-read the authoritative architecture, the current turn-only diff, the backend/data model that gives displayed states their meaning, and prior correction records.
+
+Audit at minimum:
+- state provenance for every status/stamp/badge/official amount/action promise;
+- semantic meaning of zero/default/pending/fallback values, not only numeric validity;
+- authority timing for mutable values shown on actions;
+- worst-case content immediately around every structural breakpoint, not only 320–360px;
+- hit target, font size, contrast, and opacity separately for subordinate controls;
+- regression scope against prior controllers/auth/backend/shared helpers;
+- whether any themed financial/bureaucratic treatment makes the system less truthful.
+
+Report findings by severity. Correct source-level issues now. Defer only items that genuinely require runtime/browser/device verification.
+```
 
 ## Deferred cutover gate
 
