@@ -1,0 +1,4 @@
+/* R2 homepage visual entrypoint. Keep this layer isolated from shared site.css. */
+@import url("./visual-r2-foundation.css");
+@import url("./visual-r2-artifacts.css");
+@import url("./visual-r2-responsive.css");
