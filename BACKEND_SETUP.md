@@ -14,20 +14,19 @@ Never commit a Supabase secret key, service-role key, market-data API key, or sc
 
 The browser can read the public dashboard, active challenges, game settings, ticker reference data, and The Receipts.
 
-All challenge lifecycle and market-authoritative mutations go through the `called-it` Edge Function: create, price check, submit, cancel, owner metadata edit, admin edit, review, and cooldown reset. The Edge Function remains authoritative for any field that can change the outcome of a challenge.
+All Called It mutations now go through the `called-it` Edge Function: create, price check, submit, cancel, owner metadata edit, admin edit, review, and cooldown reset. The browser has no direct authenticated UPDATE grant on `called_it_plays`.
 
-### Owner-metadata cutover state
+### Owner-metadata cutover complete
 
-The redesign candidate now routes owner metadata edits to the authenticated `owner_edit` action in the `called-it` Edge Function. That action can change only `reason`, `portfolio_action`, `action_amount`, and `amount_committed` on an active challenge after validating the authenticated actor and action/direction combination. It cannot change ticker, direction, prices, targets, qualification, review state, status, or other authoritative challenge terms.
+The production frontend routes owner metadata edits to the authenticated `owner_edit` action in the `called-it` Edge Function. That action can change only `reason`, `portfolio_action`, `action_amount`, and `amount_committed` on an active challenge after validating the authenticated actor and the action/direction combination.
 
-Production `main` still uses the older authenticated `edit_own_called_it_metadata` RPC because `main` and the redesign candidate share the same Supabase project. The narrow direct authenticated UPDATE grants and RPC therefore remain temporarily available until the frontend cutover is deployed. Do not revoke them before the production frontend switches to the redesign release.
+It cannot change ticker, direction, prices, targets, qualification, review state, status, cooldown, or any other authoritative challenge term.
 
-After the redesign frontend is cut over to production, the release cleanup is:
+The previous compatibility path has been retired after the visual redesign was merged to `main`:
 
-1. verify owner edit through the production frontend;
-2. revoke the transitional authenticated direct UPDATE grants on `called_it_plays`;
-3. retire or restrict `edit_own_called_it_metadata`;
-4. re-run Supabase security advisors.
+- `edit_own_called_it_metadata` has been dropped;
+- the authenticated owner UPDATE RLS policy has been removed;
+- authenticated UPDATE grants on `called_it_plays` have been revoked.
 
 The Edge Function is authoritative for:
 
@@ -144,7 +143,9 @@ Actions:
 - `review`
 - `reset_cooldown`
 
-`owner_edit` was added during the visual-redesign cutover preparation. The redesign candidate routes the legacy owner-edit call shape to this action so production `main` can continue using the existing RPC until the frontend release is deployed.
+`owner_edit` was added during the visual-redesign cutover and is now the only participant owner-metadata mutation path.
+
+The platform `verify_jwt` switch remains disabled because the function performs mandatory bearer-token validation itself through `getActor()` before any action executes.
 
 The function deliberately fails closed if a market quote cannot be obtained.
 
@@ -189,9 +190,8 @@ Row Level Security is enabled on exposed public tables.
 - signed-out visitors can read active participants, current challenges, game settings, securities, weekly winner data, and The Receipts;
 - signed-out visitors cannot mutate data;
 - authenticated participants can read their own challenge history in addition to the public challenge state;
-- participants cannot directly change authoritative challenge terms or lifecycle fields;
-- the redesign candidate sends owner metadata edits to the server-authoritative `owner_edit` action;
-- the narrow direct owner-metadata grant/RPC remains temporarily for live `main` and is scheduled for removal immediately after frontend cutover;
+- authenticated participants have no direct UPDATE grant on `called_it_plays`;
+- owner metadata edits are validated by the server-authoritative `owner_edit` action;
 - authoritative challenge writes are validated by the Edge Function against the authenticated user;
 - admins can manage all participant challenges through the same server-authoritative API;
 - only admins can change game settings and weekly winner data;
