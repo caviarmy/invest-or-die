@@ -31,9 +31,29 @@
   box-shadow:3px 3px 0 #0c0e0c;
 }
 
-/* The stamp sits on pale paper; darken it enough to read at phone brightness. */
+/* The champion mark is a physical overprint, not another block in the winner layout. */
+.visual-r2 .winner-panel{overflow:visible}
+.visual-r2 .winner-content{
+  position:relative;
+  overflow:visible;
+  z-index:2;
+  padding-bottom:54px;
+}
+.visual-r2 .winner-chart-wrap{z-index:1}
 .visual-r2 .winner-content:has(.winner-return)::after{
+  content:"";
+  position:absolute;
+  left:-10px;
+  bottom:-22px;
+  display:block;
+  width:min(270px,82%);
+  height:70px;
+  margin:0!important;
+  background:url("../assets/stamps/current-champion.svg") left center/contain no-repeat;
   filter:brightness(.42) saturate(2) contrast(1.25)!important;
+  transform:rotate(-2.6deg);
+  pointer-events:none;
+  z-index:4;
 }
 
 /* Add/edit belongs to the actual slip, not the participant-name header or section header. */
@@ -61,39 +81,45 @@
 .visual-r2 .empty-slot-add:hover{background:#d9ded5;border-color:#315f37}
 .visual-r2 .empty-slot-add:focus-visible{outline:2px solid #315f37;outline-offset:3px}
 
-/* Filed directional calls get an intentionally obnoxious hand-drawn arrow over the ticket. */
+/* Direction marks are marker scribbles across the whole filing slip. They begin at the prediction stamp and break the ticket edge vertically. */
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up),
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down){overflow:visible}
 .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
 .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
   content:"";
   position:absolute;
-  right:12px;
-  top:76px;
-  width:min(40%,170px);
-  aspect-ratio:1.05;
+  inset:-38px 0 -58px 0;
+  width:auto;
+  height:auto;
+  aspect-ratio:auto;
   background-position:center;
   background-repeat:no-repeat;
-  background-size:contain;
+  background-size:100% 100%;
   pointer-events:none;
   z-index:2;
-  opacity:.94;
+  opacity:.68;
+  mix-blend-mode:multiply;
 }
 .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after{
   background-image:url("../assets/directions/up-crazy.svg");
-  transform:rotate(-3deg);
 }
 .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
   background-image:url("../assets/directions/down-crazy.svg");
-  transform:rotate(2deg);
 }
 .visual-r2 .play-edit-pencil{z-index:4}
 
 @media(max-width:699px){
   .visual-r2 .brand-patch{left:-6px;right:-7px;top:5px;padding-inline:6px}
+  .visual-r2 .winner-content{padding-bottom:46px}
+  .visual-r2 .winner-content:has(.winner-return)::after{
+    left:-4px;
+    bottom:-18px;
+    width:min(250px,86%);
+    height:66px;
+  }
   .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
   .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
-    right:10px;
-    top:72px;
-    width:43%;
-    max-width:150px;
+    inset:-30px 0 -46px 0;
+    opacity:.64;
   }
 }
