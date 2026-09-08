@@ -174,9 +174,9 @@ p{line-height:1.5}
 .history-table th:nth-child(1){width:11%}
 .history-table th:nth-child(2){width:18%}
 .history-table th:nth-child(3){width:13%}
-.history-table th:nth-child(4){width:31%}
-.history-table th:nth-child(5){width:18%}
-.history-table th:nth-child(6){width:9%;text-align:right}
+.history-table th:nth-child(4){width:30%}
+.history-table th:nth-child(5){width:17%}
+.history-table th:nth-child(6){width:11%;text-align:right}
 .history-table td{min-width:0;padding:12px 9px;border-bottom:1px solid #b8b098;font-size:11px;line-height:1.45;vertical-align:top;color:#37362f;overflow-wrap:anywhere}
 .history-table tr:last-child td{border-bottom:0}
 .history-player strong{font-family:var(--font-display);font-size:13px;line-height:1.05;color:var(--paper-ink);text-transform:uppercase}
@@ -188,13 +188,14 @@ p{line-height:1.5}
 .receipt-status{display:inline-flex;align-items:center;min-height:30px;border-radius:0;padding:6px 8px;font-size:9px;font-weight:700;letter-spacing:.045em;text-transform:uppercase;background:transparent;border:2px solid #706a5c;color:#514d42}
 .receipt-status img{display:block;width:min(100%,104px);height:auto}
 .receipt-status-approved,.receipt-status-rejected{min-height:0;padding:0;border:0;background:transparent}
+.receipt-status-recorded{border-color:#6f6859;color:#514d42;transform:rotate(.35deg)}
 .receipt-status-under_review{border-color:#5b6077;color:#424861;transform:rotate(-.5deg)}
 .receipt-status-unknown{border-style:dashed;border-color:#8c8470;color:#6f6859}
 .history-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.history-actions button{min-height:44px;border:1px solid #756f60;background:transparent;color:#34332c;border-radius:2px;padding:7px 8px;font-size:8px;font-weight:600;letter-spacing:.02em;text-transform:uppercase}
+.history-actions button{min-height:44px;border:1px solid #756f60;background:transparent;color:#34332c;border-radius:2px;padding:8px 9px;font-size:10px;line-height:1.2;font-weight:600;letter-spacing:.02em;text-transform:uppercase}
 .history-actions button:hover:not(:disabled),.history-actions button:focus-visible{border-color:#39372f;background:#d8d0b7;outline:2px solid transparent}
-.history-actions .history-delete-button{border-color:#a88f87;color:#7c4843;opacity:.68}
-.history-actions .history-delete-button:hover,.history-actions .history-delete-button:focus-visible{opacity:1;border-color:#8c4c46;background:#e1c9c1}
+.history-actions .history-delete-button{border-color:#a88f87;color:#7c4843}
+.history-actions .history-delete-button:hover,.history-actions .history-delete-button:focus-visible{border-color:#8c4c46;background:#e1c9c1}
 .site-footer{display:flex;gap:18px;padding:34px 0 0;border-top:1px solid var(--line);margin-top:28px;color:#89928a;font:500 11px/1 var(--font-mono)}
 .site-footer a{text-decoration:none}
 
@@ -309,7 +310,7 @@ textarea{min-height:88px;resize:vertical}
 .guide-section-compact h2{font-size:28px;margin-bottom:9px}
 .guide-section-compact p{margin:0;color:#aeb6ae}
 
-@media(max-width:699px){
+@media(max-width:899px){
   .history-table{display:block}
   .history-table thead{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
   .history-table tbody{display:block}
@@ -326,6 +327,9 @@ textarea{min-height:88px;resize:vertical}
   .history-actions{margin:0 0 0 auto;justify-content:flex-end}
   .history-empty-row{display:block}
   .history-empty-row td{display:block;width:100%;border:0}
+}
+
+@media(max-width:699px){
   body:has(.game-help[open]){overflow:hidden}
   .single-play-mode{align-items:stretch;padding:0}
   .single-play-mode .modal-card{width:100%;min-height:100dvh;max-height:100dvh;border:0;border-radius:0;padding:max(14px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));box-shadow:none}
