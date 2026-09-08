@@ -333,12 +333,52 @@ function renderAll() {
   renderStatus();
 }
 
+function setBackgroundInert(openModalElement = null) {
+  document.querySelectorAll('body > *').forEach(node => {
+    if (!(node instanceof HTMLElement) || node.tagName === 'SCRIPT') return;
+    node.inert = Boolean(openModalElement && node !== openModalElement);
+  });
+}
+
+function modalFocusableElements(modal) {
+  return [...modal.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')]
+    .filter(element => !element.closest('[hidden]') && element.getClientRects().length > 0);
+}
+
+function trapModalFocus(event) {
+  if (event.key !== 'Tab') return false;
+  const modal = document.querySelector('.modal.open');
+  if (!modal) return false;
+  const focusable = modalFocusableElements(modal);
+  if (!focusable.length) return false;
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+    return true;
+  }
+  if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+    return true;
+  }
+  if (!modal.contains(document.activeElement)) {
+    event.preventDefault();
+    (event.shiftKey ? last : first).focus();
+    return true;
+  }
+  return false;
+}
+
 function openModal(modal, focusSelector = '') {
   const active = document.activeElement;
   if (!modal.classList.contains('open') && active && typeof active.focus === 'function') modalReturnFocus = active;
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
+  setBackgroundInert(modal);
 
   requestAnimationFrame(() => {
     const requested = focusSelector ? modal.querySelector(focusSelector) : null;
@@ -354,10 +394,13 @@ function closeModals() {
     modal.setAttribute('aria-hidden', 'true');
   });
   document.body.style.overflow = '';
+  setBackgroundInert(null);
   modalReturnFocus = null;
 
-  if (returnFocus?.isConnected && typeof returnFocus.focus === 'function') {
-    requestAnimationFrame(() => returnFocus.focus());
+  if (returnFocus && typeof returnFocus.focus === 'function') {
+    requestAnimationFrame(() => {
+      if (returnFocus.isConnected) returnFocus.focus();
+    });
   }
 }
 
@@ -381,6 +424,49 @@ function currentPreviewSettings() {
     down: Number(state.data.settings.called_it_down_percent),
     flat: Number(state.data.settings.called_it_flat_percent)
   };
+}
+
+function clearPreviewSnapshot(form) {
+  form.dataset.previewPrice = '';
+  form.dataset.previewTicker = '';
+  form.dataset.previewUp = '';
+  form.dataset.previewDown = '';
+  form.dataset.previewFlat = '';
+}
+
+function previewSettingsForForm(form) {
+  const snapshot = {
+    up: Number(form.dataset.previewUp),
+    down: Number(form.dataset.previewDown),
+    flat: Number(form.dataset.previewFlat)
+  };
+  if (Number.isFinite(snapshot.up) && Number.isFinite(snapshot.down) && Number.isFinite(snapshot.flat)) return snapshot;
+  return currentPreviewSettings();
+}
+
+function setPreviewSettings(form, settings) {
+  const up = Number(settings?.up);
+  const down = Number(settings?.down);
+  const flat = Number(settings?.flat);
+  if (![up, down, flat].every(Number.isFinite)) {
+    form.dataset.previewUp = '';
+    form.dataset.previewDown = '';
+    form.dataset.previewFlat = '';
+    return;
+  }
+  form.dataset.previewUp = String(up);
+  form.dataset.previewDown = String(down);
+  form.dataset.previewFlat = String(flat);
+}
+
+function nextQuoteRequest(form) {
+  const next = Number(form.dataset.quoteRequest || 0) + 1;
+  form.dataset.quoteRequest = String(next);
+  return next;
+}
+
+function quoteRequestIsCurrent(form, requestId) {
+  return Number(form.dataset.quoteRequest || 0) === requestId;
 }
 
 function syncAmount(form) {
@@ -407,7 +493,7 @@ function syncGoal(form) {
   if (!goal) return;
   const direction = form.elements.direction?.value || '';
   const raw = form.dataset.previewPrice || form.dataset.referencePrice || '';
-  goal.textContent = goalPreview(Number(raw), direction, currentPreviewSettings());
+  goal.textContent = goalPreview(Number(raw), direction, previewSettingsForForm(form));
 }
 
 function storedGoalPreview(play) {
@@ -417,19 +503,45 @@ function storedGoalPreview(play) {
   return play.direction === 'flat' ? `End range ${goal}` : `Goal ${goal}`;
 }
 
-function setQuotePreview(form, quoteResponse) {
+function setQuotePreview(form, quoteResponse, expectedTicker) {
   const quote = form.querySelector('[data-single-quote]');
-  if (!quote || !quoteResponse?.quote) return;
+  const selectedTicker = String(form.elements.ticker?.value || '').toUpperCase();
+  const responseTicker = String(quoteResponse?.quote?.ticker || quoteResponse?.security?.ticker || '').toUpperCase();
+  if (!quote || !quoteResponse?.quote || !expectedTicker || selectedTicker !== expectedTicker) return false;
+  if (responseTicker && responseTicker !== expectedTicker) return false;
+
   form.dataset.previewPrice = String(quoteResponse.quote.price);
-  form.dataset.previewTicker = String(form.elements.ticker?.value || '').toUpperCase();
+  form.dataset.previewTicker = expectedTicker;
+  setPreviewSettings(form, quoteResponse.settings);
   quote.textContent = `${money(quoteResponse.quote.price)} · ${quoteResponse.quote.market_status === 'open' ? 'market open' : 'latest price'}`;
   syncGoal(form);
+  return true;
+}
+
+async function requestQuotePreview(form, ticker, loadingText = 'Loading current price…') {
+  const expectedTicker = String(ticker || '').toUpperCase();
+  if (!expectedTicker) return null;
+  const requestId = nextQuoteRequest(form);
+  const quote = form.querySelector('[data-single-quote]');
+  if (quote) quote.textContent = loadingText;
+
+  try {
+    const response = await previewCalledIt(state.session.client, expectedTicker);
+    if (!quoteRequestIsCurrent(form, requestId)) return null;
+    if (!setQuotePreview(form, response, expectedTicker)) return null;
+    return response;
+  } catch (error) {
+    if (!quoteRequestIsCurrent(form, requestId)) return null;
+    if (quote) quote.textContent = error.message || 'Current price is unavailable.';
+    showEditError(error.message || 'Current price is unavailable.');
+    return null;
+  }
 }
 
 function restoreOriginalAdminPreview(form, play) {
   if (!play) return;
-  form.dataset.previewPrice = '';
-  form.dataset.previewTicker = '';
+  nextQuoteRequest(form);
+  clearPreviewSnapshot(form);
   const quote = form.querySelector('[data-single-quote]');
   const goal = form.querySelector('[data-single-goal]');
   if (quote) quote.textContent = `${money(play.reference_price)} · original call price`;
@@ -440,6 +552,8 @@ async function ensureAdminTermsPreview(form, play, nextDirection) {
   if (form.dataset.mode !== 'admin-edit' || !play) return;
   const ticker = String(form.elements.ticker?.value || '').toUpperCase();
   if (!ticker) {
+    nextQuoteRequest(form);
+    clearPreviewSnapshot(form);
     const goal = form.querySelector('[data-single-goal]');
     if (goal) goal.textContent = 'Choose a stock to load the current price.';
     return;
@@ -457,15 +571,7 @@ async function ensureAdminTermsPreview(form, play, nextDirection) {
     return;
   }
 
-  const quote = form.querySelector('[data-single-quote]');
-  if (quote) quote.textContent = 'Loading fresh price for the restarted challenge…';
-  try {
-    const response = await previewCalledIt(state.session.client, ticker);
-    setQuotePreview(form, response);
-  } catch (error) {
-    if (quote) quote.textContent = error.message || 'Current price is unavailable.';
-    showEditError(error.message || 'Current price is unavailable.');
-  }
+  await requestQuotePreview(form, ticker, 'Loading fresh price for the restarted challenge…');
 }
 
 function bindTickerSearch(form) {
@@ -479,9 +585,10 @@ function bindTickerSearch(form) {
   let sequence = 0;
 
   input.addEventListener('input', () => {
+    const current = ++sequence;
+    nextQuoteRequest(form);
     hidden.value = '';
-    form.dataset.previewPrice = '';
-    form.dataset.previewTicker = '';
+    clearPreviewSnapshot(form);
     quote.textContent = 'Choose a stock to load the current price.';
     const goal = form.querySelector('[data-single-goal]');
     if (goal) goal.textContent = 'Choose a stock to load the current price.';
@@ -494,7 +601,6 @@ function bindTickerSearch(form) {
       return;
     }
 
-    const current = ++sequence;
     timer = setTimeout(async () => {
       try {
         const rows = await searchSecurities(state.session.client, query, 10);
@@ -512,18 +618,14 @@ function bindTickerSearch(form) {
   results.addEventListener('click', async event => {
     const button = event.target.closest('[data-ticker]');
     if (!button) return;
-    hidden.value = button.dataset.ticker;
-    input.value = `${button.dataset.ticker} · ${button.dataset.company}`;
+    sequence += 1;
+    clearTimeout(timer);
+    const ticker = String(button.dataset.ticker || '').toUpperCase();
+    hidden.value = ticker;
+    input.value = `${ticker} · ${button.dataset.company}`;
     results.hidden = true;
-    quote.textContent = 'Loading current price…';
-
-    try {
-      const response = await previewCalledIt(state.session.client, button.dataset.ticker);
-      setQuotePreview(form, response);
-    } catch (error) {
-      quote.textContent = error.message || 'Current price is unavailable.';
-      showEditError(error.message || 'Current price is unavailable.');
-    }
+    clearPreviewSnapshot(form);
+    await requestQuotePreview(form, ticker);
   });
 }
 
@@ -829,6 +931,7 @@ document.addEventListener('click', event => {
   if (event.target === gameHelp || !gameHelp.contains(event.target)) gameHelp.removeAttribute('open');
 });
 document.addEventListener('keydown', event => {
+  if (trapModalFocus(event)) return;
   if (event.key !== 'Escape') return;
   gameHelp?.removeAttribute('open');
   closeModals();
