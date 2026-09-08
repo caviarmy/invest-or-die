@@ -25,29 +25,20 @@
 /* Receipts leaders are category summaries, not competing historical receipt entries. */
 .visual-r2 .leader-grid{
   grid-template-columns:1fr;
-  gap:0;
-  margin:18px 0 24px;
-  border-top:2px solid #626a61;
-  border-bottom:2px solid #626a61;
+  gap:2px;
+  margin:10px 0 22px;
+  border:0;
 }
 .visual-r2 .leader-card{
   display:grid;
-  grid-template-columns:auto minmax(18px,1fr) auto auto;
+  grid-template-columns:minmax(0,1fr) auto auto;
   align-items:baseline;
-  gap:8px;
+  gap:7px;
   min-width:0;
-  padding:13px 0;
+  padding:9px 0;
   border:0;
-  border-bottom:1px dotted #8e968b;
 }
-.visual-r2 .leader-card:last-child{border-bottom:0}
-.visual-r2 .leader-card::before{
-  content:"";
-  grid-column:2;
-  align-self:center;
-  border-bottom:1px dotted #8e968b;
-  transform:translateY(-1px);
-}
+.visual-r2 .leader-card::before{display:none}
 .visual-r2 .leader-label{
   grid-column:1;
   margin:0;
@@ -58,7 +49,7 @@
   white-space:nowrap;
 }
 .visual-r2 .leader-name{
-  grid-column:3;
+  grid-column:2;
   margin:0;
   color:#343a34;
   font:700 clamp(15px,1.8vw,18px)/1 var(--r2-font-display);
@@ -68,7 +59,7 @@
   white-space:nowrap;
 }
 .visual-r2 .leader-count{
-  grid-column:4;
+  grid-column:3;
   margin:0;
   color:#666e65;
   font:600 9px/1 var(--r2-font-mono);
@@ -76,6 +67,42 @@
 }
 .visual-r2 .leader-count::before{content:"("}
 .visual-r2 .leader-count::after{content:")"}
+
+/* Remove decorative connector rules that read like broken layout lines. */
+.visual-r2 .history-heading-row{
+  padding-bottom:8px;
+  border-bottom:0;
+}
+.visual-r2 .history-table{border-top:1px solid #777f75;border-bottom:0}
+
+/* Training-folder action is a text link, not a link plus an unrelated horizontal rule. */
+.visual-r2 .lesson-panel::before{display:none}
+.visual-r2 .lesson-link{
+  min-height:0;
+  padding:7px 0;
+  gap:12px;
+  border-bottom:0;
+  text-decoration:none;
+}
+.visual-r2 .lesson-link span:first-child{
+  text-decoration:underline;
+  text-decoration-thickness:1px;
+  text-underline-offset:4px;
+}
+
+/* Signed-out action copy is allowed to look like a link rather than another button component. */
+.visual-r2 .inline-auth-link{
+  appearance:none;
+  border:0;
+  padding:0;
+  background:transparent;
+  color:inherit;
+  font:inherit;
+  text-decoration:underline;
+  text-underline-offset:3px;
+  cursor:pointer;
+}
+.visual-r2 .inline-auth-link:focus-visible{outline:2px solid var(--r2-phosphor);outline-offset:3px}
 
 /* Modals are working sheets. Keep them content-sized and scroll the sheet only when its contents exceed the viewport. */
 .visual-r2 #authModal .modal-card{max-height:min(78dvh,620px)}
@@ -110,7 +137,7 @@
 }
 
 @media(max-width:430px){
-  .visual-r2 .leader-card{grid-template-columns:auto minmax(8px,1fr) auto auto;gap:6px}
+  .visual-r2 .leader-card{grid-template-columns:minmax(0,1fr) auto auto;gap:5px}
   .visual-r2 .leader-label{font-size:16px}
   .visual-r2 .leader-name{font-size:14px}
   .visual-r2 .leader-count{font-size:8px}
