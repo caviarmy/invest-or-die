@@ -1,0 +1,117 @@
+/* Owner correction pass after R3 visual review. */
+
+/* Desktop hierarchy: the opening machine and training folder belong to the same page width as the rest of the desk. */
+@media(min-width:900px){
+  .visual-r2 .game-tracker,
+  .visual-r2 .lesson-panel{width:100%}
+}
+
+/* Fail-closed weekly result copy should never inherit the oversized winner typography. */
+.visual-r2 .winner-name.winner-empty{
+  max-width:100%;
+  font-size:clamp(28px,8vw,46px)!important;
+  line-height:.92;
+  letter-spacing:-.025em;
+  white-space:normal;
+  overflow-wrap:normal;
+  word-break:normal;
+}
+
+/* A two-ticket filing row should share one physical depth. Filled tickets can grow; the unused sibling stretches with it. */
+.visual-r2 .slot-list{align-items:stretch}
+.visual-r2 .play-slot{height:100%}
+.visual-r2 .empty-slot{min-height:300px}
+
+/* Receipts leaders are category summaries, not competing historical receipt entries. */
+.visual-r2 .leader-grid{
+  grid-template-columns:1fr;
+  gap:0;
+  margin:18px 0 24px;
+  border-top:2px solid #626a61;
+  border-bottom:2px solid #626a61;
+}
+.visual-r2 .leader-card{
+  display:grid;
+  grid-template-columns:auto minmax(18px,1fr) auto auto;
+  align-items:baseline;
+  gap:8px;
+  min-width:0;
+  padding:13px 0;
+  border:0;
+  border-bottom:1px dotted #8e968b;
+}
+.visual-r2 .leader-card:last-child{border-bottom:0}
+.visual-r2 .leader-card::before{
+  content:"";
+  grid-column:2;
+  align-self:center;
+  border-bottom:1px dotted #8e968b;
+  transform:translateY(-1px);
+}
+.visual-r2 .leader-label{
+  grid-column:1;
+  margin:0;
+  color:var(--r2-paper-ink);
+  font:700 clamp(17px,2.2vw,22px)/1 var(--r2-font-display);
+  letter-spacing:-.015em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.visual-r2 .leader-name{
+  grid-column:3;
+  margin:0;
+  color:#343a34;
+  font:700 clamp(15px,1.8vw,18px)/1 var(--r2-font-display);
+  letter-spacing:-.015em;
+  text-align:right;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.visual-r2 .leader-count{
+  grid-column:4;
+  margin:0;
+  color:#666e65;
+  font:600 9px/1 var(--r2-font-mono);
+  white-space:nowrap;
+}
+.visual-r2 .leader-count::before{content:"("}
+.visual-r2 .leader-count::after{content:")"}
+
+/* Modals are working sheets. Keep them content-sized and scroll the sheet only when its contents exceed the viewport. */
+.visual-r2 #authModal .modal-card{max-height:min(78dvh,620px)}
+.visual-r2 #weekModal .modal-card{width:min(94vw,960px);max-height:76dvh}
+.visual-r2 #editModal.single-play-mode .modal-card{max-height:80dvh}
+
+@media(max-width:699px){
+  .visual-r2 #authModal,
+  .visual-r2 #weekModal,
+  .visual-r2 #editModal.single-play-mode{
+    align-items:flex-end;
+    padding:12px;
+  }
+  .visual-r2 #authModal .modal-card,
+  .visual-r2 #weekModal .modal-card{
+    width:100%;
+    min-height:0;
+    max-height:76dvh;
+    border:1px solid #9ba299;
+    border-top:9px solid #596158;
+    box-shadow:8px 10px 0 rgba(0,0,0,.34);
+  }
+  .visual-r2 #authModal .modal-card{max-height:72dvh}
+  .visual-r2 #editModal.single-play-mode .modal-card{
+    width:100%;
+    min-height:0;
+    max-height:80dvh;
+    border:1px solid #b6ae94;
+    border-top:9px solid #827b67;
+    box-shadow:8px 10px 0 rgba(0,0,0,.34);
+  }
+}
+
+@media(max-width:430px){
+  .visual-r2 .leader-card{grid-template-columns:auto minmax(8px,1fr) auto auto;gap:6px}
+  .visual-r2 .leader-label{font-size:16px}
+  .visual-r2 .leader-name{font-size:14px}
+  .visual-r2 .leader-count{font-size:8px}
+}
