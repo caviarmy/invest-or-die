@@ -25,13 +25,14 @@
   </div>
 </header>
 <main class="shell dashboard">
+  <h1 class="sr-only">Goblin Investing</h1>
   <section class="game-tracker" aria-label="Current game requirements">
     <div class="tracker-system-line"><span>HOUSE ACCOUNT / WEEKLY BUY-IN</span><span class="tracker-requirement">REQUIREMENT IN EFFECT</span></div>
     <div class="tracker-main">
-      <div class="tracker-week"><span class="tracker-label">CURRENT WEEK</span><strong id="currentWeekValue" class="tracker-value">Week 6</strong></div>
-      <div class="tracker-buy"><div class="tracker-label">BUY-IN TO DATE</div><strong id="purchaseMinimumValue" class="tracker-value">$30</strong></div>
+      <div class="tracker-week"><span class="tracker-label">CURRENT WEEK</span><strong id="currentWeekValue" class="tracker-value">Week —</strong></div>
+      <div class="tracker-buy"><div class="tracker-label">BUY-IN TO DATE</div><strong id="purchaseMinimumValue" class="tracker-value">—</strong></div>
     </div>
-    <div class="tracker-foot"><span class="tracker-goblin-note">MANDATORY HUMAN WEALTH BUILDING <img class="tracker-goblin-arrow" src="./assets/marks/crooked-arrow.svg" alt="" aria-hidden="true" width="48" height="22"></span><span id="purchaseMinimumNote" class="tracker-copy">At least $30 of stock bought total. Current portfolio value does not matter.</span></div>
+    <div class="tracker-foot"><span class="tracker-goblin-note">MANDATORY HUMAN WEALTH BUILDING <img class="tracker-goblin-arrow" src="./assets/marks/crooked-arrow.svg" alt="" aria-hidden="true" width="48" height="22"></span><span id="purchaseMinimumNote" class="tracker-copy">Current weekly buy-in requirement is unavailable.</span></div>
   </section>
 
   <section class="lesson-section" aria-labelledby="lessonHeading">
@@ -51,13 +52,13 @@
 
   <section class="dashboard-section win-week-section" aria-labelledby="weekHeading">
     <div class="winner-section-head">
-      <div><div class="section-kicker">WEEKLY PERFORMANCE DESK</div><h1 id="weekHeading" class="major-section-title">Win the Week</h1></div>
+      <div><div class="section-kicker">WEEKLY PERFORMANCE DESK</div><h2 id="weekHeading" class="major-section-title">Win the Week</h2></div>
       <div class="winner-rule">BEST RETURN WINS $1</div>
     </div>
     <article class="winner-panel">
       <div class="winner-board-label">WEEKLY WINNER / RETURN</div>
-      <div id="winnerContent" class="winner-content"><div class="winner-name winner-empty">Winner not posted yet.</div><p class="muted">This week's result will show here after it is entered.</p></div>
-      <div id="winnerChartWrap" class="winner-chart-wrap" hidden><div class="winner-chart-label">SUPPORTING EVIDENCE / PORTFOLIO CHART</div><img id="winnerChart" class="winner-chart" alt="Current weekly portfolio chart"></div>
+      <div id="winnerContent" class="winner-content"><div class="winner-name winner-empty">Loading weekly result…</div></div>
+      <div id="winnerChartWrap" class="winner-chart-wrap" hidden><div class="winner-chart-label">SUPPORTING EVIDENCE / PORTFOLIO CHART</div><img id="winnerChart" class="winner-chart" alt="Current weekly portfolio chart" loading="lazy" decoding="async"></div>
       <button id="adminWeekButton" class="text-button winner-admin-button" type="button" hidden>Update this week</button>
     </article>
   </section>
@@ -96,14 +97,14 @@
       </div>
     </div>
     <div class="leader-grid" aria-label="All-time leaders">
-      <article class="leader-card"><h3 class="leader-label">Weekly wins</h3><div id="weeklyLeaderName" class="leader-name">No wins yet</div><div id="weeklyLeaderCount" class="leader-count">0 wins</div></article>
-      <article class="leader-card"><h3 class="leader-label">Called It wins</h3><div id="calledLeaderName" class="leader-name">No wins yet</div><div id="calledLeaderCount" class="leader-count">0 wins</div></article>
+      <article class="leader-card"><h3 class="leader-label">Weekly wins</h3><div id="weeklyLeaderName" class="leader-name">Unavailable</div><div id="weeklyLeaderCount" class="leader-count">—</div></article>
+      <article class="leader-card"><h3 class="leader-label">Called It wins</h3><div id="calledLeaderName" class="leader-name">Unavailable</div><div id="calledLeaderCount" class="leader-count">—</div></article>
     </div>
     <div class="history-table-wrap">
       <table class="history-table">
         <caption class="sr-only">Goblin Investing results history</caption>
         <thead><tr><th scope="col">Date</th><th scope="col">Player</th><th scope="col">Result</th><th scope="col">Details</th><th scope="col">Status</th><th scope="col">Prize</th></tr></thead>
-        <tbody id="historyTableBody"><tr class="history-empty-row"><td colspan="6" class="history-empty">No results recorded yet.</td></tr></tbody>
+        <tbody id="historyTableBody"><tr class="history-empty-row"><td colspan="6" class="history-empty">Loading results history…</td></tr></tbody>
       </table>
     </div>
   </section>
