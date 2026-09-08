@@ -25,13 +25,11 @@ try {
   if (client) {
     const { data, error } = await client
       .from('game_settings')
-      .select('current_week,weekly_stock_buy_min,called_it_up_percent,called_it_down_percent,called_it_flat_percent,called_it_duration_days,called_it_review_lock_days,called_it_flat_claim_days,called_it_payout')
+      .select('called_it_up_percent,called_it_down_percent,called_it_flat_percent,called_it_duration_days,called_it_review_lock_days,called_it_flat_claim_days,called_it_payout')
       .eq('id', 'main')
       .maybeSingle();
     if (error) throw error;
     if (data) {
-      const currentWeek = finiteSettingNumber(data.current_week);
-      const weeklyBuyMin = finiteSettingNumber(data.weekly_stock_buy_min);
       const up = finiteSettingNumber(data.called_it_up_percent);
       const down = finiteSettingNumber(data.called_it_down_percent);
       const flat = finiteSettingNumber(data.called_it_flat_percent);
@@ -40,9 +38,6 @@ try {
       const claim = finiteSettingNumber(data.called_it_flat_claim_days);
       const payout = finiteSettingNumber(data.called_it_payout);
 
-      if (currentWeek !== null) setAll('[data-rule-current-week]', currentWeek.toLocaleString());
-      if (weeklyBuyMin !== null) setAll('[data-rule-weekly-buyin]', formatMoney(weeklyBuyMin));
-      if (currentWeek !== null && weeklyBuyMin !== null) setAll('[data-rule-buyin-total]', formatMoney(currentWeek * weeklyBuyMin));
       if (up !== null) setText('ruleUpPercent', up.toLocaleString());
       if (down !== null) setText('ruleDownPercent', down.toLocaleString());
       if (flat !== null) setText('ruleFlatPercent', flat.toLocaleString());
