@@ -51,6 +51,7 @@ function normalizePublicFailureCopy() {
 
 function makeSignedOutActionClickable() {
   if (!dashboardStatus || !authButton) return;
+  if (dashboardStatus.querySelector('.inline-auth-link')) return;
   if (dashboardStatus.textContent.trim() !== 'Sign in to create or check your Called It challenges.') return;
 
   const link = document.createElement('button');
