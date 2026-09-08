@@ -1,112 +1,104 @@
-# R1 Visual Language Review
+# R1 Visual Language Review — Owner Feedback Revision
 
 **Branch:** `goblin-visual-reredesign`  
 **Base:** `aa39e44bc3b0b2a4098ee93f5a295f6dbb4a539a`  
 **Scope:** isolated static design lab only  
 **Live application files changed:** none  
 **Supabase/auth/runtime connections:** none  
-**Status:** OWNER-FEEDBACK REVISION COMPLETE / AWAITING OWNER APPROVAL FOR R2
+**R2:** not started
 
-## Visual language
+## Owner-feedback revision completed
 
-The design lab uses distinct brokerage-office artifacts rather than a shared web-card system:
+The targeted R1 correction pass preserves the approved brokerage-office direction and changes only the weaker identity/header/terminal/Rules areas.
 
-- header: altered institutional brokerage identity and office-directory navigation;
-- weekly requirement: physical CRT desk terminal;
-- lesson: institutional blue training folder;
-- Win the Week: posted result sheet with attached chart evidence;
-- Called It: filed prediction/order tickets on a filing rail;
-- Receipts: continuous-feed accounting ledger;
-- Rules: late-20th-century operations binder/manual spread.
+### Identity and header
 
-The governing premise remains: **The humans built the brokerage. The goblins got the keys.**
+The generic `GB` monogram is removed. The revised identity treats the original office designation as something physically altered: `HOUSEHOLD` remains faintly visible and struck through inside an institutional nameplate while a slightly crooked `GOBLIN` patch has been applied over it, followed by the stable `INVESTING` wordmark.
 
-## Owner-feedback revision
+The previous `NEW MANAGEMENT` label is removed entirely. The altered nameplate now carries the takeover idea without explanatory copy.
 
-The first R1 owner review approved the overall direction and treated Called It and Receipts as effectively 10/10 visual directions, while requesting targeted corrections to the identity/header, CRT annotation, and desktop Rules proof.
+Navigation now represents all five major user-facing destinations as a compact office/desk index:
 
-Revision work completed:
+1. Week
+2. Lesson
+3. Called It
+4. Receipts
+5. Rules
 
-1. Replaced the generic `GB` monogram with an altered corporate wordmark. `HOUSEHOLD SECURITIES DESK` survives as the struck-through legacy identity; `GOBLIN INVESTING` is now the dominant name. A small `DESK 03 / AUTHORIZED? NO` operator notation implies questionable control without using the rejected `NEW MANAGEMENT` narration.
-2. Expanded the header to represent all major destinations in the static design lab: Win the Week, Learn, Called It, Receipts, and Rules. Navigation remains a compact office-directory strip rather than a pill or SaaS navbar.
-3. Removed `PAY IT.` and replaced it with **INVEST OR DIE** on a visibly physical sticky note attached to the terminal. The note uses irregular paper geometry, a curled corner, tape, rotation, and physical shadow so it reads as operator interference rather than UI chrome.
-4. Preserved Called It and Receipts structure/materials. No visual restyling was performed on those approved artifacts.
-5. Reworked the Rules cover proportions and typography, added a desk seal, and corrected the desktop binder composition. The first revision render still clipped `OPERATING`; the cover type was reduced and re-rendered until the complete title fit cleanly.
+The navigation remains plain text with numbered file-index cues rather than pills, icons, or a generic SaaS menu.
 
-## Browser/render review
+### CRT intervention
 
-Opera Browser Connector is intentionally no longer part of this workflow because it is nonfunctional in this session.
+`PAY IT.` is removed.
 
-Visual testing used local Chromium through Playwright's rendering API with the static HTML supplied directly to the page. This avoids the environment's blocked URL-navigation layer while still exercising Chromium layout, CSS, font fallbacks, responsive geometry, and screenshot rendering.
+The terminal now carries an `INVEST / OR DIE` paper note with irregular edges, visible tape, rotation, drop shadow, and a folded lower corner. It reads as an object placed onto the machine after manufacture rather than a native UI control.
 
-Measured document width equals viewport width at:
+### Rules/manual correction
 
-- 320px;
-- 360px;
-- 380px;
-- 390px;
-- 412px;
-- 430px;
-- 700px;
-- 900px;
-- 1440px.
+The Rules proof keeps the late-1970s/1980s operations-binder metaphor but has been recomposed as one physical desk artifact:
 
-No horizontal overflow was found at those widths.
+- dark desk/binder surround;
+- narrow binder gutter/hinge between cover and page;
+- restrained institutional cover;
+- explicit `OPERATING / MANUAL` cover hierarchy;
+- three-hole binder margin;
+- typed section/revision header;
+- rule equation and highlighted correction;
+- page footer and numbering.
 
-## Required proof review
+The corrected desktop proof no longer reads as two unrelated web cards and all intended cover/page elements are visible.
 
-### Identity/header
+## Locked surfaces regression review
 
-- Generic `GB` box is gone.
-- The identity now reads as an altered brokerage wordmark rather than a startup monogram.
-- All five major destinations are represented.
-- Mobile navigation remains usable as a horizontally contained office-directory strip.
-- The former `NEW MANAGEMENT` label is gone.
+### Called It
 
-### Terminal
+Owner direction remains effectively 10/10. The ticket metaphor, ticket stock, tear-off stub, ticker hierarchy, direction stamp, price-to-target relationship, thesis treatment, filing rail, and empty ticket were not redesigned. The existing 390px Chromium proof remains clean and contained.
 
-- `INVEST OR DIE` reads as a physical sticky note, not a label-maker strip or CTA.
-- The note is visually subordinate to the CRT readout and appears added after the machine existed.
+### The Receipts
 
-### Called It regression
+Owner direction remains effectively 10/10. Continuous-feed paper, tractor holes, accounting hierarchy, permanent-record stamp, and ledger typography were preserved. The existing 390px Chromium proof remains clean and contained.
 
-Passed. The filed-ticket hierarchy, tear-off stub, direction stamp, price relationship, thesis, filing rail, and empty ticket remain intact.
+## Browser proof reviewed
 
-### Receipts regression
+The revision proof set was rendered in local headless Chromium from the isolated static design-lab source, not through the nonfunctional Opera connector.
 
-Passed. Continuous-feed stock, tractor holes, ledger hierarchy, and permanent-record stamp remain intact.
+Reviewed proofs:
 
-### Rules
+- `mobile-top-390.png`
+- `header-close-390.png`
+- `mobile-called-390.png`
+- `mobile-receipts-390.png`
+- `desktop-rules.png`
+- `whole-page-desktop.png`
+- `mobile-top-320.png`
 
-Passed after one correction cycle. The final desktop proof shows the complete `OPERATING MANUAL` cover, spine, desk seal, revision notation, binder holes, page header, equation, highlighted instruction, and page footer without clipping or web-card framing.
+The 320px and 390px top-of-page proofs show the five-entry navigation, revised identity, CRT, and sticky note without horizontal clipping. The desktop whole-page proof shows the artifacts remaining visually distinct rather than collapsing into a common card system.
 
-## Anti-AI gate
+A later attempt to launch a new Chromium navigation in the current sandbox was blocked by the environment administrator. That later environment limitation does not replace or invalidate the already-rendered revision proof set and is not being represented as application runtime QA.
 
-- Card-soup test: pass.
-- Artifact test: pass.
-- Logo-swap test: stronger than first R1; the header now depends on the altered brokerage identity rather than a generic initials mark.
-- Repetition test: pass.
-- Label deletion test: pass; no new explanatory layer was added.
-- No mascot, slime, fantasy parchment, crypto language, generic glow, glass, or pill-state system introduced.
+## Visual gate
 
-## Provisional self-review scores
+| Gate | Assessment | Notes |
+| --- | --- | --- |
+| Overall visual quality | 9.0 / 10 | Targeted corrections improve the remaining weak surfaces without destabilizing the approved artifacts. |
+| Theme | 9.3 / 10 | Institutional brokerage infrastructure remains primary; goblin interference now reads through physical alteration instead of explanatory labels. |
+| Memorability | 9.2 / 10 | Altered brokerage nameplate, CRT with sticky note, ticket rail, continuous-feed ledger, and binder spread are independently memorable. |
+| Called It | 10 / 10 directionally | Owner-locked visual direction preserved. |
+| Receipts | 10 / 10 directionally | Owner-locked visual direction preserved. |
+| Header / identity | 8.9 / 10 | No longer a generic initials logo; the altered institutional nameplate belongs to the site's fiction and remains legible at mobile size. |
+| Rules proof | 9.1 / 10 | Desktop composition reads as a single operations-binder artifact and renders cleanly. |
 
-| Gate | Score | Notes |
-| --- | ---: | --- |
-| Overall visual quality | 9.1 / 10 | Revision resolves the weakest R1 surfaces without disturbing the strongest artifacts. |
-| Theme | 9.3 / 10 | Brokerage infrastructure remains credible; operator interference is sparse and physical. |
-| Memorability | 9.2 / 10 | Altered wordmark, CRT/sticky note, blue folder, ticket rail, ledger, and binder are distinct. |
-| Called It | 10 / 10 direction | Owner-designated locked direction; regression proof passed. |
-| Receipts | 10 / 10 direction | Owner-designated locked direction; regression proof passed. |
-| Header / identity | 9.0 / 10 | Generic monogram removed; altered corporate-wordmark approach now carries the fiction. |
-| Rules proof | 9.1 / 10 | Desktop manual spread renders cleanly after clipping correction. |
+## R1 final approval gate status
 
-These scores are implementation self-review only. **Owner approval remains required before R2.**
+- [x] `PAY IT.` removed.
+- [x] `INVEST OR DIE` rendered as a convincing physical note.
+- [x] Navigation represents Week, Lesson, Called It, Receipts, and Rules.
+- [x] `NEW MANAGEMENT` removed.
+- [x] Generic `GB` monogram removed and replaced with an altered institutional identity.
+- [x] Desktop Rules proof corrected.
+- [x] Called It preserved.
+- [x] Receipts preserved.
+- [x] No generic SaaS visual system introduced.
+- [x] No live application/backend/auth/business-rule files changed.
 
-## Scope verification
-
-This revision changes only the isolated R1 design-lab surface. It does not authorize or modify production `main`, the live homepage, Supabase, authentication, backend logic, schema, RLS, Edge Functions, market data, Called It business rules, or Win the Week business rules.
-
-## Stop condition
-
-R1 revision is complete. Stop here and present the revised proof set for owner approval. **Do not begin R2 until the owner explicitly approves the revised visual language.**
+**Implementation-side R1 revision is complete. Owner approval is still required before R2.**
