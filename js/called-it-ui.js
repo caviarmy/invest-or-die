@@ -31,11 +31,15 @@ export function directionLabel(direction) {
   return 'PREDICTION';
 }
 
-function slipDirectionLabel(direction) {
-  if (direction === 'up') return '📈 GOES UP';
-  if (direction === 'down') return '📉 GOES DOWN';
-  if (direction === 'flat') return '→ FINISHES ABOUT THE SAME';
-  return 'PREDICTION';
+function slipDirectionMarkup(direction) {
+  const definition = {
+    up: ['up', 'GOES UP'],
+    down: ['down', 'GOES DOWN'],
+    flat: ['flat', 'FINISHES ABOUT THE SAME']
+  }[direction];
+  if (!definition) return 'PREDICTION';
+  const [asset, label] = definition;
+  return `<img src="./assets/directions/${asset}.svg" alt="" aria-hidden="true" width="24" height="16"><span>${label}</span>`;
 }
 
 export function actionLabel(play) {
@@ -192,7 +196,7 @@ export function challengeCardMarkup(play, slotNumber, options = {}) {
     <div class="slot-label">CALL SLIP ${slipNumber}</div>
     <div class="play-ticker">${escapeHtml(play.ticker)}</div>
     <div class="play-company">${escapeHtml(play.company_name || '')}</div>
-    <div class="prediction-badge prediction-${escapeHtml(play.direction || 'unknown')}">${slipDirectionLabel(play.direction)}</div>
+    <div class="prediction-badge prediction-${escapeHtml(play.direction || 'unknown')}">${slipDirectionMarkup(play.direction)}</div>
     <div class="play-meta">
       <div><span>OPENED</span><b>${money(play.reference_price)}</b></div>
       <div><span>TARGET</span><b>${escapeHtml(goalLabel(play))}</b></div>
@@ -267,7 +271,7 @@ export function ownerEditFormMarkup(play) {
   return `<form class="single-called-it-form" data-mode="owner-edit" data-challenge-id="${escapeHtml(play.id)}">
     <div class="call-form-register" aria-hidden="true">SLIP ${String(play.slot_number || 1).padStart(2, '0')}</div>
     <div class="called-it-static"><strong>${escapeHtml(play.ticker)}</strong><span>${escapeHtml(play.company_name || '')}</span></div>
-    <div class="called-it-static"><strong>${escapeHtml(directionLabel(play.direction))}</strong><span>From ${money(play.reference_price)} · target ${target}</span></div>
+    <div class="called-it-static"><strong>${slipDirectionMarkup(play.direction)}</strong><span>From ${money(play.reference_price)} · target ${target}</span></div>
     <div class="locked-call-note">The stock and prediction are locked after the call is made. You can still fix your explanation or what you plan to do.</div>
     <div class="call-form-row because-field">
       <label class="statement-label" for="${prefix}-reason">Because</label>
