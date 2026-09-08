@@ -4,6 +4,7 @@
 @import url("./visual-r2-responsive.css");
 @import url("./visual-r3-operator.css");
 @import url("./visual-r3-owner-corrections.css");
+@import url("./uat-fixes.css");
 
 /* Fail-closed winner states use the whole posted sheet; no ghost evidence column. */
 .visual-r2 .winner-panel:has(.winner-chart-wrap[hidden]){display:block}
