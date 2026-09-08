@@ -26,6 +26,7 @@ body{margin:0;background:var(--ink);color:var(--text);font-family:var(--font-bod
 a{color:inherit}
 button,input,textarea,select{font:inherit}
 button{cursor:pointer}
+summary{min-height:44px}
 a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--money);outline-offset:3px}
 h1,h2,h3,p{margin-top:0}
 h1,h2,h3{font-family:var(--font-display);font-weight:700}
@@ -41,11 +42,11 @@ p{line-height:1.5}
 
 .site-header{position:sticky;top:0;z-index:20;background:var(--ink);border-top:3px solid var(--money);border-bottom:1px solid var(--line)}
 .header-inner{min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.brand{display:inline-flex;align-items:center;text-decoration:none;flex:0 0 auto}
+.brand{display:inline-flex;align-items:center;min-height:44px;text-decoration:none;flex:0 0 auto}
 .brand-wordmark{display:block;width:154px;height:auto}
 .account-area,.top-nav{display:flex;align-items:center;gap:12px}
 .market-desk-label{display:none;font:600 9px/1.15 var(--font-mono);letter-spacing:.08em;color:#687268;text-align:right;max-width:110px}
-.account-label{display:none;font:500 11px/1 var(--font-mono);color:var(--muted)}
+.account-label{display:none;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 11px/1 var(--font-mono);color:var(--muted)}
 .nav-link{display:inline-flex;align-items:center;min-height:44px;padding:0 2px;border-bottom:2px solid transparent;text-decoration:none;color:#c8cbc3;font-family:var(--font-display);font-size:13px;font-weight:600;letter-spacing:.035em;text-transform:uppercase}
 .nav-link:hover,.nav-link-active{border-color:var(--money);color:var(--text)}
 
@@ -106,7 +107,7 @@ p{line-height:1.5}
 .lesson-copy .section-kicker{color:#d5dfff;margin-bottom:8px}
 .lesson-copy h2{color:#fff;text-transform:uppercase;font-size:clamp(44px,13vw,68px);line-height:.84;letter-spacing:-.045em;margin:0 0 14px;max-width:650px}
 .lesson-copy p{color:#dfe7ff;font-size:15px;max-width:540px;margin:0 0 20px}
-.lesson-link{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid rgba(242,240,230,.58);padding:12px 0 0;text-decoration:none;color:#fff;font-family:var(--font-display);font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.025em}
+.lesson-link{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:44px;border-top:1px solid rgba(242,240,230,.58);padding:12px 0 0;text-decoration:none;color:#fff;font-family:var(--font-display);font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.025em}
 .lesson-link span:last-child{font:500 25px/1 var(--font-mono)}
 .lesson-link:hover span:first-child,.lesson-link:focus-visible span:first-child{text-decoration:underline;text-underline-offset:4px}
 .win-week-section{margin-top:34px;padding-top:22px;border-top:2px solid var(--line-strong)}
@@ -451,6 +452,10 @@ textarea{min-height:88px;resize:vertical}
   .rules-columns>div{padding:18px 24px 4px 0}
   .rules-columns>div+div{padding-left:24px;padding-right:0;border-top:0;border-left:1px solid #c0b8a0}
   .rule-note{margin-top:22px}
+}
+
+@media(min-width:700px) and (max-width:899px){
+  .account-label{display:none}
 }
 
 @media(prefers-reduced-motion:reduce){
