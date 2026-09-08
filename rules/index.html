@@ -64,6 +64,7 @@
         <h2 id="calledRulesHeading">"Called It!"</h2>
         <div class="rules-subheading">Due Diligence Challenges</div>
         <div class="definition-box"><strong>Due diligence</strong> means researching a stock before making a decision. A Called It challenge records what you think will happen, why you think it, and what you are doing with the investment before the result is known.</div>
+        <p id="rulesSettingsStatus" class="rules-settings-status" role="status" aria-live="polite">Loading current Called It settings…</p>
 
         <div class="rules-columns">
           <div>
@@ -78,9 +79,9 @@
           <div>
             <h3>The goals</h3>
             <ul class="plain-rules">
-              <li><strong>Go Up:</strong> the stock reaches <span id="ruleUpPercent">—</span> above the starting price within <span data-rule-duration>—</span> days.</li>
-              <li><strong>Go Down:</strong> the stock reaches <span id="ruleDownPercent">—</span> below the starting price within <span data-rule-duration>—</span> days.</li>
-              <li><strong>Finish About the Same:</strong> after <span data-rule-duration>—</span> days, the stock is within <span id="ruleFlatPercent">—</span> above or below the starting price.</li>
+              <li><strong>Go Up:</strong> <span id="ruleUpGoal">Current target unavailable.</span></li>
+              <li><strong>Go Down:</strong> <span id="ruleDownGoal">Current target unavailable.</span></li>
+              <li><strong>Finish About the Same:</strong> <span id="ruleFlatGoal">Current range unavailable.</span></li>
             </ul>
           </div>
         </div>
@@ -90,8 +91,8 @@
             <h3>Check the result</h3>
             <ul class="plain-rules">
               <li>Use <strong>Check Price</strong> on an active challenge to see where it stands.</li>
-              <li>Go Up and Go Down can reach their goal at any price check during the <span data-rule-duration>—</span>-day challenge.</li>
-              <li>Finish About the Same cannot qualify early. It is checked after the challenge ends, with <span data-rule-claim>—</span> days to claim it.</li>
+              <li>Go Up and Go Down can reach their goal at any price check during the <span data-rule-duration-adjective>current</span> challenge.</li>
+              <li>Finish About the Same cannot qualify early. It is checked after the challenge ends, with <span data-rule-claim-phrase>the current claim window</span> to claim it.</li>
               <li>If the goal is met, <strong>Submit for Review</strong> appears.</li>
               <li>The price is checked again when you submit. If the stock moved back outside the goal, it is not submitted yet.</li>
             </ul>
@@ -100,8 +101,8 @@
             <h3>Review and payout</h3>
             <ul class="plain-rules">
               <li>Submitting changes the challenge to <strong>Under Review</strong>.</li>
-              <li>That challenge slot is locked for <strong><span data-rule-cooldown>—</span> days</strong> after submission.</li>
-              <li>An Approved Called It pays <strong><span data-rule-payout>—</span></strong> and counts toward the Called It wins leaderboard.</li>
+              <li>That challenge slot is locked for <strong><span data-rule-cooldown-phrase>the current review cooldown</span></strong> after submission.</li>
+              <li>An Approved Called It pays <strong><span data-rule-payout>the current payout</span></strong> and counts toward the Called It wins leaderboard.</li>
               <li>A Rejected, Cancelled, or Expired challenge pays <strong>$0</strong>.</li>
               <li>You can have up to <strong>two challenge slots</strong>. You cannot make another active call on a ticker you already have active.</li>
             </ul>
@@ -117,7 +118,7 @@
         <h2 id="weeklyRulesHeading">Win the Week</h2>
         <ul class="plain-rules win-week-rules">
           <li>Win the Week is separate from "Called It!".</li>
-          <li>You must stay current on the weekly buy-in requirement to keep playing.</li>
+          <li>Staying current on the weekly buy-in is a household rule. The site shows the requirement; it does not automatically verify brokerage purchases or block play.</li>
           <li>The person with the best portfolio percentage return for the week wins <strong>$1</strong>.</li>
         </ul>
       </div>
