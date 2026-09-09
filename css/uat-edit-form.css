@@ -1,0 +1,245 @@
+/* UAT: make the Called It editor read as a form, not a ruled document. */
+.visual-r2 #editModal.single-play-mode .modal-head{
+  align-items:center;
+  gap:16px;
+  padding:16px 0 10px;
+  border-bottom:0;
+}
+.visual-r2 #editModal.single-play-mode .modal-head h2{
+  max-width:calc(100% - 60px);
+  font-size:clamp(24px,5.5vw,31px);
+  line-height:1;
+  letter-spacing:-.025em;
+}
+.visual-r2 #editModal.single-play-mode .icon-button{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+}
+
+/* The modal title already identifies the slot. Do not repeat it as a register line. */
+.visual-r2 #editModal .call-form-register{display:none!important}
+
+/* Reserve horizontal rules for fields the user can actually edit. */
+.visual-r2 #editModal .call-form-row{
+  gap:9px;
+  padding:16px 0;
+  border:0!important;
+}
+.visual-r2 #editModal .single-called-it-form{gap:0}
+.visual-r2 #editModal .statement-label{
+  margin:0 0 3px;
+  font-size:17px;
+  line-height:1;
+  letter-spacing:.01em;
+}
+
+/* Editable content has its own visual voice and a clear underline. */
+.visual-r2 #editModal input:not([type="hidden"]),
+.visual-r2 #editModal textarea,
+.visual-r2 #editModal select{
+  color:#173822;
+  font-family:var(--r2-font-body);
+  font-size:17px;
+  font-weight:500;
+  letter-spacing:0;
+}
+.visual-r2 #editModal input:not([type="hidden"]),
+.visual-r2 #editModal .ticker-search{
+  min-height:46px;
+  padding:8px 2px 7px;
+  border:0!important;
+  border-bottom:2px solid #746f60!important;
+  background:transparent;
+}
+.visual-r2 #editModal input::placeholder,
+.visual-r2 #editModal textarea::placeholder{
+  color:#9b9585;
+  opacity:1;
+  font-weight:400;
+}
+.visual-r2 #editModal input:focus,
+.visual-r2 #editModal textarea:focus,
+.visual-r2 #editModal select:focus{
+  outline:none;
+  box-shadow:none;
+  border-color:#315f37!important;
+}
+
+/* Imported/calculated values are machine readouts, not editable text or headings. */
+.visual-r2 #editModal .quote-preview,
+.visual-r2 #editModal .called-it-static{
+  display:block;
+  padding:10px 12px;
+  border:0;
+  border-left:4px solid #687568;
+  background:#d2d8cc;
+  color:#334137;
+  font:600 13px/1.35 var(--r2-font-mono);
+  letter-spacing:.025em;
+}
+.visual-r2 #editModal .called-it-static{margin:10px 0 0}
+.visual-r2 #editModal .called-it-static strong{
+  display:block;
+  margin-bottom:3px;
+  color:#1c281f;
+  font-size:15px;
+}
+.visual-r2 #editModal .goal-preview{
+  margin-top:10px;
+  padding:8px 0 0;
+  border:0!important;
+  color:#315f37;
+  font:600 12px/1.4 var(--r2-font-mono);
+}
+.visual-r2 #editModal .calc-note{
+  margin:4px 0 0;
+  padding:8px 0;
+  border:0;
+  color:#716b5d;
+  font:500 10px/1.45 var(--r2-font-mono);
+}
+
+/* Direction selection uses its semantic color rather than one red selected state. */
+.visual-r2 #editModal .prediction-choice.selected{background:transparent}
+.visual-r2 #editModal .prediction-choice[data-single-direction="up"].selected{
+  border:3px solid #315f37;
+  background:#d9e7d5;
+  color:#244d2b;
+}
+.visual-r2 #editModal .prediction-choice[data-single-direction="down"].selected{
+  border:3px solid #a33d36;
+  background:#ead2ce;
+  color:#77231e;
+}
+.visual-r2 #editModal .prediction-choice[data-single-direction="flat"].selected{
+  border:3px solid #77766d;
+  background:#deddd5;
+  color:#4e4e48;
+}
+
+/* Long-form explanation gets writing lines instead of a box plus unrelated section rules. */
+.visual-r2 #editModal .because-field textarea{
+  min-height:118px;
+  padding:0 2px 5px;
+  border:0!important;
+  background-color:transparent;
+  background-image:repeating-linear-gradient(to bottom,transparent 0 35px,#96907e 35px 36px);
+  background-size:100% 36px;
+  color:#173822;
+  line-height:36px;
+  resize:vertical;
+}
+.visual-r2 #editModal .because-field textarea:focus{
+  background-image:repeating-linear-gradient(to bottom,transparent 0 35px,#315f37 35px 36px);
+}
+
+/* Make the action selector unmistakably a selector. */
+.visual-r2 #editModal .action-controls{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:14px;
+  align-items:end;
+}
+.visual-r2 #editModal .uat-select-shell{
+  position:relative;
+  min-width:0;
+  border-bottom:2px solid #746f60;
+  background:rgba(255,255,255,.16);
+}
+.visual-r2 #editModal .uat-select-shell:focus-within{border-color:#315f37}
+.visual-r2 #editModal .uat-select-shell select{
+  appearance:none;
+  width:100%;
+  min-height:46px;
+  padding:8px 42px 7px 8px;
+  border:0!important;
+  background:transparent;
+  cursor:pointer;
+}
+.visual-r2 #editModal .uat-select-chevron{
+  position:absolute;
+  top:50%;
+  right:12px;
+  transform:translateY(-50%);
+  color:#37382f;
+  font:700 12px/1 var(--r2-font-mono);
+  pointer-events:none;
+}
+
+/* Compact currency stepper: $5.00 by default, explicit one-dollar controls. */
+.visual-r2 #editModal .uat-amount-stepper{
+  display:grid;
+  grid-template-columns:36px minmax(104px,126px) 36px;
+  gap:5px;
+  align-items:stretch;
+}
+.visual-r2 #editModal .uat-amount-stepper[hidden]{display:none!important}
+.visual-r2 #editModal .uat-amount-step{
+  min-width:36px;
+  height:46px;
+  padding:0;
+  border:1px solid #817a67;
+  border-radius:0;
+  background:#d9d3bd;
+  color:#24251f;
+  font:700 20px/1 var(--r2-font-mono);
+  cursor:pointer;
+}
+.visual-r2 #editModal .uat-amount-step:active{background:#c8c1a8}
+.visual-r2 #editModal .amount-wrap{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  min-width:0;
+  min-height:46px;
+  padding:0 7px;
+  border-bottom:2px solid #746f60;
+  background:rgba(255,255,255,.16);
+  color:#35372f;
+  font:600 17px/1 var(--r2-font-body);
+}
+.visual-r2 #editModal .amount-wrap:focus-within{border-color:#315f37}
+.visual-r2 #editModal .amount-wrap > span[aria-hidden="true"]{
+  margin-right:4px;
+  color:#5f6257;
+  font:600 17px/1 var(--r2-font-body);
+}
+.visual-r2 #editModal .amount-wrap input[type="number"]{
+  width:100%;
+  min-width:0;
+  min-height:42px;
+  padding:6px 0!important;
+  border:0!important;
+  background:transparent;
+  color:#173822;
+  font:600 17px/1 var(--r2-font-body);
+  font-variant-numeric:tabular-nums;
+  text-align:right;
+  appearance:textfield;
+}
+.visual-r2 #editModal .amount-wrap input[type="number"]::-webkit-inner-spin-button,
+.visual-r2 #editModal .amount-wrap input[type="number"]::-webkit-outer-spin-button{appearance:none;margin:0}
+
+.visual-r2 #editModal .single-form-actions{
+  padding-top:18px;
+  border:0;
+}
+
+@media(max-width:699px){
+  .visual-r2 #editModal.single-play-mode .modal-card{padding-left:18px;padding-right:18px}
+  .visual-r2 #editModal.single-play-mode .modal-head h2{
+    font-size:clamp(23px,6.6vw,28px);
+  }
+  .visual-r2 #editModal .call-form-row{padding:14px 0}
+  .visual-r2 #editModal .statement-label{font-size:16px}
+  .visual-r2 #editModal .action-controls{
+    grid-template-columns:minmax(0,1fr);
+    gap:12px;
+  }
+  .visual-r2 #editModal .uat-amount-stepper{
+    width:min(100%,230px);
+    grid-template-columns:40px minmax(110px,1fr) 40px;
+  }
+  .visual-r2 #editModal .uat-amount-step{min-width:40px}
+}
