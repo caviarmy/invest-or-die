@@ -31,29 +31,30 @@
   box-shadow:3px 3px 0 #0c0e0c;
 }
 
-/* The champion mark is a physical overprint, not another block in the winner layout. */
-.visual-r2 .winner-panel{overflow:visible}
+/* The champion mark is an overprint that can cross the result-sheet and evidence boundaries. */
+.visual-r2 .winner-panel{overflow:visible!important;isolation:isolate}
 .visual-r2 .winner-content{
   position:relative;
-  overflow:visible;
+  overflow:visible!important;
   z-index:2;
-  padding-bottom:54px;
+  padding-bottom:58px;
 }
-.visual-r2 .winner-chart-wrap{z-index:1}
+.visual-r2 .winner-chart-wrap{position:relative;z-index:1;overflow:visible}
 .visual-r2 .winner-content:has(.winner-return)::after{
   content:"";
   position:absolute;
-  left:-10px;
-  bottom:-22px;
+  left:-14px;
+  bottom:-26px;
   display:block;
-  width:min(270px,82%);
-  height:70px;
+  width:min(282px,90%);
+  height:76px;
   margin:0!important;
-  background:url("../assets/stamps/current-champion.svg") left center/contain no-repeat;
+  background:url("../assets/stamps/current-champion.svg?v=20260909-unclipped") center/100% 100% no-repeat;
   filter:brightness(.42) saturate(2) contrast(1.25)!important;
   transform:rotate(-2.6deg);
+  transform-origin:center;
   pointer-events:none;
-  z-index:4;
+  z-index:6;
 }
 
 /* Add/edit belongs to the actual Called It slot, not the participant-name header. */
@@ -215,12 +216,12 @@
 
 @media(max-width:699px){
   .visual-r2 .brand-patch{left:-6px;right:-7px;top:5px;padding-inline:6px}
-  .visual-r2 .winner-content{padding-bottom:46px}
+  .visual-r2 .winner-content{padding-bottom:54px}
   .visual-r2 .winner-content:has(.winner-return)::after{
-    left:-4px;
-    bottom:-18px;
-    width:min(250px,86%);
-    height:66px;
+    left:-10px;
+    bottom:-25px;
+    width:min(266px,94%);
+    height:72px;
   }
   .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
   .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
