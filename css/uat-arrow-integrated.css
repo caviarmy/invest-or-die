@@ -1,0 +1,54 @@
+/* UAT correction: one continuous hand-drawn arrow. No detached arrowhead geometry. */
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up),
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down){
+  overflow:visible!important;
+  isolation:isolate;
+}
+
+/* Disable the prior split body/head implementation completely. */
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up)::before,
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down)::before{
+  content:none!important;
+}
+
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
+  content:"";
+  position:absolute;
+  inset:-8px 8px -10px 8px;
+  pointer-events:none;
+  z-index:0;
+  opacity:.48;
+  mix-blend-mode:multiply;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-size:100% 100%;
+}
+
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after{
+  background-image:url("../assets/directions/up-swoosh-desktop.svg");
+}
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
+  background-image:url("../assets/directions/down-swoosh-desktop.svg");
+}
+
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up) > *,
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down) > *{
+  position:relative;
+  z-index:1;
+}
+.visual-r2 .play-edit-pencil{z-index:4!important}
+
+@media(max-width:699px){
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
+    inset:-8px 6px -10px 6px;
+    opacity:.46;
+  }
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after{
+    background-image:url("../assets/directions/up-swoosh-mobile.svg");
+  }
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
+    background-image:url("../assets/directions/down-swoosh-mobile.svg");
+  }
+}
