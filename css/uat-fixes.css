@@ -1,4 +1,4 @@
-/* Owner UAT corrections after first main-device pass. */
+/* Owner UAT corrections after main-device passes. */
 
 /* The terminal values are the instruction. Do not restate the buy-in math underneath them. */
 .visual-r2 .tracker-copy{display:none!important}
@@ -56,7 +56,7 @@
   z-index:4;
 }
 
-/* Add/edit belongs to the actual slip, not the participant-name header or section header. */
+/* Add/edit belongs to the actual Called It slot, not the participant-name header. */
 .visual-r2 #editMyPlaysButton,
 .visual-r2 .participant-head .admin-edit-button{display:none!important}
 .visual-r2 .empty-slot.can-add-slot::after{display:none}
@@ -80,15 +80,18 @@
 }
 .visual-r2 .empty-slot-add:hover{background:#d9ded5;border-color:#315f37}
 .visual-r2 .empty-slot-add:focus-visible{outline:2px solid #315f37;outline-offset:3px}
+.visual-r2 .slot-label{font-size:8px;letter-spacing:.075em}
 
-/* Direction marks are marker scribbles across the whole filing slip. They begin at the prediction stamp and break the ticket edge vertically. */
+/* Direction marks are giant background marker strokes spanning the entire ticket. */
 .visual-r2 .play-slot:has(.prediction-badge.prediction-up),
-.visual-r2 .play-slot:has(.prediction-badge.prediction-down){overflow:visible}
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down){overflow:visible;isolation:isolate}
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up) > *,
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down) > *{z-index:1}
 .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
 .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
   content:"";
   position:absolute;
-  inset:-24px 2px -24px 2px;
+  inset:-24px 5px -24px 5px;
   width:auto;
   height:auto;
   max-width:none!important;
@@ -98,8 +101,8 @@
   background-repeat:no-repeat;
   background-size:100% 100%;
   pointer-events:none;
-  z-index:2;
-  opacity:.58;
+  z-index:0;
+  opacity:.36;
   mix-blend-mode:multiply;
 }
 .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after{
@@ -109,6 +112,106 @@
   background-image:url("../assets/directions/down-crazy.svg");
 }
 .visual-r2 .play-edit-pencil{z-index:4}
+
+/* Receipts hero: category is the headline; record holder is the answer. */
+.visual-r2 .leader-grid{
+  grid-template-columns:1fr;
+  gap:0;
+  margin:20px 0 18px;
+  border-top:2px solid #626a61;
+  border-bottom:2px solid #626a61;
+}
+.visual-r2 .leader-card{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:"label name" "label count";
+  align-items:center;
+  column-gap:18px;
+  min-width:0;
+  padding:12px 0;
+  border:0;
+  border-bottom:1px solid #a3aaa1;
+}
+.visual-r2 .leader-card:last-child{border-bottom:0}
+.visual-r2 .leader-label{
+  grid-area:label;
+  margin:0;
+  color:#202620;
+  font:700 17px/.95 var(--r2-font-display);
+  letter-spacing:.01em;
+  text-transform:uppercase;
+}
+.visual-r2 .leader-name{
+  grid-area:name;
+  margin:0;
+  color:#3f473f;
+  font:700 13px/1 var(--r2-font-display);
+  letter-spacing:.01em;
+  text-align:right;
+  text-transform:uppercase;
+}
+.visual-r2 .leader-count{
+  grid-area:count;
+  margin:4px 0 0;
+  color:#6b726a;
+  font:600 8px/1 var(--r2-font-mono);
+  text-align:right;
+}
+
+/* Historical records are compact ledger entries, not competing hero headings. */
+@media(max-width:899px){
+  .visual-r2 .history-table tr:not(.history-empty-row){
+    grid-template-columns:auto minmax(0,1fr) auto;
+    grid-template-areas:"player player date" "result details prize" "state state state";
+    column-gap:8px;
+    row-gap:5px;
+    padding:10px 0;
+  }
+  .visual-r2 .history-player{grid-area:player;align-self:end}
+  .visual-r2 .history-player strong{
+    display:block;
+    font-size:18px;
+    line-height:.95;
+    letter-spacing:-.015em;
+    overflow-wrap:anywhere;
+  }
+  .visual-r2 .history-date{
+    grid-area:date;
+    align-self:end;
+    justify-self:end;
+    font-size:9px;
+    line-height:1.1;
+    text-align:right;
+    white-space:nowrap;
+  }
+  .visual-r2 .history-result{grid-area:result;align-self:baseline;white-space:nowrap}
+  .visual-r2 .history-type{font-size:10px;line-height:1.15;letter-spacing:.015em}
+  .visual-r2 .history-details{
+    grid-area:details;
+    align-self:baseline;
+    min-width:0;
+    padding-left:2px!important;
+    color:#5a6159;
+    font-size:9px;
+    line-height:1.25;
+  }
+  .visual-r2 .history-prize{
+    grid-area:prize;
+    align-self:baseline;
+    justify-self:end;
+    font-size:10px;
+    line-height:1.15;
+    white-space:nowrap;
+  }
+  .visual-r2 .history-state{
+    grid-area:state;
+    min-height:20px;
+    padding-top:1px!important;
+    gap:6px;
+  }
+  .visual-r2 .receipt-status{font-size:8px}
+  .visual-r2 .history-actions button{min-height:34px;padding:6px 8px;font-size:8px}
+}
 
 @media(max-width:699px){
   .visual-r2 .brand-patch{left:-6px;right:-7px;top:5px;padding-inline:6px}
@@ -121,7 +224,9 @@
   }
   .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
   .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
-    inset:-20px 2px -20px 2px;
-    opacity:.54;
+    inset:-20px 4px -22px 4px;
+    opacity:.34;
   }
+  .visual-r2 .leader-label{font-size:16px}
+  .visual-r2 .leader-name{font-size:12px}
 }
