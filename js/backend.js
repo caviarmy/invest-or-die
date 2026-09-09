@@ -47,7 +47,6 @@ async function ownerEditThroughCalledIt(client, args = {}) {
     if (!response.ok) {
       const error = new Error(body.error || 'Could not update the challenge.');
       error.status = response.status;
-      error.details = body;
       return { data: null, error };
     }
 
@@ -60,15 +59,20 @@ async function ownerEditThroughCalledIt(client, args = {}) {
 export async function getBackendClient() {
   const config = getBackendConfig();
   if (!config.configured) return null;
+
   if (!clientPromise) {
-    clientPromise = import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm').then(({ createClient }) => {
+    clientPromise = Promise.resolve().then(() => {
+      const createClient = globalThis.supabase?.createClient;
+      if (typeof createClient !== 'function') {
+        throw new Error('Supabase client library is unavailable.');
+      }
+
       const client = createClient(config.url, config.publishableKey, {
         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
       });
 
-      // Cutover bridge: the redesign still calls the legacy RPC-shaped client method,
-      // but this specific mutation is routed to the server-authoritative Called It
-      // Edge Function. Production main continues to use the real RPC until merge.
+      // Compatibility bridge: owner metadata edits use the server-authoritative
+      // Called It Edge Function while the existing UI keeps its RPC-shaped call.
       const originalRpc = client.rpc.bind(client);
       client.rpc = (functionName, args, options) => {
         if (functionName === 'edit_own_called_it_metadata') {
@@ -80,5 +84,6 @@ export async function getBackendClient() {
       return client;
     });
   }
+
   return clientPromise;
 }
