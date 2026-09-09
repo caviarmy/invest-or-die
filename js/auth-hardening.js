@@ -1,6 +1,7 @@
 (() => {
-  const recoveryParams = new URLSearchParams(window.location.hash.slice(1));
-  if (recoveryParams.get('type') === 'recovery') {
+  const authParams = new URLSearchParams(window.location.hash.slice(1));
+  const authFlowType = authParams.get('type');
+  if (authFlowType === 'recovery' || authFlowType === 'invite') {
     const target = new URL('./reset-password/', window.location.href);
     target.hash = window.location.hash;
     window.location.replace(target.href);
