@@ -16,10 +16,12 @@
     password.value = '';
   };
 
-  // The application submit handler reads the field synchronously. Clear the DOM
-  // copy immediately after the submit event finishes, regardless of success.
+  // The application submit handler captures the password synchronously when the
+  // submit event reaches it. Clear the DOM copy on the next task, not a microtask:
+  // some browsers may run the microtask before the app's separately registered
+  // submit listener, which would cause an empty password to be sent to Supabase.
   form.addEventListener('submit', () => {
-    queueMicrotask(clearPassword);
+    window.setTimeout(clearPassword, 0);
   });
 
   // Closing/cancelling the sign-in sheet must never leave a password in the DOM.
