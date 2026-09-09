@@ -6,6 +6,7 @@
 @import url("./visual-r3-owner-corrections.css");
 @import url("./uat-fixes.css");
 @import url("./uat-arrowhead-fix.css?v=20260909-final");
+@import url("./uat-arrow-integrated.css?v=20260909-integrated");
 
 /* Fail-closed winner states use the whole posted sheet; no ghost evidence column. */
 .visual-r2 .winner-panel:has(.winner-chart-wrap[hidden]){display:block}
