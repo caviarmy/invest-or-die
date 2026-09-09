@@ -1,18 +1,20 @@
-/* UAT correction: one continuous hand-drawn arrow. No detached arrowhead geometry. */
+/* One continuous hand-drawn market mark per prediction. */
 .visual-r2 .play-slot:has(.prediction-badge.prediction-up),
-.visual-r2 .play-slot:has(.prediction-badge.prediction-down){
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down),
+.visual-r2 .play-slot:has(.prediction-badge.prediction-flat){
   overflow:visible!important;
   isolation:isolate;
 }
 
-/* Disable the prior split body/head implementation completely. */
 .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::before,
-.visual-r2 .play-slot:has(.prediction-badge.prediction-down)::before{
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down)::before,
+.visual-r2 .play-slot:has(.prediction-badge.prediction-flat)::before{
   content:none!important;
 }
 
 .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
-.visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after,
+.visual-r2 .play-slot:has(.prediction-badge.prediction-flat)::after{
   content:"";
   position:absolute;
   inset:-8px 8px -10px 8px;
@@ -31,10 +33,15 @@
 .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
   background-image:url("../assets/directions/down-swoosh-desktop.svg");
 }
+.visual-r2 .play-slot:has(.prediction-badge.prediction-flat)::after{
+  background-image:url("../assets/directions/flat-swoosh-desktop.svg");
+  opacity:.42;
+}
 
 /* Keep ticket content above the marker overlay without disturbing positioned controls. */
 .visual-r2 .play-slot:has(.prediction-badge.prediction-up) > :not(.play-edit-pencil),
-.visual-r2 .play-slot:has(.prediction-badge.prediction-down) > :not(.play-edit-pencil){
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down) > :not(.play-edit-pencil),
+.visual-r2 .play-slot:has(.prediction-badge.prediction-flat) > :not(.play-edit-pencil){
   position:relative;
   z-index:1;
 }
@@ -48,7 +55,8 @@
 
 @media(max-width:699px){
   .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
-  .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after,
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-flat)::after{
     inset:-8px 6px -10px 6px;
     opacity:.46;
   }
@@ -57,5 +65,9 @@
   }
   .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
     background-image:url("../assets/directions/down-swoosh-mobile.svg");
+  }
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-flat)::after{
+    background-image:url("../assets/directions/flat-swoosh-mobile.svg");
+    opacity:.40;
   }
 }
