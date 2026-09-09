@@ -27,7 +27,7 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           mkdir -p vendor
           install -m 0644 "$TMP_DIR/package/dist/umd/supabase.js" "vendor/supabase-${VERSION}.js"
-          cat > vendor/README.md <<EOF
+          cat > vendor/README.md <<'EOF'
           # Vendored browser dependencies
 
           `supabase-2.115.0.js` is the official UMD browser bundle from npm package `@supabase/supabase-js@2.115.0`.
