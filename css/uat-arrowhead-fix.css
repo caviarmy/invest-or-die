@@ -20,15 +20,15 @@
 }
 
 .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::before{
-  top:-24px;
-  right:12%;
+  top:-10px;
+  right:7%;
   background:#38c814;
   transform:rotate(-50deg);
 }
 
 .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::before{
-  right:5%;
-  bottom:-25px;
+  right:2%;
+  bottom:-12px;
   background:#ef3030;
   transform:rotate(50deg);
 }
@@ -42,12 +42,12 @@
   }
 
   .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::before{
-    top:-20px;
-    right:14%;
+    top:-8px;
+    right:8%;
   }
 
   .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::before{
-    right:6%;
-    bottom:-21px;
+    right:2%;
+    bottom:-10px;
   }
 }
