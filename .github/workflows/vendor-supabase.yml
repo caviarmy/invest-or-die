@@ -1,0 +1,51 @@
+name: Vendor Supabase JS
+
+on:
+  push:
+    paths:
+      - .github/workflows/vendor-supabase.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pinned Supabase browser bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="2.115.0"
+          TMP_DIR="$(mktemp -d)"
+          cd "$TMP_DIR"
+          TARBALL="$(npm pack "@supabase/supabase-js@${VERSION}" --ignore-scripts --silent)"
+          tar -xzf "$TARBALL"
+          test -s package/dist/umd/supabase.js
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p vendor
+          install -m 0644 "$TMP_DIR/package/dist/umd/supabase.js" "vendor/supabase-${VERSION}.js"
+          cat > vendor/README.md <<EOF
+          # Vendored browser dependencies
+
+          `supabase-2.115.0.js` is the official UMD browser bundle from npm package `@supabase/supabase-js@2.115.0`.
+
+          It is intentionally served from this GitHub Pages origin so the login page does not execute authentication code from a third-party CDN at runtime.
+
+          To upgrade it, change `VERSION` in `.github/workflows/vendor-supabase.yml` and run the workflow.
+          EOF
+      - name: Commit vendored dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vendor/supabase-2.115.0.js vendor/README.md
+          if git diff --cached --quiet; then
+            echo "Vendored bundle already current."
+            exit 0
+          fi
+          git commit -m "Vendor Supabase JS 2.115.0"
+          git push
