@@ -32,12 +32,19 @@
   background-image:url("../assets/directions/down-swoosh-desktop.svg");
 }
 
-.visual-r2 .play-slot:has(.prediction-badge.prediction-up) > *,
-.visual-r2 .play-slot:has(.prediction-badge.prediction-down) > *{
+/* Keep ticket content above the marker overlay without disturbing positioned controls. */
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up) > :not(.play-edit-pencil),
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down) > :not(.play-edit-pencil){
   position:relative;
   z-index:1;
 }
-.visual-r2 .play-edit-pencil{z-index:4!important}
+.visual-r2 .play-edit-pencil{
+  position:absolute!important;
+  top:10px!important;
+  right:10px!important;
+  left:auto!important;
+  z-index:4!important;
+}
 
 @media(max-width:699px){
   .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
