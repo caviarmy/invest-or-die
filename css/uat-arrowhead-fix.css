@@ -1,0 +1,53 @@
+/* UAT: keep dramatic swoosh bodies stretchable, but never stretch the arrowhead itself. */
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up),
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down){
+  overflow:visible!important;
+  isolation:isolate;
+}
+
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up)::before,
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down)::before{
+  content:"";
+  position:absolute;
+  width:72px;
+  height:54px;
+  clip-path:polygon(0 28%,58% 28%,58% 0,100% 50%,58% 100%,58% 72%,0 72%);
+  pointer-events:none;
+  z-index:0;
+  opacity:.34;
+  mix-blend-mode:multiply;
+  transform-origin:center;
+}
+
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up)::before{
+  top:-24px;
+  right:12%;
+  background:#38c814;
+  transform:rotate(-50deg);
+}
+
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down)::before{
+  right:5%;
+  bottom:-25px;
+  background:#ef3030;
+  transform:rotate(50deg);
+}
+
+@media(max-width:699px){
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::before,
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::before{
+    width:62px;
+    height:46px;
+    opacity:.33;
+  }
+
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::before{
+    top:-20px;
+    right:14%;
+  }
+
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::before{
+    right:6%;
+    bottom:-21px;
+  }
+}
