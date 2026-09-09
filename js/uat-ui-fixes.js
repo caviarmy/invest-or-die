@@ -52,7 +52,8 @@ function simplifyActionOptions(select) {
     not_buying: 'Not Buying'
   };
   [...select.options].forEach(option => {
-    if (labels[option.value]) option.textContent = labels[option.value];
+    const desired = labels[option.value];
+    if (desired && option.textContent !== desired) option.textContent = desired;
   });
 }
 
