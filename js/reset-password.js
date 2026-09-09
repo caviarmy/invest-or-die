@@ -5,8 +5,9 @@ const passwordInput = document.getElementById('newPassword');
 const confirmInput = document.getElementById('confirmPassword');
 const message = document.getElementById('resetMessage');
 const submit = document.getElementById('resetSubmit');
-const recoveryAtLoad = new URLSearchParams(window.location.hash.slice(1)).get('type') === 'recovery';
-let recoveryReady = false;
+const flowType = new URLSearchParams(window.location.hash.slice(1)).get('type');
+const supportedFlowAtLoad = flowType === 'recovery' || flowType === 'invite';
+let passwordSetupReady = false;
 
 function clearSecretsFromUrl() {
   if (!window.location.hash) return;
@@ -14,15 +15,19 @@ function clearSecretsFromUrl() {
 }
 
 function setReady() {
-  recoveryReady = true;
+  passwordSetupReady = true;
   if (form) form.hidden = false;
-  if (message) message.textContent = 'Choose a new password for this account.';
+  if (message) {
+    message.textContent = flowType === 'invite'
+      ? 'Choose a password to finish setting up this account.'
+      : 'Choose a new password for this account.';
+  }
   clearSecretsFromUrl();
   passwordInput?.focus();
 }
 
 function setUnavailable(text) {
-  recoveryReady = false;
+  passwordSetupReady = false;
   if (form) form.hidden = true;
   if (message) message.textContent = text;
 }
@@ -31,31 +36,33 @@ async function initialize() {
   try {
     const client = await getBackendClient();
     if (!client) {
-      setUnavailable('Password recovery is not available.');
+      setUnavailable('Account setup is not available.');
       return;
     }
 
     client.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY' && session) setReady();
+      if (!supportedFlowAtLoad || !session) return;
+      if (flowType === 'recovery' && event === 'PASSWORD_RECOVERY') setReady();
+      if (flowType === 'invite' && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) setReady();
     });
 
     const { data, error } = await client.auth.getSession();
     if (error) throw error;
 
-    if (recoveryAtLoad && data.session) {
+    if (supportedFlowAtLoad && data.session) {
       setReady();
       return;
     }
 
-    setUnavailable('Open a fresh password-reset link from your email.');
+    setUnavailable('Open a fresh invitation or password-reset link from your email.');
   } catch {
-    setUnavailable('This password-reset link could not be verified. Request a new one.');
+    setUnavailable('This account link could not be verified. Request a fresh email link.');
   }
 }
 
 form?.addEventListener('submit', async event => {
   event.preventDefault();
-  if (!recoveryReady) return;
+  if (!passwordSetupReady) return;
 
   let password = String(passwordInput?.value || '');
   let confirmation = String(confirmInput?.value || '');
@@ -78,7 +85,7 @@ form?.addEventListener('submit', async event => {
     const { error } = await client.auth.updateUser({ password });
     if (error) throw error;
 
-    if (message) message.textContent = 'Password updated. You can return to Goblin Investing.';
+    if (message) message.textContent = 'Password saved. You can return to Goblin Investing.';
     if (form) form.hidden = true;
     document.getElementById('resetDone')?.removeAttribute('hidden');
   } catch {
