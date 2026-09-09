@@ -1,53 +1,90 @@
-/* UAT: keep dramatic swoosh bodies stretchable, but never stretch the arrowhead itself. */
+/* UAT final: one self-contained arrow system. No external arrowhead asset and no stretched arrowhead geometry. */
 .visual-r2 .play-slot:has(.prediction-badge.prediction-up),
 .visual-r2 .play-slot:has(.prediction-badge.prediction-down){
   overflow:visible!important;
   isolation:isolate;
 }
 
+/* The zig-zag body may stretch to the ticket. The fixed-size triangle head may not. */
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
+  content:"";
+  position:absolute;
+  inset:12px 14px;
+  width:auto;
+  height:auto;
+  max-width:none!important;
+  max-height:none!important;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-size:100% 100%;
+  pointer-events:none;
+  z-index:0;
+  opacity:.36;
+  mix-blend-mode:multiply;
+}
+
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after{
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20d%3D%22M3%2094%20L16%2081%20L28%2087%20L40%2069%20L52%2076%20L63%2057%20L73%2064%20L82%2040%20L86%2012%22%20fill%3D%22none%22%20stroke%3D%22%2338c814%22%20stroke-width%3D%2224%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%22.82%22%20vector-effect%3D%22non-scaling-stroke%22%2F%3E%3Cpath%20d%3D%22M3%2094%20L16%2081%20L28%2087%20L40%2069%20L52%2076%20L63%2057%20L73%2064%20L82%2040%20L86%2012%22%20fill%3D%22none%22%20stroke%3D%22%2338c814%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%22.18%22%20vector-effect%3D%22non-scaling-stroke%22%2F%3E%3C%2Fsvg%3E");
+}
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20d%3D%22M3%206%20L16%2019%20L28%2013%20L40%2031%20L52%2024%20L63%2045%20L73%2037%20L82%2063%20L87%2088%22%20fill%3D%22none%22%20stroke%3D%22%23ef3030%22%20stroke-width%3D%2224%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%22.82%22%20vector-effect%3D%22non-scaling-stroke%22%2F%3E%3Cpath%20d%3D%22M3%206%20L16%2019%20L28%2013%20L40%2031%20L52%2024%20L63%2045%20L73%2037%20L82%2063%20L87%2088%22%20fill%3D%22none%22%20stroke%3D%22%23ef3030%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%22.18%22%20vector-effect%3D%22non-scaling-stroke%22%2F%3E%3C%2Fsvg%3E");
+}
+
+/* Arrowheads are independent fixed-size geometry positioned at the body's endpoint.
+   They live completely inside the paper, so no browser can clip or distort them. */
 .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::before,
 .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::before{
   content:"";
   position:absolute;
-  width:72px;
-  height:54px;
-  clip-path:polygon(0 28%,58% 28%,58% 0,100% 50%,58% 100%,58% 72%,0 72%);
+  width:58px;
+  height:46px;
+  clip-path:polygon(0 0,100% 50%,0 100%);
   pointer-events:none;
   z-index:0;
   opacity:.34;
   mix-blend-mode:multiply;
-  transform-origin:center;
+  transform-origin:50% 50%;
 }
 
 .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::before{
-  top:-10px;
-  right:7%;
+  left:calc(86% - 29px);
+  top:calc(12% - 23px);
   background:#38c814;
-  transform:rotate(-50deg);
+  transform:rotate(-52deg);
 }
 
 .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::before{
-  right:2%;
-  bottom:-12px;
+  left:calc(87% - 29px);
+  top:calc(88% - 23px);
   background:#ef3030;
-  transform:rotate(50deg);
+  transform:rotate(52deg);
 }
 
+.visual-r2 .play-slot:has(.prediction-badge.prediction-up) > *,
+.visual-r2 .play-slot:has(.prediction-badge.prediction-down) > *{
+  z-index:1;
+}
+.visual-r2 .play-edit-pencil{z-index:4!important}
+
 @media(max-width:699px){
-  .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::before,
-  .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::before{
-    width:62px;
-    height:46px;
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::after,
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::after{
+    inset:10px 12px;
     opacity:.33;
   }
-
-  .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::before{
-    top:-8px;
-    right:8%;
-  }
-
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::before,
   .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::before{
-    right:2%;
-    bottom:-10px;
+    width:50px;
+    height:40px;
+    opacity:.32;
+  }
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-up)::before{
+    left:calc(86% - 25px);
+    top:calc(12% - 20px);
+  }
+  .visual-r2 .play-slot:has(.prediction-badge.prediction-down)::before{
+    left:calc(87% - 25px);
+    top:calc(88% - 20px);
   }
 }
