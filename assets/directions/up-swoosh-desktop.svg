@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" aria-hidden="true">
   <g fill="none" stroke="#38c814" stroke-linecap="round" stroke-linejoin="round">
     <path d="M55 805 L190 690 L310 735 L430 565 L555 625 L675 455 L790 515 L895 335 L1015 165" stroke-width="46" opacity=".68"/>
-    <path d="M928 186 L1015 165 L994 252" stroke-width="46" opacity=".68"/>
+    <path d="M1002 264 L1015 165 L926 210" stroke-width="46" opacity=".68"/>
     <path d="M55 805 L190 690 L310 735 L430 565 L555 625 L675 455 L790 515 L895 335 L1015 165" stroke-width="12" opacity=".18"/>
-    <path d="M928 186 L1015 165 L994 252" stroke-width="12" opacity=".18"/>
+    <path d="M1002 264 L1015 165 L926 210" stroke-width="12" opacity=".18"/>
   </g>
 </svg>
