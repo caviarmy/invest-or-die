@@ -53,6 +53,7 @@ const els = {
   weekMessage: document.getElementById('weekMessage'),
   winnerNameInput: document.getElementById('winnerNameInput'),
   winnerReturnInput: document.getElementById('winnerReturnInput'),
+  winnerReturnSignInput: document.getElementById('winnerReturnSignInput'),
   currentWeekInput: document.getElementById('currentWeekInput'),
   weekStartInput: document.getElementById('weekStartInput'),
   weekEndInput: document.getElementById('weekEndInput'),
@@ -960,7 +961,9 @@ els.adminWeekButton.addEventListener('click', () => {
   const settings = state.data.settings;
   els.winnerNameInput.innerHTML = '<option value="">Choose winner</option>' + state.data.participants.map(participant => `<option value="${escapeHtml(participant.user_id)}">${escapeHtml(participant.display_name)}</option>`).join('');
   els.winnerNameInput.value = winner?.winner_user_id || '';
-  els.winnerReturnInput.value = winner?.return_percent ?? '';
+  const winnerReturn = finiteDataNumber(winner?.return_percent);
+  els.winnerReturnInput.value = winnerReturn === null ? '' : Math.abs(winnerReturn);
+  els.winnerReturnSignInput.value = winnerReturn !== null && winnerReturn < 0 ? 'negative' : 'positive';
   els.currentWeekInput.value = settings.current_week ?? '';
   els.weekStartInput.value = winner?.week_start || '';
   els.weekEndInput.value = winner?.week_end || '';
@@ -994,6 +997,16 @@ els.weekForm.addEventListener('submit', async event => {
     return;
   }
 
+  const weeklyReturnMagnitude = finiteDataNumber(els.winnerReturnInput.value);
+  const weeklyReturn = weeklyReturnMagnitude === null
+    ? null
+    : (els.winnerReturnSignInput.value === 'negative' ? -weeklyReturnMagnitude : weeklyReturnMagnitude);
+  if (weeklyReturn === null || weeklyReturn < -1000 || weeklyReturn > 10000) {
+    els.weekMessage.className = 'form-message error';
+    els.weekMessage.textContent = 'Enter a weekly return from -1000% to 10000%.';
+    return;
+  }
+
   try {
     els.weekMessage.className = 'form-message';
     els.weekMessage.textContent = 'Saving…';
@@ -1011,7 +1024,7 @@ els.weekForm.addEventListener('submit', async event => {
     await saveWeeklyWinner(state.session.client, {
       winner_user_id: participant.user_id,
       winner_name: participant.display_name,
-      return_percent: els.winnerReturnInput.value,
+      return_percent: weeklyReturn,
       week_start: els.weekStartInput.value,
       week_end: els.weekEndInput.value,
       chart_url: state.data.winner?.chart_url || null
