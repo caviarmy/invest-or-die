@@ -111,8 +111,10 @@ function renderWinner() {
 
   const returnPercent = finiteDataNumber(winner.return_percent);
   const returnText = returnPercent === null ? '—' : `${returnPercent > 0 ? '+' : ''}${returnPercent.toFixed(2)}%`;
+  const winnerName = String(winner.winner_name || 'Winner name unavailable');
+  const winnerNameClass = winnerName.length > 8 ? ' winner-name-long' : '';
   els.winnerContent.innerHTML = `
-    <div class="winner-name">${escapeHtml(winner.winner_name || 'Winner name unavailable')}</div>
+    <div class="winner-name${winnerNameClass}">${escapeHtml(winnerName)}</div>
     <div class="winner-return">${returnText}</div>
     <div class="winner-week">${formatDate(winner.week_start)} – ${formatDate(winner.week_end)}</div>`;
 
