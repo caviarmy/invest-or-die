@@ -12,7 +12,16 @@
 .visual-r2 .winner-panel:has(.winner-chart-wrap[hidden]){display:block}
 .visual-r2 .winner-empty{max-width:100%;font-size:clamp(34px,7vw,58px);line-height:.9;overflow-wrap:normal;word-break:normal}
 
-/* Keep longer winner names on one clean line on mobile instead of breaking mid-name. */
+/* Mobile winner card alignment and long-name fit. */
 @media(max-width:699px){
-  .visual-r2 .winner-name.winner-name-long{font-size:clamp(52px,14vw,72px);line-height:.82;overflow-wrap:normal;word-break:normal;white-space:nowrap}
+  .visual-r2 .winner-section-head{display:grid;grid-template-columns:1fr;gap:6px;align-items:start;margin-bottom:14px}
+  .visual-r2 .winner-section-head .major-section-title{font-size:clamp(48px,13vw,62px);text-align:left}
+  .visual-r2 .winner-rule{max-width:none;text-align:left}
+  .visual-r2 .winner-panel{padding:30px 28px 30px}
+  .visual-r2 .winner-content{min-height:auto;padding:26px 0 54px}
+  .visual-r2 .winner-name.winner-name-long{font-size:clamp(46px,8.7vw,56px);line-height:.86;letter-spacing:-.045em;overflow-wrap:normal;word-break:normal;white-space:nowrap}
+  .visual-r2 .winner-return{margin-top:14px}
+  .visual-r2 .winner-week{margin-top:10px}
+  .visual-r2 .winner-content:has(.winner-return)::after{left:0;width:min(260px,88%)}
+  .visual-r2 .winner-chart-wrap{width:min(88%,520px);justify-self:center;margin-top:4px}
 }
