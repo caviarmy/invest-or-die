@@ -101,8 +101,13 @@ export async function saveWeeklyWinner(client, values, chartFile) {
   if (chartFile) {
     const extension = chartFile.name.split('.').pop()?.toLowerCase();
     const safeExtension = ['png', 'jpg', 'jpeg', 'webp'].includes(extension) ? extension : 'png';
-    const path = `current.${safeExtension}`;
-    const { error: uploadError } = await client.storage.from('weekly-charts').upload(path, chartFile, { upsert: true, contentType: chartFile.type || undefined });
+    const version = `${values.week_start || 'week'}_${values.week_end || 'week'}_${Date.now()}`;
+    const path = `${version}.${safeExtension}`;
+    const { error: uploadError } = await client.storage.from('weekly-charts').upload(path, chartFile, {
+      upsert: false,
+      cacheControl: '31536000',
+      contentType: chartFile.type || undefined
+    });
     if (uploadError) throw uploadError;
     const { data } = client.storage.from('weekly-charts').getPublicUrl(path);
     chartUrl = data.publicUrl;
