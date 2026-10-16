@@ -1,0 +1,44 @@
+name: Weekly market movers (free sources)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/weekly_movers.py'
+      - '.github/workflows/weekly-market-movers.yml'
+  workflow_dispatch:
+    inputs:
+      week_end:
+        description: 'Friday YYYY-MM-DD; leave blank for most recent Friday'
+        required: false
+        type: string
+  schedule:
+    - cron: '30 23 * * 5'
+permissions:
+  contents: write
+jobs:
+  calculate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install market-data dependencies
+        run: pip install 'yfinance==0.2.66' 'pandas==2.3.3'
+      - name: Calculate weekly movers
+        run: python scripts/weekly_movers.py --week-end "${{ inputs.week_end || '' }}" --out data/weekly-movers/latest.json
+      - name: Save ranked evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-movers
+          path: data/weekly-movers/latest.json
+      - name: Commit latest results
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/weekly-movers/latest.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Update verified weekly movers'
+            git push
+          fi
