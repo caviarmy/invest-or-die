@@ -11,8 +11,6 @@ on:
         description: 'Friday YYYY-MM-DD; leave blank for most recent Friday'
         required: false
         type: string
-  schedule:
-    - cron: '30 23 * * 5'
 permissions:
   contents: write
 jobs:
